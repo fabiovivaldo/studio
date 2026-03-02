@@ -39,6 +39,7 @@ import {
   deleteDocumentNonBlocking
 } from '@/firebase';
 import { collection, query, where, doc } from 'firebase/firestore';
+import { useToast } from "@/hooks/use-toast";
 
 interface FainaPreferencesModalProps {
   availableFainas: string[];
@@ -47,6 +48,7 @@ interface FainaPreferencesModalProps {
 
 export function FainaPreferencesModal({ availableFainas, trigger }: FainaPreferencesModalProps) {
   const { firestore, user } = useFirebase();
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newFaina, setNewFaina] = useState({ faina: '', chamada: '' });
@@ -68,6 +70,17 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const handleAdd = () => {
     if (!user || !newFaina.faina || !newFaina.chamada || !firestore || isSubmitting) return;
     
+    // Validar se já existe um card com esta faina
+    const isDuplicate = preferences?.some(p => p.faina === newFaina.faina);
+    if (isDuplicate) {
+      toast({
+        variant: "destructive",
+        title: "Faina já cadastrada",
+        description: "Você já possui uma preferência configurada para esta faina."
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     const prefRef = doc(collection(firestore, 'faina_preferences'));
     
@@ -86,6 +99,18 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
 
   const handleUpdate = (id: string) => {
     if (!user || !firestore || isSubmitting) return;
+
+    // Validar se a nova faina editada já existe em outro card
+    const isDuplicate = preferences?.some(p => p.faina === editFaina.faina && p.id !== id);
+    if (isDuplicate) {
+      toast({
+        variant: "destructive",
+        title: "Faina duplicada",
+        description: "Esta faina já está sendo usada em outro card."
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     const prefRef = doc(firestore, 'faina_preferences', id);
     setDocumentNonBlocking(prefRef, {
