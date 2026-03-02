@@ -199,10 +199,17 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     className="w-[300px] p-0 bg-card border-border shadow-xl z-[150]" 
                     align="start" 
                     onOpenAutoFocus={(e) => e.preventDefault()}
+                    onInteractOutside={(e) => {
+                      // Impede o fechamento se o clique for no Dialog pai
+                      if ((e.target as HTMLElement).closest('[role="dialog"]')) {
+                        // e.preventDefault();
+                      }
+                    }}
                   >
                     <div 
                       className="flex items-center border-b border-border px-3" 
                       onPointerDown={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -211,6 +218,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         className="flex h-10 w-full border-none bg-transparent py-3 text-sm outline-none focus-visible:ring-0"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
                         autoFocus
                       />
                     </div>
@@ -292,6 +300,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           <div 
                             className="flex items-center border-b border-border px-3" 
                             onPointerDown={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -300,6 +309,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                               className="flex h-10 w-full border-none bg-transparent py-3 text-sm outline-none focus-visible:ring-0"
                               value={editSearchQuery}
                               onChange={(e) => setEditSearchQuery(e.target.value)}
+                              onKeyDown={(e) => e.stopPropagation()}
                               autoFocus
                             />
                           </div>
