@@ -78,7 +78,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filteredAvailableFainas = useMemo(() => {
-    return availableFainas.filter(f => f && f.trim() !== '');
+    return (availableFainas || []).filter(f => f && f.trim() !== '');
   }, [availableFainas]);
 
   const searchResults = useMemo(() => {

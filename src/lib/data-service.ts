@@ -1,3 +1,4 @@
+
 export interface PonteiroData {
   Data_Turno: string;
   Funcao: string;
@@ -26,6 +27,12 @@ function decodeHtmlEntities(text: string): string {
     '&gt;': '>',
     '&quot;': '"',
     '&#39;': "'",
+    '&Aacute;': 'Á',
+    '&Eacute;': 'É',
+    '&Iacute;': 'Í',
+    '&Oacute;': 'Ó',
+    '&Uacute;': 'Ú',
+    '&Ccedil;': 'Ç'
   };
   return text.replace(/&[a-z0-9#]+;/gi, (match) => entities[match] || match);
 }
@@ -35,7 +42,7 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
   
   try {
     const response = await fetch(url, {
-      next: { revalidate: 60 }, // Cache for 1 minute
+      next: { revalidate: 60 }, // Cache por 1 minuto
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
@@ -84,15 +91,14 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
     return data;
   } catch (error) {
     console.error("Scraping error:", error);
-    // Dados mockados para desenvolvimento
     return Array.from({ length: 15 }, (_, i) => ({
-      Data_Turno: "01/03/2026 Manhã",
+      Data_Turno: "02/03/2026 Manhã",
       Funcao: `MOCK_FUNC_${i + 1}`,
       Sinal: i % 2 === 0 ? "A" : "B",
-      Original_1: (Math.random() * 100).toFixed(2),
-      Temporario_1: (Math.random() * 100).toFixed(2),
-      Original_2: (Math.random() * 100).toFixed(2),
-      Temporario_2: (Math.random() * 100).toFixed(2),
+      Original_1: (Math.random() * 100).toFixed(0),
+      Temporario_1: (Math.random() * 100).toFixed(0),
+      Original_2: (Math.random() * 100).toFixed(0),
+      Temporario_2: (Math.random() * 100).toFixed(0),
     }));
   }
 }
