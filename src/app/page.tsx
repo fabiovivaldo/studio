@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
@@ -87,7 +86,7 @@ export default async function DashboardPage() {
         <div className="p-8 max-w-[1600px] mx-auto space-y-8">
           {/* Top Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard label="Total de Funções" value={data.length.toString()} trend="+2.4%" color="primary" />
+            <StatCard label="Total de Fainas" value={data.length.toString()} trend="+2.4%" color="primary" />
             <StatCard label="Sinais Únicos" value={new Set(data.map(d => d.Sinal)).size.toString()} trend="Estável" color="accent" />
             <StatCard label="Discrepâncias Críticas" value="12" trend="+3" color="destructive" />
             <StatCard label="Latência do Sistema" value="124ms" trend="-12ms" color="primary" />

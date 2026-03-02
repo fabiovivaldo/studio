@@ -8,7 +8,7 @@ import {z} from 'genkit';
 
 const ComparativeDataRowSchema = z.object({
   Data_Turno: z.string().describe('Data e turno da extração.'),
-  Funcao: z.string().describe('Identificador da função ou categoria.'),
+  Funcao: z.string().describe('Identificador da faina ou categoria.'),
   Sinal: z.string().describe('Sinal ou característica associada.'),
   Original_1: z.string().describe('Primeiro valor original.'),
   Temporario_1: z.string().describe('Primeiro valor temporário para comparação.'),
@@ -35,14 +35,14 @@ const prompt = ai.definePrompt({
   input: {schema: ComparativeInsightsInputSchema},
   output: {schema: ComparativeInsightsOutputSchema},
   prompt: `Você é um analista de dados especialista em comparar valores numéricos para encontrar tendências e discrepâncias significativas.
-Sua tarefa é analisar os dados, focando na comparação 'Original' vs 'Temporario' para cada 'Funcao' na 'Data_Turno' especificada.
+Sua tarefa é analisar os dados, focando na comparação 'Original' vs 'Temporario' para cada 'Faina' na 'Data_Turno' especificada.
 
 Identifique padrões, tendências ou discrepâncias significativas.
 Forneça resumos concisos e explique os impactos potenciais em português.
 
 Dados para análise:
 {{#each dataRows}}
-Data/Turno: {{{Data_Turno}}} | Função: {{{Funcao}}} | Sinal: {{{Sinal}}}
+Data/Turno: {{{Data_Turno}}} | Faina: {{{Funcao}}} | Sinal: {{{Sinal}}}
   - Comparativo 1: Original({{{Original_1}}}) -> Temp({{{Temporario_1}}})
   - Comparativo 2: Original({{{Original_2}}}) -> Temp({{{Temporario_2}}})
 {{/each}}

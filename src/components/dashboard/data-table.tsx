@@ -30,7 +30,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
   const [filter, setFilter] = useState("");
   const [activeCategory, setActiveCategory] = useState("TODOS");
 
-  // Extrair categorias baseadas na primeira palavra da função
+  // Extrair categorias baseadas na primeira palavra da faina
   const categories = useMemo(() => {
     const cats = data.map(item => item.Funcao.split('-')[0].split(' ')[0].trim());
     return ["TODOS", ...Array.from(new Set(cats))].sort();
@@ -69,7 +69,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
 
   const columns = [
     { key: 'Data_Turno', label: 'Data / Turno' },
-    { key: 'Funcao', label: 'Função' },
+    { key: 'Funcao', label: 'Faina' },
     { key: 'Sinal', label: 'Sinal' },
     { key: 'Original_1', label: 'Original 1' },
     { key: 'Temporario_1', label: 'Temp 1' },
@@ -85,7 +85,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
           <div className="relative w-full md:w-96">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
-              placeholder="Pesquisar função ou sinal..." 
+              placeholder="Pesquisar faina ou sinal..." 
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="pl-10 bg-secondary/50 border-border focus:ring-accent"

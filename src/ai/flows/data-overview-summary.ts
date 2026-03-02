@@ -8,7 +8,7 @@ import {z} from 'genkit';
 
 const DataRowSchema = z.object({
   Data_Turno: z.string().describe('Data e turno da extração.'),
-  Funcao: z.string().describe('O nome da função.'),
+  Funcao: z.string().describe('O nome da faina.'),
   Sinal: z.string().describe('O valor do sinal.'),
   Original_1: z.string().describe('Primeiro valor de ponteiro original.'),
   Temporario_1: z.string().describe('Primeiro valor de ponteiro temporário.'),
@@ -38,7 +38,7 @@ const dataOverviewSummaryPrompt = ai.definePrompt({
     }),
   },
   output: { schema: DataOverviewSummaryOutputSchema },
-  prompt: `Você é um analista de dados especialista. Sua tarefa é fornecer um resumo conciso da visão geral dos dados tabulares fornecida. Destaque as principais características, valores comuns, distribuições, a data/turno predominante e quaisquer padrões ou anomalias notáveis. Garanta que o resumo seja fácil de entender em português e forneça insights rápidos.
+  prompt: `Você é um analista de dados especialista. Sua tarefa é fornecer um resumo conciso da visão geral dos dados tabulares fornecida. Destaque as principais características, fainas, valores comuns, distribuições, a data/turno predominante e quaisquer padrões ou anomalias notáveis. Garanta que o resumo seja fácil de entender em português e forneça insights rápidos.
 
 Aqui está a visão geral dos dados:
 {{{dataOverview}}}`,

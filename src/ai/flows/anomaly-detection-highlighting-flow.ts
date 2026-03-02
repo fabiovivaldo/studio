@@ -9,7 +9,7 @@ import { z } from 'genkit';
 const AnomalyDetectionInputSchema = z.array(
   z.object({
     Data_Turno: z.string().describe('Data e turno da extração.'),
-    Funcao: z.string().describe('Nome da função.'),
+    Funcao: z.string().describe('Nome da faina.'),
     Sinal: z.string().describe('Valor ou identificador do sinal.'),
     Original_1: z.string().describe('Valor original 1.'),
     Temporario_1: z.string().describe('Valor temporário 1.'),
@@ -39,7 +39,7 @@ const anomalyDetectionPrompt = ai.definePrompt({
   output: { schema: AnomalyDetectionOutputSchema },
   prompt: `Você é um analista de dados especialista em identificar anomalias e discrepâncias em dados estruturados de ponteiros.
 Sua tarefa é analisar os dados fornecidos e identificar quaisquer anomalias significativas nas colunas 'Original' vs 'Temporario' e no 'Sinal'.
-Considere o contexto da 'Data_Turno'.
+Considere o contexto da 'Data_Turno' e o nome da 'Faina'.
 Para cada anomalia, forneça o índice da linha, o nome da coluna, o valor anômalo e uma breve explicação em português.
 Se não houver anomalias, retorne um array vazio.
 
