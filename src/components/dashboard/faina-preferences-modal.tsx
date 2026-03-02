@@ -182,7 +182,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     <div className="relative">
                       <Input
                         id="faina-input"
-                        placeholder="Digite..."
+                        placeholder="Digite ou selecione..."
                         value={newFaina.faina}
                         onChange={(e) => {
                           setNewFaina(prev => ({ ...prev, faina: e.target.value }));
@@ -213,7 +213,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onPointerDown={(e) => e.stopPropagation()}
                   >
-                    <ScrollArea className="h-[300px] w-full" scrollHideDelay={0}>
+                    <ScrollArea className="h-[400px] w-full" scrollHideDelay={0}>
                       <div className="p-1">
                         {searchResults.length === 0 ? (
                           <div className="py-6 text-center text-sm text-muted-foreground">

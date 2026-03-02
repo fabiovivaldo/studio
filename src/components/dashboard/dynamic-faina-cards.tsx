@@ -29,6 +29,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
     if (!valueStr || !targetStr) return { color: 'text-accent', showIcon: false };
     
+    // Extrair apenas números para comparação
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
@@ -37,7 +38,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     const diff = Math.abs(target - value);
     
     return {
+      // Vermelho se faltar 10 ou menos
       color: diff <= 10 ? 'text-destructive font-black' : 'text-accent',
+      // Ícone se faltar 20 ou menos
       showIcon: diff <= 20
     };
   };
@@ -74,13 +77,18 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const alertO = getAlertStyle(origVal, pref.chamada);
         const alertT = getAlertStyle(tempVal, pref.chamada);
 
+        // Extrair apenas a parte do turno (ex: 1º TURNO)
+        const turnoText = fainaData?.Data_Turno?.includes(' - ') 
+          ? fainaData.Data_Turno.split(' - ')[1] 
+          : '';
+
         return (
           <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group h-[160px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"></div>
             
             <div className="p-3 pt-2 space-y-1">
               <div className="flex justify-between items-start">
-                <div className="text-xl font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[80%]">
+                <div className="text-sm font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[80%]">
                   {pref.faina}
                 </div>
               </div>
@@ -96,6 +104,16 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     {fainaData?.Sinal || '+'}
                   </span>
                 </div>
+
+                {/* Exibição do Turno (Conforme imagem do usuário) */}
+                {turnoText && (
+                  <div className="flex flex-col ml-auto text-right">
+                    <span className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-tighter">Turno</span>
+                    <span className="text-[10px] font-bold text-accent/50 whitespace-nowrap">
+                      {turnoText}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {fainaData ? (
