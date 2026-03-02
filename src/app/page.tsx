@@ -7,6 +7,7 @@ import { LastUpdatedDisplay } from '@/components/dashboard/last-updated';
 import { FainaPreferencesModal } from '@/components/dashboard/faina-preferences-modal';
 import { DynamicFainaCards } from '@/components/dashboard/dynamic-faina-cards';
 import { DataArchiver } from '@/components/dashboard/data-archiver';
+import { ThemeToggle } from '@/components/dashboard/theme-toggle';
 import { 
   Database, 
   LayoutDashboard as LayoutIcon, 
@@ -72,6 +73,7 @@ export default async function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
+             <ThemeToggle />
              <FainaPreferencesModal 
                 availableFainas={uniqueFainas} 
                 trigger={

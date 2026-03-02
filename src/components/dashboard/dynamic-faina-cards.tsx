@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -82,7 +83,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const sinalValue = fainaData?.Sinal || '+';
 
         return (
-          <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group h-[185px]">
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group h-[185px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"></div>
             
             <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
@@ -93,14 +94,14 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               </div>
 
               <div className="flex items-center gap-4 py-1">
-                <div className="text-3xl font-bold text-white tracking-tighter">
+                <div className="text-3xl font-black text-foreground tracking-tighter">
                   {pref.chamada}
                 </div>
                 
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/5 border border-accent/20">
                   <span className="text-[9px] font-black text-accent uppercase tracking-tighter opacity-80">Sinal</span>
                   <span className={cn(
-                    "text-lg font-bold transition-colors duration-300",
+                    "text-xl font-black transition-colors duration-300",
                     sinalValue === '-' ? "text-destructive" : "text-green-500"
                   )}>
                     {sinalValue}
@@ -110,7 +111,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                 {turnoText && (
                   <div className="flex flex-col ml-auto text-right">
                     <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
-                    <span className="text-lg font-bold text-accent whitespace-nowrap">
+                    <span className="text-lg font-black text-accent whitespace-nowrap">
                       {turnoText}
                     </span>
                   </div>
@@ -118,7 +119,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               </div>
 
               {fainaData ? (
-                <div className="bg-[#161b22] rounded-lg p-3 grid grid-cols-2 gap-4 border border-white/5 mt-auto mb-1">
+                <div className="bg-muted/30 dark:bg-[#161b22] rounded-lg p-3 grid grid-cols-2 gap-4 border border-border/10 mt-auto mb-1">
                   <div className="flex flex-col gap-0 relative">
                     <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1.5">
                       Original {isGroup2 ? '2' : '1'} {alertO.showIcon && <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 animate-pulse fill-yellow-500/10" />}
@@ -128,7 +129,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     </span>
                   </div>
                   
-                  <div className="flex flex-col gap-0 border-l border-white/5 pl-4 relative">
+                  <div className="flex flex-col gap-0 border-l border-border/10 pl-4 relative">
                     <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1.5">
                       Temp {isGroup2 ? '2' : '1'} {alertT.showIcon && <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 animate-pulse fill-yellow-500/10" />}
                     </span>
