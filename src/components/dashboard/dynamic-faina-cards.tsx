@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -35,7 +34,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     
     if (target === 0 || value === 0) return { color: 'text-accent', showIcon: false };
     
-    // Diferença absoluta
     const diff = Math.abs(target - value);
     
     return {
