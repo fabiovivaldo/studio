@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -35,6 +34,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, limit } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 interface DataTableProps {
   liveData: PonteiroData[];
@@ -270,7 +270,12 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                         <TableCell className="text-[10px] whitespace-nowrap text-muted-foreground">{row.Data_Turno}</TableCell>
                         <TableCell className="text-[11px] font-bold">{row.Funcao}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary-foreground text-[10px] font-mono px-2">
+                          <Badge variant="outline" className={cn(
+                            "border-opacity-20 text-[10px] font-mono px-2 font-bold",
+                            row.Sinal === '-' 
+                              ? "bg-destructive/10 border-destructive/20 text-destructive" 
+                              : "bg-green-500/10 border-green-500/20 text-green-500"
+                          )}>
                             {row.Sinal}
                           </Badge>
                         </TableCell>

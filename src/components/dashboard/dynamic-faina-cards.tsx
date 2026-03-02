@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -80,6 +79,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
           ? fainaData.Data_Turno.split(' ').slice(1).join(' ') 
           : fainaData?.Data_Turno;
 
+        const sinalValue = fainaData?.Sinal || '+';
+
         return (
           <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group h-[185px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"></div>
@@ -98,8 +99,11 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                 
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/5 border border-accent/20">
                   <span className="text-[9px] font-black text-accent uppercase tracking-tighter opacity-80">Sinal</span>
-                  <span className="text-lg font-bold text-accent">
-                    {fainaData?.Sinal || '+'}
+                  <span className={cn(
+                    "text-lg font-bold transition-colors duration-300",
+                    sinalValue === '-' ? "text-destructive" : "text-green-500"
+                  )}>
+                    {sinalValue}
                   </span>
                 </div>
 
