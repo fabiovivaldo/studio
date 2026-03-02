@@ -21,16 +21,20 @@ import {
   HardHat,
   ClipboardList,
   Wrench,
-  Ship,
   Eye,
-  Filter
+  Filter,
+  History,
+  Zap,
+  Calendar
 } from "lucide-react";
 import { PonteiroData, exportToCSV } from "@/lib/data-service";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
 
 interface DataTableProps {
-  data: PonteiroData[];
+  liveData: PonteiroData[];
 }
 
 const CATEGORY_CONFIG = [
@@ -43,10 +47,36 @@ const CATEGORY_CONFIG = [
   { id: "VIGIA", label: "Vigia", icon: Eye, color: "text-red-400" },
 ];
 
-export function PonteiroDataTable({ data }: DataTableProps) {
+export function PonteiroDataTable({ liveData }: DataTableProps) {
+  const { firestore } = useFirebase();
+  const [dataSource, setDataSource] = useState<'live' | 'history'>('live');
   const [sortConfig, setSortConfig] = useState<{ key: keyof PonteiroData; direction: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>("TODOS");
+
+  // Buscar histórico do Firestore
+  const historyQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'ponteiro_data'), orderBy('createdAt', 'desc'), limit(500));
+  }, [firestore]);
+
+  const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
+
+  // Mapear dados do Firestore para o formato da interface PonteiroData
+  const mappedHistory = useMemo(() => {
+    if (!historyData) return [];
+    return historyData.map(h => ({
+      Data_Turno: h.dataTurno,
+      Funcao: h.funcao,
+      Sinal: h.sinal,
+      Original_1: h.original1,
+      Temporario_1: h.temporario1,
+      Original_2: h.original2,
+      Temporario_2: h.temporario2
+    }));
+  }, [historyData]);
+
+  const currentData = dataSource === 'live' ? liveData : mappedHistory;
 
   const handleSort = (key: keyof PonteiroData) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -59,21 +89,17 @@ export function PonteiroDataTable({ data }: DataTableProps) {
   const filteredData = useMemo(() => {
     if (!activeCategory) return [];
 
-    return data.filter(item => {
-      // Busca por texto nas colunas
+    return currentData.filter(item => {
       const matchesFilter = Object.values(item).some(val => 
-        val.toLowerCase().includes(filter.toLowerCase())
+        String(val).toLowerCase().includes(filter.toLowerCase())
       );
       
       const functionUpper = item.Funcao.toUpperCase();
-      
-      // Lógica de correspondência flexível: verifica se o nome da faina contém a categoria
-      // Isso resolve problemas com "Vigia" vs "Vigias" ou nomenclaturas compostas
       const matchesCategory = activeCategory === "TODOS" || functionUpper.includes(activeCategory);
       
       return matchesFilter && matchesCategory;
     });
-  }, [data, filter, activeCategory]);
+  }, [currentData, filter, activeCategory]);
 
   const sortedData = useMemo(() => {
     if (!sortConfig) return filteredData;
@@ -97,7 +123,29 @@ export function PonteiroDataTable({ data }: DataTableProps) {
 
   return (
     <div className="space-y-8">
-      {/* Seletor de Categorias Estilo Card */}
+      {/* Seletor de Fonte de Dados */}
+      <div className="flex gap-2 p-1 bg-muted/30 rounded-lg w-fit">
+        <Button 
+          variant={dataSource === 'live' ? 'secondary' : 'ghost'} 
+          size="sm" 
+          onClick={() => setDataSource('live')}
+          className="h-8 text-[10px] font-bold uppercase tracking-wider"
+        >
+          <Zap className="h-3 w-3 mr-2 text-yellow-500" />
+          Tempo Real
+        </Button>
+        <Button 
+          variant={dataSource === 'history' ? 'secondary' : 'ghost'} 
+          size="sm" 
+          onClick={() => setDataSource('history')}
+          className="h-8 text-[10px] font-bold uppercase tracking-wider"
+        >
+          <History className="h-3 w-3 mr-2 text-accent" />
+          Histórico (Arquivados)
+        </Button>
+      </div>
+
+      {/* Seletor de Categorias */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {CATEGORY_CONFIG.map((cat) => {
           const Icon = cat.icon;
@@ -127,7 +175,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
       {!activeCategory ? (
         <div className="flex flex-col items-center justify-center py-20 bg-card/20 border border-dashed border-border rounded-2xl">
           <Filter className="h-12 w-12 text-muted-foreground opacity-20 mb-4" />
-          <p className="text-muted-foreground font-medium">Selecione uma categoria acima para visualizar os registros.</p>
+          <p className="text-muted-foreground font-medium">Selecione uma categoria acima.</p>
         </div>
       ) : (
         <Card className="border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -135,11 +183,13 @@ export function PonteiroDataTable({ data }: DataTableProps) {
             <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/10 p-2 rounded-lg">
-                  <LayoutGrid className="h-5 w-5 text-primary" />
+                  {dataSource === 'live' ? <Zap className="h-5 w-5 text-yellow-500" /> : <Calendar className="h-5 w-5 text-accent" />}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold">Listagem: {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}</h3>
-                  <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros filtrados</p>
+                  <h3 className="text-lg font-bold">
+                    {dataSource === 'live' ? 'Dados Recentes' : 'Histórico Consolidado'}: {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros</p>
                 </div>
               </div>
 
@@ -185,7 +235,13 @@ export function PonteiroDataTable({ data }: DataTableProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedData.length > 0 ? (
+                  {dataSource === 'history' && isHistoryLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-32 text-center text-muted-foreground animate-pulse">
+                        Carregando histórico do servidor...
+                      </TableCell>
+                    </TableRow>
+                  ) : sortedData.length > 0 ? (
                     sortedData.map((row, idx) => (
                       <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200 border-border/50">
                         <TableCell className="text-[10px] whitespace-nowrap text-muted-foreground">{row.Data_Turno}</TableCell>
@@ -204,7 +260,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                        Nenhum registro encontrado para os critérios de busca.
+                        Nenhum registro encontrado.
                       </TableCell>
                     </TableRow>
                   )}

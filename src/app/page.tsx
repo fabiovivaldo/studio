@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
@@ -6,6 +7,7 @@ import { RefreshButton } from '@/components/dashboard/refresh-button';
 import { LastUpdatedDisplay } from '@/components/dashboard/last-updated';
 import { FainaPreferencesModal } from '@/components/dashboard/faina-preferences-modal';
 import { DynamicFainaCards } from '@/components/dashboard/dynamic-faina-cards';
+import { DataArchiver } from '@/components/dashboard/data-archiver';
 import { 
   Database, 
   LayoutDashboard as LayoutIcon, 
@@ -24,12 +26,12 @@ export default async function DashboardPage() {
   const data = await fetchPonteiroData();
   const lastUpdatedIso = new Date().toISOString();
   
-  // Extrair nomes únicos de fainas para as preferências
   const uniqueFainas = Array.from(new Set(data.map(d => d.Funcao))).sort();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar Navigation */}
+      <DataArchiver data={data} />
+      
       <aside className="hidden lg:flex flex-col w-64 border-r border-border bg-card/30 backdrop-blur-sm">
         <div className="p-6">
           <div className="flex items-center gap-3">
@@ -63,7 +65,6 @@ export default async function DashboardPage() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-accent/10">
         <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50 px-8 py-4 flex justify-between items-center">
           <div>
@@ -97,7 +98,6 @@ export default async function DashboardPage() {
         </header>
 
         <div className="p-8 max-w-[1600px] mx-auto space-y-12">
-          {/* Dynamic Preference Cards */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 px-1">
               <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Minhas Fainas Prioritárias</h3>
@@ -107,15 +107,13 @@ export default async function DashboardPage() {
           </section>
 
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
-            {/* Table Area */}
             <section className="xl:col-span-3 space-y-6">
               <div className="px-1">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Explorador de Registros por Faina</h3>
-                <PonteiroDataTable data={data} />
+                <PonteiroDataTable liveData={data} />
               </div>
             </section>
 
-            {/* AI Insights Area */}
             <aside className="space-y-6 xl:col-span-1">
               <AiInsights data={data} />
               

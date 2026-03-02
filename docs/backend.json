@@ -9,7 +9,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the PonteiroData entity."
+          "description": "Unique identifier (Funcao_DataTurno)."
         },
         "funcao": {
           "type": "string",
@@ -34,6 +34,15 @@
         "temporario2": {
           "type": "string",
           "description": "The second temporary pointer value."
+        },
+        "dataTurno": {
+          "type": "string",
+          "description": "The date and shift of the record."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this record was archived."
         }
       },
       "required": [
@@ -43,7 +52,8 @@
         "original1",
         "temporario1",
         "original2",
-        "temporario2"
+        "temporario2",
+        "dataTurno"
       ]
     },
     "FainaPreference": {
@@ -90,7 +100,7 @@
           "schema": {
             "$ref": "#/backend/entities/PonteiroData"
           },
-          "description": "Stores the dynamically extracted and parsed `PonteiroData` records.",
+          "description": "Stores the dynamically extracted and archived records.",
           "params": [
             {
               "name": "ponteiroDataId",
