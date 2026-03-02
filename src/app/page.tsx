@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
@@ -67,12 +68,12 @@ export default async function DashboardPage() {
       <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-accent/10">
         <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50 px-8 py-4 flex justify-between items-center">
           <div>
-            <h2 className="text-sm font-medium text-muted-foreground">Visão Geral Analítica</h2>
+            <h2 className="text-sm font-medium text-muted-foreground">Monitoramento de Ponteiros</h2>
             <div className="flex items-center gap-2">
-               <h1 className="text-2xl font-bold">Tabela de Ponteiros</h1>
+               <h1 className="text-2xl font-bold">Dashboard OGMOPR</h1>
                <div className="flex items-center gap-1.5 ml-4 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                  <span className="text-[10px] font-bold text-green-500 uppercase tracking-tighter">Dados em Tempo Real</span>
+                  <span className="text-[10px] font-bold text-green-500 uppercase tracking-tighter">Tempo Real</span>
                </div>
             </div>
           </div>
@@ -88,7 +89,7 @@ export default async function DashboardPage() {
           </div>
         </header>
 
-        <div className="p-8 max-w-[1600px] mx-auto space-y-8">
+        <div className="p-8 max-w-[1600px] mx-auto space-y-12">
           {/* Dynamic Preference Cards */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 px-1">
@@ -98,20 +99,17 @@ export default async function DashboardPage() {
             <DynamicFainaCards scrapedData={data} />
           </section>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-            {/* Table Area */}
-            <section className="xl:col-span-2 space-y-6">
-              <div className="bg-card/30 rounded-2xl border border-border/50 p-6 backdrop-blur-sm">
-                <div className="mb-6">
-                   <h3 className="text-lg font-bold">Registros de Ponteiros</h3>
-                   <p className="text-sm text-muted-foreground">Extraído de ogmopgua.com.br</p>
-                </div>
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
+            {/* Table Area - Now occupies more space and has the integrated selector */}
+            <section className="xl:col-span-3 space-y-6">
+              <div className="px-1">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Explorador de Registros por Faina</h3>
                 <PonteiroDataTable data={data} />
               </div>
             </section>
 
             {/* AI Insights Area */}
-            <aside className="space-y-6">
+            <aside className="space-y-6 xl:col-span-1">
               <AiInsights data={data} />
               
               <Card className="bg-primary shadow-2xl shadow-primary/20 border-none overflow-hidden relative group">
@@ -119,13 +117,13 @@ export default async function DashboardPage() {
                   <Database className="h-32 w-32" />
                 </div>
                 <CardHeader>
-                  <CardTitle className="text-primary-foreground">Relatórios Automáticos</CardTitle>
+                  <CardTitle className="text-primary-foreground text-lg">Relatórios</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-primary-foreground/80 leading-relaxed">
-                    Agende exportações semanais e relatórios de análise de IA enviados diretamente para sua empresa.
+                  <p className="text-xs text-primary-foreground/80 leading-relaxed">
+                    Análise completa dos dados de ponteiros.
                   </p>
-                  <Button variant="secondary" className="w-full font-bold shadow-lg">
+                  <Button variant="secondary" size="sm" className="w-full font-bold shadow-lg">
                     Configurar Acesso
                   </Button>
                 </CardContent>
