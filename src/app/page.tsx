@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
@@ -79,6 +78,14 @@ export default async function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
+             <FainaPreferencesModal 
+                availableFainas={uniqueFainas} 
+                trigger={
+                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors">
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                } 
+             />
              <div className="hidden md:flex flex-col items-end mr-4 text-right">
                 <span className="text-xs text-muted-foreground">Última Atualização</span>
                 <span className="text-xs font-mono font-bold text-accent whitespace-nowrap">
@@ -100,7 +107,7 @@ export default async function DashboardPage() {
           </section>
 
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
-            {/* Table Area - Now occupies more space and has the integrated selector */}
+            {/* Table Area */}
             <section className="xl:col-span-3 space-y-6">
               <div className="px-1">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Explorador de Registros por Faina</h3>

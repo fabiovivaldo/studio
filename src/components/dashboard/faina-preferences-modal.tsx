@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -44,9 +43,10 @@ import { collection, query, where, doc } from 'firebase/firestore';
 
 interface FainaPreferencesModalProps {
   availableFainas: string[];
+  trigger?: React.ReactNode;
 }
 
-export function FainaPreferencesModal({ availableFainas }: FainaPreferencesModalProps) {
+export function FainaPreferencesModal({ availableFainas, trigger }: FainaPreferencesModalProps) {
   const { firestore, auth, user, isUserLoading } = useFirebase();
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -98,10 +98,12 @@ export function FainaPreferencesModal({ availableFainas }: FainaPreferencesModal
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button className="flex items-center w-full px-4 py-3 rounded-xl text-sm font-medium transition-all group text-muted-foreground hover:bg-muted/50 hover:text-foreground">
-          <Settings className="h-5 w-5 mr-3 transition-transform group-hover:scale-110" />
-          Preferências
-        </button>
+        {trigger || (
+          <button className="flex items-center w-full px-4 py-3 rounded-xl text-sm font-medium transition-all group text-muted-foreground hover:bg-muted/50 hover:text-foreground">
+            <Settings className="h-5 w-5 mr-3 transition-transform group-hover:scale-110" />
+            Preferências
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] bg-card border-border">
         <DialogHeader>
