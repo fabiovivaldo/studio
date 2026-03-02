@@ -60,12 +60,16 @@ export function PonteiroDataTable({ data }: DataTableProps) {
     if (!activeCategory) return [];
 
     return data.filter(item => {
+      // Busca por texto nas colunas
       const matchesFilter = Object.values(item).some(val => 
         val.toLowerCase().includes(filter.toLowerCase())
       );
       
-      const firstWord = item.Funcao.split('-')[0].split(' ')[0].trim().toUpperCase();
-      const matchesCategory = activeCategory === "TODOS" || firstWord === activeCategory;
+      const functionUpper = item.Funcao.toUpperCase();
+      
+      // Lógica de correspondência flexível: verifica se o nome da faina contém a categoria
+      // Isso resolve problemas com "Vigia" vs "Vigias" ou nomenclaturas compostas
+      const matchesCategory = activeCategory === "TODOS" || functionUpper.includes(activeCategory);
       
       return matchesFilter && matchesCategory;
     });
