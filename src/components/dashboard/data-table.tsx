@@ -66,7 +66,6 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
   const [filter, setFilter] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>("TODOS");
 
-  // Buscar histórico do Firestore
   const historyQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'ponteiro_data'), orderBy('createdAt', 'desc'), limit(1000));
@@ -74,7 +73,6 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
 
   const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
-  // Mapear dados do Firestore
   const mappedHistory = useMemo(() => {
     if (!historyData) return [];
     return historyData.map(h => ({
@@ -88,10 +86,8 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
     }));
   }, [historyData]);
 
-  // Filtrar dados por modo de visualização (Tempo Real ou Turno Específico)
   const currentData = useMemo(() => {
     if (viewMode === 'live') return liveData;
-    // Se for um turno, filtra no histórico apenas registros que contenham o nome do turno
     return mappedHistory.filter(h => h.Data_Turno.includes(viewMode));
   }, [viewMode, liveData, mappedHistory]);
 
@@ -138,9 +134,11 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
     { key: 'Temporario_2', label: 'Temp 2' },
   ] as const;
 
+  // Classe utilitária para manter a mesma fonte e tamanho em toda a linha
+  const cellTextStyle = "text-[11px] font-bold tracking-tight";
+
   return (
     <div className="space-y-8">
-      {/* Seletor de Modo de Visualização (Tempo Real + 4 Turnos) */}
       <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
         <Button 
           variant={viewMode === 'live' ? 'secondary' : 'ghost'} 
@@ -168,7 +166,6 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
         ))}
       </div>
 
-      {/* Seletor de Categorias */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {CATEGORY_CONFIG.map((cat) => {
           const Icon = cat.icon;
@@ -267,11 +264,15 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                   ) : sortedData.length > 0 ? (
                     sortedData.map((row, idx) => (
                       <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200 border-border/50">
-                        <TableCell className="text-[10px] whitespace-nowrap text-muted-foreground">{row.Data_Turno}</TableCell>
-                        <TableCell className="text-[11px] font-bold">{row.Funcao}</TableCell>
+                        <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground")}>
+                          {row.Data_Turno}
+                        </TableCell>
+                        <TableCell className={cellTextStyle}>
+                          {row.Funcao}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline" className={cn(
-                            "border-opacity-20 text-[10px] font-mono px-2 font-bold",
+                            "border-opacity-20 px-2 font-black text-[11px]",
                             row.Sinal === '-' 
                               ? "bg-destructive/10 border-destructive/20 text-destructive" 
                               : "bg-green-500/10 border-green-500/20 text-green-500"
@@ -279,10 +280,18 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                             {row.Sinal}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-[11px] text-muted-foreground font-mono">{row.Original_1}</TableCell>
-                        <TableCell className="text-[11px] text-accent font-mono font-bold">{row.Temporario_1}</TableCell>
-                        <TableCell className="text-[11px] text-muted-foreground font-mono">{row.Original_2}</TableCell>
-                        <TableCell className="text-[11px] text-accent font-mono font-bold">{row.Temporario_2}</TableCell>
+                        <TableCell className={cn(cellTextStyle, "text-muted-foreground font-mono")}>
+                          {row.Original_1}
+                        </TableCell>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
+                          {row.Temporario_1}
+                        </TableCell>
+                        <TableCell className={cn(cellTextStyle, "text-muted-foreground font-mono")}>
+                          {row.Original_2}
+                        </TableCell>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
+                          {row.Temporario_2}
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
