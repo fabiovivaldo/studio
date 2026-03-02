@@ -84,7 +84,7 @@ export default async function DashboardPage() {
                 </span>
              </div>
              <Button variant="outline" className="border-accent/30 text-accent hover:bg-accent/10">
-                Refresh View
+                nao funciona
              </Button>
           </div>
         </header>
