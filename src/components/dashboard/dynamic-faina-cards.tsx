@@ -106,8 +106,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                 {turnoText && (
                   <div className="flex flex-col ml-auto text-right">
-                    <span className="text-[8px] font-black text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
-                    <span className="text-[11px] font-bold text-accent/70 whitespace-nowrap">
+                    <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
+                    <span className="text-sm font-bold text-accent/70 whitespace-nowrap">
                       {turnoText}
                     </span>
                   </div>
