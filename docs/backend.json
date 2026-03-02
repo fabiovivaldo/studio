@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "PonteiroData": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PonteiroData",
+      "type": "object",
+      "description": "Represents a single row of extracted data from the 'Ponteiros.html' URL, containing various pointer-related information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PonteiroData entity."
+        },
+        "funcao": {
+          "type": "string",
+          "description": "The function or operation associated with the pointer."
+        },
+        "sinal": {
+          "type": "string",
+          "description": "The signal or status associated with the pointer."
+        },
+        "original1": {
+          "type": "string",
+          "description": "The first original pointer value."
+        },
+        "temporario1": {
+          "type": "string",
+          "description": "The first temporary pointer value."
+        },
+        "original2": {
+          "type": "string",
+          "description": "The second original pointer value."
+        },
+        "temporario2": {
+          "type": "string",
+          "description": "The second temporary pointer value."
+        }
+      },
+      "required": [
+        "id",
+        "funcao",
+        "sinal",
+        "original1",
+        "temporario1",
+        "original2",
+        "temporario2"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/ponteiro_data/{ponteiroDataId}",
+        "definition": {
+          "entityName": "PonteiroData",
+          "schema": {
+            "$ref": "#/backend/entities/PonteiroData"
+          },
+          "description": "Stores the dynamically extracted and parsed `PonteiroData` records from the external URL. This data is intended to be universally readable, representing the latest available information. Does not require denormalized authorization fields as it's universally accessible for viewing.",
+          "params": [
+            {
+              "name": "ponteiroDataId",
+              "description": "The unique identifier for a specific PonteiroData record, typically corresponding to its 'id' field."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The core data for PonteiroScope, which consists of dynamically extracted `PonteiroData` records, will be stored in a top-level collection named `/ponteiro_data`. Each document within this collection will represent a single `PonteiroData` entity, using its `id` field as the document ID for efficient lookup and management. This structure adheres to the principle of structural segregation by ensuring all documents in `/ponteiro_data` share the same security posture.\n\nAuthorization Independence is achieved because the `PonteiroData` entities are designed to be universally accessible (either public or accessible to all users, including anonymous ones, given the `anonymous` auth provider). There are no hierarchical authorization dependencies; access to a `PonteiroData` document does not depend on attributes of a parent document. Security rules for this collection can be straightforward, granting read access to all users without requiring any `get()` calls to other documents.\n\nThis design fully supports Query-as-Permission (QAPs). Since all documents in `/ponteiro_data` are intended to have the same read permissions, a `list` operation on this collection will naturally return all accessible documents. There's no need for server-side filtering, as the security rules themselves define the complete set of visible data. The client-side 'Interactive Data Table' feature will handle presentation logic such as pagination, sorting, and filtering of this uniformly accessible dataset."
+  }
+}
