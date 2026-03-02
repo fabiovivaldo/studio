@@ -184,7 +184,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
         </div>
 
         <div className="flex-1 overflow-y-auto px-8 space-y-8 pb-10 mt-6">
-          {/* Formulário de Adição conforme imagem */}
+          {/* Formulário de Adição */}
           <div className="space-y-6 p-6 rounded-2xl bg-[#232d3a] border border-white/5">
             <h4 className="text-[11px] font-black flex items-center gap-2 uppercase tracking-[0.15em] text-accent">
               <Plus className="h-4 w-4" />
@@ -247,7 +247,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
               {/* Nome Exibido e Grupo Lado a Lado */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="chamada" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Nome Exibido</Label>
+                  <Label htmlFor="chamada" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Nº CHAMADA</Label>
                   <Input 
                     id="chamada" 
                     placeholder="EX: TURMA A" 
@@ -353,7 +353,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                             <p className="text-sm font-bold uppercase truncate text-white tracking-tight">{pref.faina}</p>
                             <span className="text-[9px] px-2 py-0.5 rounded bg-accent/10 text-accent font-black uppercase border border-accent/20">Grupo {pref.tipo}</span>
                           </div>
-                          <p className="text-[11px] font-bold text-muted-foreground uppercase mt-1.5 opacity-60">Chamada: <span className="text-accent/80 font-mono">{pref.chamada}</span></p>
+                          <p className="text-[11px] font-bold text-muted-foreground uppercase mt-1.5 opacity-60">Nº Chamada: <span className="text-accent/80 font-mono">{pref.chamada}</span></p>
                         </div>
                       )}
 
