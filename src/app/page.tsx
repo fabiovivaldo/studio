@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
 import { AiInsights } from '@/components/dashboard/ai-insights';
 import { RefreshButton } from '@/components/dashboard/refresh-button';
+import { LastUpdatedDisplay } from '@/components/dashboard/last-updated';
 import { 
   Database, 
   LayoutDashboard, 
@@ -22,7 +24,8 @@ import {
 
 export default async function DashboardPage() {
   const data = await fetchPonteiroData();
-  const lastUpdated = new Date();
+  // Geramos o timestamp no servidor como string ISO para o componente de cliente converter para local
+  const lastUpdatedIso = new Date().toISOString();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -81,13 +84,7 @@ export default async function DashboardPage() {
              <div className="hidden md:flex flex-col items-end mr-4 text-right">
                 <span className="text-xs text-muted-foreground">Última Atualização</span>
                 <span className="text-xs font-mono font-bold text-accent whitespace-nowrap">
-                   {lastUpdated.toLocaleString('pt-BR', { 
-                     day: '2-digit', 
-                     month: '2-digit', 
-                     year: 'numeric',
-                     hour: '2-digit', 
-                     minute: '2-digit' 
-                   })}
+                   <LastUpdatedDisplay date={lastUpdatedIso} />
                 </span>
              </div>
              <RefreshButton />
