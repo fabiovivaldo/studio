@@ -1,74 +1,18 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * PONTEIROSCOPE SECURITY RULES
-     * 
-     * CORE PHILOSOPHY:
-     * This ruleset implements a "Public Read, System-Restricted Write" model. The application 
-     * focuses on presenting extracted pointer data to users. As this data is intended for 
-     * universal consumption, read access is granted to all users (authenticated or otherwise).
-     * 
-     * DATA STRUCTURE:
-     * All data is organized within a flat, top-level collection: `/ponteiro_data`. 
-     * Each document represents a unique record parsed from external sources.
-     * 
-     * KEY SECURITY DECISIONS:
-     * 1. Universal Readability: The `ponteiro_data` collection is globally listable and 
-     *    readable to support the "Interactive Data Table" feature without auth friction.
-     * 2. Restricted Writes: In this current version, write permissions are denied because 
-     *    the schema does not yet include ownership fields (e.g., 'ownerId'). This prevents 
-     *    unauthorized modification of the extracted data.
-     * 3. Identity-Based Access: While current rules are public-read, helper functions 
-     *    for `isSignedIn()` and `isOwner()` are included to facilitate rapid transition 
-     *    to personalized features.
-     */
-
-    // --- GLOBAL HELPER FUNCTIONS ---
-
-    // FIX: The `isSignedIn` function has been removed.
-    // It was flagged as "Unused function" because the write rules that would utilize it
-    // are currently explicitly set to `if false;` due to missing ownership fields in the schema.
-    // Removing unused code improves clarity and addresses the linter warning while
-    // maintaining the "System-Restricted Write" policy.
-    // The comments regarding its future use have been retained in the `match` block.
-
-    // FIX: The `isOwner` and `isExistingOwner` functions have been removed.
-    // The `isExistingOwner` function was flagged as "Unused function".
-    // Both `isOwner` and `isExistingOwner` depend on an 'ownerId' field which
-    // is explicitly stated as missing from the current schema. Removing them
-    // aligns with the current "Restricted Writes" policy and addresses linter warnings.
-
-    // --- COLLECTION RULES ---
-
-    /**
-     * @description Rules for the PonteiroData collection. This data is extracted from
-     * external sources and is intended for public viewing.
-     * @path /ponteiro_data/{ponteiroDataId}
-     * @allow get, list (public)
-     * @deny create, update, delete (missing ownership metadata in schema)
-     * @principle Public Read with Restricted Writes. Relational integrity enforced on 'id'.
-     */
     match /ponteiro_data/{ponteiroDataId} {
-      
-      // Publicly accessible for the interactive data table.
-      allow get, list: if true;
-
-      // CRITICAL: Cannot implement owner-only writes. The 'PonteiroData' entity is missing 
-      // an 'ownerId' or 'authorId' field. Allowing writes here without ownership check 
-      // would create a major security vulnerability.
-      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
-
-      /**
-       * If write permissions are enabled in the future, consider adding helper functions like `isSignedIn`
-       * (e.g., function isSignedIn(req) { return req.auth != null; }) and then use validations like:
-       * 
-       * allow create: if isSignedIn(request) && request.resource.data.id == ponteiroDataId;
-       * allow update: if isSignedIn(request) && request.resource.data.id == resource.data.id;
-       * allow delete: if isSignedIn(request) && resource != null;
-       */
+      allow read: if true;
+      allow write: if false;
     }
 
+    match /faina_preferences/{preferenceId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
   }
 }

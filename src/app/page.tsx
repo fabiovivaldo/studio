@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
 import { AiInsights } from '@/components/dashboard/ai-insights';
 import { RefreshButton } from '@/components/dashboard/refresh-button';
 import { LastUpdatedDisplay } from '@/components/dashboard/last-updated';
+import { FainaPreferencesModal } from '@/components/dashboard/faina-preferences-modal';
 import { 
   Database, 
   LayoutDashboard, 
@@ -45,7 +47,7 @@ export default async function DashboardPage() {
           <div className="space-y-4">
             <p className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Configurações</p>
             <nav className="space-y-1">
-              <NavItem icon={Settings} label="Preferências" />
+              <FainaPreferencesModal />
             </nav>
           </div>
         </div>
