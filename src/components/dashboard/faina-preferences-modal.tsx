@@ -119,6 +119,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
 
     setNewFaina({ faina: '', chamada: '' });
     setIsSubmitting(false);
+    setIsPopoverOpen(false);
   };
 
   const handleUpdate = (id: string) => {
@@ -142,6 +143,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     }, { merge: true });
     setEditingId(null);
     setIsSubmitting(false);
+    setIsEditPopoverOpen(false);
   };
 
   const handleDelete = (id: string) => {
@@ -188,13 +190,19 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           setNewFaina(prev => ({ ...prev, faina: e.target.value }));
                           if (!isPopoverOpen) setIsPopoverOpen(true);
                         }}
-                        onFocus={() => setIsPopoverOpen(true)}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          if (!isPopoverOpen) setIsPopoverOpen(true);
+                        }}
                         autoComplete="off"
                         className="bg-background pr-8"
                       />
                       <button 
                         type="button"
-                        onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsPopoverOpen(!isPopoverOpen);
+                        }}
                         className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 hover:opacity-100 transition-opacity"
                       >
                         <ChevronDown className="h-4 w-4" />
@@ -202,11 +210,12 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     </div>
                   </PopoverAnchor>
                   <PopoverContent 
-                    className="w-[300px] p-0 bg-card border-border shadow-xl z-[150]" 
+                    className="w-[var(--radix-popover-anchor-width)] p-0 bg-card border-border shadow-2xl z-[150]" 
                     align="start" 
                     onOpenAutoFocus={(e) => e.preventDefault()}
+                    onPointerDown={(e) => e.stopPropagation()}
                   >
-                    <ScrollArea className="h-[200px]">
+                    <ScrollArea className="max-h-[300px] w-full">
                       <div className="p-1">
                         {searchResults.length === 0 ? (
                           <div className="py-6 text-center text-sm text-muted-foreground">
@@ -217,16 +226,17 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                             <button
                               key={f}
                               className={cn(
-                                "flex w-full items-center justify-between rounded-sm px-2 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-                                newFaina.faina === f && "bg-accent/50"
+                                "flex w-full items-center justify-between rounded-sm px-2 py-2.5 text-xs font-medium uppercase tracking-tight transition-colors hover:bg-accent hover:text-accent-foreground text-left",
+                                newFaina.faina === f && "bg-accent/30 text-accent"
                               )}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setNewFaina(prev => ({ ...prev, faina: f }));
                                 setIsPopoverOpen(false);
                               }}
                             >
                               <span className="truncate">{f}</span>
-                              {newFaina.faina === f && <Check className="h-4 w-4 text-accent" />}
+                              {newFaina.faina === f && <Check className="h-4 w-4 shrink-0 ml-2" />}
                             </button>
                           ))
                         )}
@@ -267,19 +277,22 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         <PopoverAnchor asChild>
                           <div className="relative">
                             <Input
-                              className="h-8 text-xs bg-background pr-6"
+                              className="h-8 text-[10px] bg-background pr-6 uppercase"
                               value={editFaina.faina} 
                               placeholder="Faina"
                               onChange={(e) => {
                                 setEditFaina(prev => ({ ...prev, faina: e.target.value }));
                                 if (!isEditPopoverOpen) setIsEditPopoverOpen(true);
                               }}
-                              onFocus={() => setIsEditPopoverOpen(true)}
+                              onMouseDown={(e) => e.stopPropagation()}
                               autoComplete="off"
                             />
                             <button 
                               type="button"
-                              onClick={() => setIsEditPopoverOpen(!isEditPopoverOpen)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsEditPopoverOpen(!isEditPopoverOpen);
+                              }}
                               className="absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 hover:opacity-100 transition-opacity"
                             >
                               <ChevronDown className="h-3 w-3" />
@@ -287,26 +300,28 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           </div>
                         </PopoverAnchor>
                         <PopoverContent 
-                          className="w-[300px] p-0 bg-card border-border shadow-xl z-[150]" 
+                          className="w-[var(--radix-popover-anchor-width)] p-0 bg-card border-border shadow-xl z-[150]" 
                           align="start" 
                           onOpenAutoFocus={(e) => e.preventDefault()}
+                          onPointerDown={(e) => e.stopPropagation()}
                         >
-                          <ScrollArea className="h-[200px]">
+                          <ScrollArea className="max-h-[250px] w-full">
                             <div className="p-1">
                               {editSearchResults.map((f) => (
                                 <button
                                   key={f}
                                   className={cn(
-                                    "flex w-full items-center justify-between rounded-sm px-2 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-                                    editFaina.faina === f && "bg-accent/50"
+                                    "flex w-full items-center justify-between rounded-sm px-2 py-2 text-[10px] font-medium uppercase transition-colors hover:bg-accent hover:text-accent-foreground text-left",
+                                    editFaina.faina === f && "bg-accent/30 text-accent"
                                   )}
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     setEditFaina(prev => ({ ...prev, faina: f }));
                                     setIsEditPopoverOpen(false);
                                   }}
                                 >
                                   <span className="truncate">{f}</span>
-                                  {editFaina.faina === f && <Check className="h-4 w-4 text-accent" />}
+                                  {editFaina.faina === f && <Check className="h-3 w-3 shrink-0 ml-1" />}
                                 </button>
                               ))}
                             </div>
@@ -314,7 +329,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         </PopoverContent>
                       </Popover>
                       <Input 
-                        className="h-8 text-xs bg-background"
+                        className="h-8 text-[10px] bg-background"
                         value={editFaina.chamada} 
                         onChange={(e) => setEditFaina(prev => ({ ...prev, chamada: e.target.value }))}
                       />

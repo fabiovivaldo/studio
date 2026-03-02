@@ -27,20 +27,17 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
 
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
-    if (!valueStr) return { color: '', showIcon: false };
+    if (!valueStr) return { color: 'text-accent', showIcon: false };
     
-    // Remove caracteres não numéricos e converte para número
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
-    if (target === 0) return { color: '', showIcon: false };
+    if (target === 0) return { color: 'text-accent', showIcon: false };
     
     const diff = target - value;
     
     return {
-      // Vermelho se faltar 10 ou menos (e for positivo)
-      color: (diff <= 10 && diff >= 0) ? 'text-red-500 font-black' : 'text-accent',
-      // Ícone se faltar 20 ou menos
+      color: (diff <= 10 && diff >= 0) ? 'text-destructive font-black' : 'text-accent',
       showIcon: diff <= 20 && diff >= 0
     };
   };
@@ -105,7 +102,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </div>
                   <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
-                      Temp 1 {alert1.showIcon && <AlertTriangle className="h-4 w-4 text-amber-500 animate-pulse fill-amber-500/20" />}
+                      Temp 1 {alert1.showIcon && <AlertTriangle className="h-5 w-5 text-yellow-500 animate-pulse fill-yellow-500/20" />}
                     </span>
                     <span className={cn("text-lg tracking-tighter transition-colors duration-300", alert1.color)}>{fainaData.Temporario_1}</span>
                   </div>
@@ -115,7 +112,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </div>
                   <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
-                      Temp 2 {alert2.showIcon && <AlertTriangle className="h-4 w-4 text-amber-500 animate-pulse fill-amber-500/20" />}
+                      Temp 2 {alert2.showIcon && <AlertTriangle className="h-5 w-5 text-yellow-500 animate-pulse fill-yellow-500/20" />}
                     </span>
                     <span className={cn("text-lg tracking-tighter transition-colors duration-300", alert2.color)}>{fainaData.Temporario_2}</span>
                   </div>
