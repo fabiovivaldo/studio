@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -30,6 +29,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
     if (!valueStr) return { color: '', showIcon: false };
     
+    // Remove caracteres não numéricos e converte para número
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
@@ -38,7 +38,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     const diff = target - value;
     
     return {
-      color: diff <= 10 && diff >= 0 ? 'text-destructive' : 'text-accent',
+      // Vermelho se faltar 10 ou menos (e for positivo)
+      color: (diff <= 10 && diff >= 0) ? 'text-red-500 font-black' : 'text-accent',
+      // Ícone se faltar 20 ou menos
       showIcon: diff <= 20 && diff >= 0
     };
   };
@@ -87,13 +89,11 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   {pref.chamada}
                 </div>
                 
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/5 border border-accent/20">
                   <span className="text-[9px] font-black text-accent uppercase tracking-tighter opacity-80">Sinal</span>
-                  <div className="bg-accent/10 border border-accent/20 px-3 py-0.5 rounded-full min-w-[36px] flex items-center justify-center">
-                    <span className="text-xs font-bold text-accent">
-                      {fainaData?.Sinal || '+'}
-                    </span>
-                  </div>
+                  <span className="text-lg font-bold text-accent">
+                    {fainaData?.Sinal || '+'}
+                  </span>
                 </div>
               </div>
 
@@ -105,9 +105,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </div>
                   <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
-                      Temp 1 {alert1.showIcon && <AlertTriangle className="h-2 w-2 text-yellow-500 animate-pulse" />}
+                      Temp 1 {alert1.showIcon && <AlertTriangle className="h-4 w-4 text-amber-500 animate-pulse fill-amber-500/20" />}
                     </span>
-                    <span className={cn("text-lg font-bold tracking-tighter", alert1.color)}>{fainaData.Temporario_1}</span>
+                    <span className={cn("text-lg tracking-tighter transition-colors duration-300", alert1.color)}>{fainaData.Temporario_1}</span>
                   </div>
                   <div className="flex flex-col gap-0 border-l border-white/5 pl-2">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Original 2</span>
@@ -115,9 +115,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </div>
                   <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
-                      Temp 2 {alert2.showIcon && <AlertTriangle className="h-2 w-2 text-yellow-500 animate-pulse" />}
+                      Temp 2 {alert2.showIcon && <AlertTriangle className="h-4 w-4 text-amber-500 animate-pulse fill-amber-500/20" />}
                     </span>
-                    <span className={cn("text-lg font-bold tracking-tighter", alert2.color)}>{fainaData.Temporario_2}</span>
+                    <span className={cn("text-lg tracking-tighter transition-colors duration-300", alert2.color)}>{fainaData.Temporario_2}</span>
                   </div>
                 </div>
               ) : (

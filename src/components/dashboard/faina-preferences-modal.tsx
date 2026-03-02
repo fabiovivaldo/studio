@@ -23,7 +23,7 @@ import {
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverAnchor,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,6 @@ import {
   Check, 
   X, 
   Loader2, 
-  Search,
   ChevronDown 
 } from "lucide-react";
 import { 
@@ -179,7 +178,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
               <div className="space-y-2 flex flex-col">
                 <Label htmlFor="faina-input">Faina</Label>
                 <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                  <PopoverTrigger asChild>
+                  <PopoverAnchor asChild>
                     <div className="relative">
                       <Input
                         id="faina-input"
@@ -193,9 +192,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         autoComplete="off"
                         className="bg-background pr-8"
                       />
-                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 pointer-events-none" />
+                      <button 
+                        type="button"
+                        onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 hover:opacity-100 transition-opacity"
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </button>
                     </div>
-                  </PopoverTrigger>
+                  </PopoverAnchor>
                   <PopoverContent 
                     className="w-[300px] p-0 bg-card border-border shadow-xl z-[150]" 
                     align="start" 
@@ -259,7 +264,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                   {editingId === pref.id ? (
                     <div className="flex-1 grid grid-cols-2 gap-2">
                       <Popover open={isEditPopoverOpen} onOpenChange={setIsEditPopoverOpen}>
-                        <PopoverTrigger asChild>
+                        <PopoverAnchor asChild>
                           <div className="relative">
                             <Input
                               className="h-8 text-xs bg-background pr-6"
@@ -272,9 +277,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                               onFocus={() => setIsEditPopoverOpen(true)}
                               autoComplete="off"
                             />
-                            <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 pointer-events-none" />
+                            <button 
+                              type="button"
+                              onClick={() => setIsEditPopoverOpen(!isEditPopoverOpen)}
+                              className="absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 hover:opacity-100 transition-opacity"
+                            >
+                              <ChevronDown className="h-3 w-3" />
+                            </button>
                           </div>
-                        </PopoverTrigger>
+                        </PopoverAnchor>
                         <PopoverContent 
                           className="w-[300px] p-0 bg-card border-border shadow-xl z-[150]" 
                           align="start" 
