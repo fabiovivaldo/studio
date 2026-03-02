@@ -67,7 +67,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
             <div className="p-3 pt-2 space-y-2">
               {/* Topo: Nome Original da Faina e Sinal */}
               <div className="flex justify-between items-start">
-                <div className="text-2xl font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[280px]">
+                <div className="text-xl font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[280px]">
                   {pref.faina}
                 </div>
                 <div className="flex flex-col items-center gap-1">
