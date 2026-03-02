@@ -77,10 +77,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const alertO = getAlertStyle(origVal, pref.chamada);
         const alertT = getAlertStyle(tempVal, pref.chamada);
 
-        // Extrair apenas a parte do turno (ex: 1º TURNO)
-        const turnoText = fainaData?.Data_Turno?.includes(' - ') 
-          ? fainaData.Data_Turno.split(' - ')[1] 
-          : '';
+        // Extrair apenas a parte do turno (ex: Manhã) do texto "Data Turno"
+        const turnoText = fainaData?.Data_Turno?.includes(' ') 
+          ? fainaData.Data_Turno.split(' ').slice(1).join(' ') 
+          : fainaData?.Data_Turno;
 
         return (
           <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group h-[160px]">
@@ -109,8 +109,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                 {turnoText && (
                   <div className="flex flex-col ml-auto text-right">
                     <span className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-tighter">Turno</span>
-                    <span className="text-[10px] font-bold text-accent/50 whitespace-nowrap">
-                      {turnoText}
+                    <span className="text-[10px] font-bold text-accent/50 whitespace-nowrap" dangerouslySetInnerHTML={{ __html: turnoText }}>
                     </span>
                   </div>
                 )}
