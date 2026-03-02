@@ -27,18 +27,19 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
 
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
-    if (!valueStr) return { color: 'text-accent', showIcon: false };
+    if (!valueStr || !targetStr) return { color: 'text-accent', showIcon: false };
     
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
-    if (target === 0) return { color: 'text-accent', showIcon: false };
+    if (target === 0 || value === 0) return { color: 'text-accent', showIcon: false };
     
-    const diff = target - value;
+    // Diferença absoluta: alerta se estiver a 20 ou menos números de distância (acima ou abaixo)
+    const diff = Math.abs(target - value);
     
     return {
-      color: (diff <= 10 && diff >= 0) ? 'text-destructive font-black' : 'text-accent',
-      showIcon: diff <= 20 && diff >= 0
+      color: diff <= 10 ? 'text-destructive font-black' : 'text-accent',
+      showIcon: diff <= 20
     };
   };
 
@@ -56,7 +57,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     return (
       <div className="bg-accent/5 border border-dashed border-accent/20 rounded-xl p-8 text-center">
         <p className="text-sm text-muted-foreground">
-          Nenhuma preferência configurada. Adicione fainas em <span className="text-accent font-bold">Configurações &gt; Preferências</span> para vê-las aqui.
+          Nenhuma preferência configurada. Adicione fainas em <span className="text-accent font-bold">Configurações {' > '} Preferências</span> para vê-las aqui.
         </p>
       </div>
     );
