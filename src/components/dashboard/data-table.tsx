@@ -12,8 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
-  ChevronLeft, 
-  ChevronRight, 
   ArrowUpDown, 
   Download, 
   Search,
@@ -30,16 +28,13 @@ interface DataTableProps {
 export function PonteiroDataTable({ data }: DataTableProps) {
   const [sortConfig, setSortConfig] = useState<{ key: keyof PonteiroData; direction: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [activeCategory, setActiveCategory] = useState("TODOS");
 
   // Extrair categorias baseadas na primeira palavra da função
   const categories = useMemo(() => {
     const cats = data.map(item => item.Funcao.split('-')[0].split(' ')[0].trim());
     return ["TODOS", ...Array.from(new Set(cats))].sort();
   }, [data]);
-
-  const [activeCategory, setActiveCategory] = useState("TODOS");
 
   const handleSort = (key: keyof PonteiroData) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -72,9 +67,6 @@ export function PonteiroDataTable({ data }: DataTableProps) {
     return sorted;
   }, [filteredData, sortConfig]);
 
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
-  const currentData = sortedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
   const columns = [
     { key: 'Data_Turno', label: 'Data / Turno' },
     { key: 'Funcao', label: 'Função' },
@@ -95,10 +87,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
             <Input 
               placeholder="Pesquisar função ou sinal..." 
               value={filter}
-              onChange={(e) => {
-                setFilter(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setFilter(e.target.value)}
               className="pl-10 bg-secondary/50 border-border focus:ring-accent"
             />
           </div>
@@ -118,10 +107,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
         {/* Abas de Categorias */}
         <Tabs 
           value={activeCategory} 
-          onValueChange={(val) => {
-            setActiveCategory(val);
-            setCurrentPage(1);
-          }} 
+          onValueChange={setActiveCategory} 
           className="w-full"
         >
           <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-accent/20">
@@ -159,8 +145,8 @@ export function PonteiroDataTable({ data }: DataTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentData.length > 0 ? (
-              currentData.map((row, idx) => (
+            {sortedData.length > 0 ? (
+              sortedData.map((row, idx) => (
                 <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200">
                   <TableCell className="text-[11px] whitespace-nowrap text-muted-foreground">{row.Data_Turno}</TableCell>
                   <TableCell className="font-medium">{row.Funcao}</TableCell>
@@ -189,50 +175,13 @@ export function PonteiroDataTable({ data }: DataTableProps) {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between px-2 py-4">
+      <div className="flex items-center justify-between px-2 py-4 border-t border-border/50">
         <p className="text-sm text-muted-foreground">
-          Mostrando <span className="text-foreground font-medium">{Math.min(currentData.length, itemsPerPage)}</span> de <span className="text-foreground font-medium">{sortedData.length}</span> resultados
+          Exibindo <span className="text-foreground font-medium">{sortedData.length}</span> registros nesta categoria
         </p>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="hover:bg-accent/20 text-muted-foreground hover:text-accent"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <div className="hidden sm:flex items-center gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum = i + 1;
-                if (totalPages > 5 && currentPage > 3) {
-                    pageNum = currentPage - 3 + i + 1;
-                    if (pageNum > totalPages) pageNum = totalPages - 4 + i;
-                }
-                return (
-                    <Button
-                        key={pageNum}
-                        variant={currentPage === pageNum ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => setCurrentPage(pageNum)}
-                        className={`h-8 w-8 ${currentPage === pageNum ? 'bg-primary shadow-lg shadow-primary/30' : 'text-muted-foreground'}`}
-                    >
-                        {pageNum}
-                    </Button>
-                );
-            })}
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className="hover:bg-accent/20 text-muted-foreground hover:text-accent"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
-        </div>
+        <Badge variant="outline" className="text-[10px] uppercase font-bold text-accent border-accent/20">
+          Lista Contínua Ativada
+        </Badge>
       </div>
     </div>
   );
