@@ -62,12 +62,17 @@
           "type": "string",
           "description": "The custom call name for this faina."
         },
+        "tipo": {
+          "type": "string",
+          "enum": ["1", "2"],
+          "description": "Determines if the card shows Original/Temp 1 or 2."
+        },
         "userId": {
           "type": "string",
           "description": "The ID of the user who owns this preference."
         }
       },
-      "required": ["id", "faina", "chamada", "userId"]
+      "required": ["id", "faina", "chamada", "tipo", "userId"]
     }
   },
   "auth": {

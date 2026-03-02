@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -25,6 +26,13 @@ import {
   PopoverContent,
   PopoverAnchor,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,10 +69,10 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  const [newFaina, setNewFaina] = useState({ faina: '', chamada: '' });
+  const [newFaina, setNewFaina] = useState({ faina: '', chamada: '', tipo: '1' });
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const [editFaina, setEditFaina] = useState({ faina: '', chamada: '' });
+  const [editFaina, setEditFaina] = useState({ faina: '', chamada: '', tipo: '1' });
   const [isEditPopoverOpen, setIsEditPopoverOpen] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,10 +122,11 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       id: prefRef.id,
       faina: newFaina.faina,
       chamada: newFaina.chamada,
+      tipo: newFaina.tipo,
       userId: user.uid
     }, { merge: true });
 
-    setNewFaina({ faina: '', chamada: '' });
+    setNewFaina({ faina: '', chamada: '', tipo: '1' });
     setIsSubmitting(false);
     setIsPopoverOpen(false);
   };
@@ -152,11 +161,11 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
           </button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-card border-border" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-[550px] bg-card border-border" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Preferências de Fainas</DialogTitle>
           <DialogDescription>
-            Gerencie nomes personalizados para suas fainas e chamadas.
+            Gerencie nomes personalizados e escolha o grupo de ponteiros (1 ou 2).
           </DialogDescription>
         </DialogHeader>
 
@@ -166,15 +175,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
               <Plus className="h-4 w-4 text-accent" />
               Adicionar Nova Faina
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2 flex flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2 flex flex-col md:col-span-1">
                 <Label htmlFor="faina-input">Faina</Label>
                 <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                   <PopoverAnchor asChild>
                     <div className="relative">
                       <Input
                         id="faina-input"
-                        placeholder="Digite ou selecione..."
+                        placeholder="Digite..."
                         value={newFaina.faina}
                         onChange={(e) => {
                           setNewFaina(prev => ({ ...prev, faina: e.target.value }));
@@ -185,7 +194,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           if (!isPopoverOpen) setIsPopoverOpen(true);
                         }}
                         autoComplete="off"
-                        className="bg-background pr-8 uppercase"
+                        className="bg-background pr-8 uppercase h-9 text-xs"
                       />
                       <button 
                         type="button"
@@ -205,7 +214,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onPointerDown={(e) => e.stopPropagation()}
                   >
-                    <ScrollArea className="h-[400px] w-full" scrollHideDelay={0}>
+                    <ScrollArea className="h-[300px] w-full" scrollHideDelay={0}>
                       <div className="p-1">
                         {searchResults.length === 0 ? (
                           <div className="py-6 text-center text-sm text-muted-foreground">
@@ -216,7 +225,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                             <button
                               key={f}
                               className={cn(
-                                "flex w-full items-center justify-between rounded-sm px-2 py-3 text-xs font-medium uppercase tracking-tight transition-colors hover:bg-accent hover:text-accent-foreground text-left",
+                                "flex w-full items-center justify-between rounded-sm px-2 py-3 text-[10px] font-medium uppercase tracking-tight transition-colors hover:bg-accent hover:text-accent-foreground text-left",
                                 newFaina.faina === f && "bg-accent/30 text-accent"
                               )}
                               onClick={(e) => {
@@ -242,16 +251,29 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                   placeholder="Ex: GRUPO A" 
                   value={newFaina.chamada}
                   onChange={(e) => setNewFaina(prev => ({ ...prev, chamada: e.target.value }))}
+                  className="h-9 text-xs"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Ponteiro</Label>
+                <Select value={newFaina.tipo} onValueChange={(v) => setNewFaina(prev => ({ ...prev, tipo: v }))}>
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue placeholder="Tipo" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[160]">
+                    <SelectItem value="1">Tipo 1</SelectItem>
+                    <SelectItem value="2">Tipo 2</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <Button 
-              className="w-full bg-accent hover:bg-accent/80 text-accent-foreground font-bold" 
+              className="w-full bg-accent hover:bg-accent/80 text-accent-foreground font-bold h-9" 
               onClick={handleAdd}
               disabled={!newFaina.faina || !newFaina.chamada || isSubmitting}
             >
               {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Adicionar
+              Adicionar Preferência
             </Button>
           </div>
 
@@ -262,7 +284,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
               preferences.map((pref) => (
                 <div key={pref.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/10 group">
                   {editingId === pref.id ? (
-                    <div className="flex-1 grid grid-cols-2 gap-2">
+                    <div className="flex-1 grid grid-cols-3 gap-2">
                       <Popover open={isEditPopoverOpen} onOpenChange={setIsEditPopoverOpen}>
                         <PopoverAnchor asChild>
                           <div className="relative">
@@ -295,7 +317,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           onOpenAutoFocus={(e) => e.preventDefault()}
                           onPointerDown={(e) => e.stopPropagation()}
                         >
-                          <ScrollArea className="h-[300px] w-full" scrollHideDelay={0}>
+                          <ScrollArea className="h-[200px] w-full" scrollHideDelay={0}>
                             <div className="p-1">
                               {editSearchResults.map((f) => (
                                 <button
@@ -323,10 +345,22 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         value={editFaina.chamada} 
                         onChange={(e) => setEditFaina(prev => ({ ...prev, chamada: e.target.value }))}
                       />
+                      <Select value={editFaina.tipo} onValueChange={(v) => setEditFaina(prev => ({ ...prev, tipo: v }))}>
+                        <SelectTrigger className="h-8 text-[10px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="z-[160]">
+                          <SelectItem value="1">Tipo 1</SelectItem>
+                          <SelectItem value="2">Tipo 2</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   ) : (
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate">{pref.faina}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold truncate">{pref.faina}</p>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-bold">Tipo {pref.tipo}</span>
+                      </div>
                       <p className="text-xs text-muted-foreground truncate">{pref.chamada}</p>
                     </div>
                   )}
@@ -351,7 +385,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           className="h-8 w-8 text-accent" 
                           onClick={() => {
                             setEditingId(pref.id);
-                            setEditFaina({ faina: pref.faina, chamada: pref.chamada });
+                            setEditFaina({ faina: pref.faina, chamada: pref.chamada, tipo: pref.tipo || '1' });
                           }}
                         >
                           <Edit2 className="h-4 w-4" />
