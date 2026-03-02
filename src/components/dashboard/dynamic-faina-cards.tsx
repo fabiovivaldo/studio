@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -29,7 +30,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
     if (!valueStr || !targetStr) return { color: 'text-accent', showIcon: false };
     
-    // Extrair apenas números para comparação
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
@@ -38,9 +38,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     const diff = Math.abs(target - value);
     
     return {
-      // Vermelho se a diferença for 10 ou menos
       color: diff <= 10 ? 'text-destructive font-black' : 'text-accent',
-      // Ícone se a diferença for 20 ou menos
       showIcon: diff <= 20
     };
   };
@@ -49,7 +47,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-44 bg-muted/50 rounded-xl border border-border"></div>
+          <div key={i} className="h-[185px] bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -59,7 +57,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     return (
       <div className="bg-accent/5 border border-dashed border-accent/20 rounded-xl p-8 text-center">
         <p className="text-sm text-muted-foreground">
-          Nenhuma preferência configurada. Adicione fainas em <span className="text-accent font-bold">Configurações {'>'} Preferências</span> para vê-las aqui.
+          Nenhuma preferência configurada. Adicione fainas em Configurações Preferências para vê-las aqui.
         </p>
       </div>
     );
@@ -107,7 +105,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                 {turnoText && (
                   <div className="flex flex-col ml-auto text-right">
                     <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
-                    <span className="text-sm font-bold text-accent/70 whitespace-nowrap">
+                    <span className="text-base font-bold text-accent whitespace-nowrap">
                       {turnoText}
                     </span>
                   </div>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -213,7 +214,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onPointerDown={(e) => e.stopPropagation()}
                   >
-                    <ScrollArea className="h-[400px] w-full" scrollHideDelay={0}>
+                    <ScrollArea className="h-[350px] w-full" scrollHideDelay={0}>
                       <div className="p-1">
                         {searchResults.length === 0 ? (
                           <div className="py-6 text-center text-sm text-muted-foreground">
