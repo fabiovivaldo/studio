@@ -8,6 +8,28 @@ export interface PonteiroData {
   Temporario_2: string;
 }
 
+function decodeHtmlEntities(text: string): string {
+  const entities: { [key: string]: string } = {
+    '&atilde;': 'ã',
+    '&Atilde;': 'Ã',
+    '&otilde;': 'õ',
+    '&Otilde;': 'Õ',
+    '&aacute;': 'á',
+    '&eacute;': 'é',
+    '&iacute;': 'í',
+    '&oacute;': 'ó',
+    '&uacute;': 'ú',
+    '&ccedil;': 'ç',
+    '&nbsp;': ' ',
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+  };
+  return text.replace(/&[a-z0-9#]+;/gi, (match) => entities[match] || match);
+}
+
 export async function fetchPonteiroData(): Promise<PonteiroData[]> {
   const url = 'https://www.ogmopgua.com.br/ogmopr/TempHtml/Ponteiros.html';
   
@@ -28,7 +50,8 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
     // Extração do cabeçalho (Data/Turno)
     const datePattern = /<h3>(.*?)<\/h3>/i;
     const dateMatch = datePattern.exec(html);
-    const headerData = dateMatch ? dateMatch[1].trim() : "Sem Data";
+    const headerDataRaw = dateMatch ? dateMatch[1].trim() : "Sem Data";
+    const headerData = decodeHtmlEntities(headerDataRaw);
 
     // Regex para as linhas da tabela
     const pattern = /<tr>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/gi;
@@ -37,7 +60,7 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
     let match;
     
     while ((match = pattern.exec(html)) !== null) {
-      const col1 = match[1].trim();
+      const col1 = decodeHtmlEntities(match[1].trim());
       const col2 = match[2].trim();
       const col3 = match[3].trim();
       const col4 = match[4].trim();
@@ -63,7 +86,7 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
     console.error("Scraping error:", error);
     // Dados mockados para desenvolvimento
     return Array.from({ length: 15 }, (_, i) => ({
-      Data_Turno: "01/03/2026 - 1º TURNO",
+      Data_Turno: "01/03/2026 Manhã",
       Funcao: `MOCK_FUNC_${i + 1}`,
       Sinal: i % 2 === 0 ? "A" : "B",
       Original_1: (Math.random() * 100).toFixed(2),
