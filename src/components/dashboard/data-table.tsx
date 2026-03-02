@@ -16,10 +16,12 @@ import {
   ChevronRight, 
   ArrowUpDown, 
   Download, 
-  Search
+  Search,
+  LayoutGrid
 } from "lucide-react";
 import { PonteiroData, exportToCSV } from "@/lib/data-service";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface DataTableProps {
   data: PonteiroData[];
@@ -31,6 +33,14 @@ export function PonteiroDataTable({ data }: DataTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Extrair categorias baseadas na primeira palavra da função
+  const categories = useMemo(() => {
+    const cats = data.map(item => item.Funcao.split('-')[0].split(' ')[0].trim());
+    return ["TODOS", ...Array.from(new Set(cats))].sort();
+  }, [data]);
+
+  const [activeCategory, setActiveCategory] = useState("TODOS");
+
   const handleSort = (key: keyof PonteiroData) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -40,12 +50,17 @@ export function PonteiroDataTable({ data }: DataTableProps) {
   };
 
   const filteredData = useMemo(() => {
-    return data.filter(item => 
-      Object.values(item).some(val => 
+    return data.filter(item => {
+      const matchesFilter = Object.values(item).some(val => 
         val.toLowerCase().includes(filter.toLowerCase())
-      )
-    );
-  }, [data, filter]);
+      );
+      
+      const firstWord = item.Funcao.split('-')[0].split(' ')[0].trim();
+      const matchesCategory = activeCategory === "TODOS" || firstWord === activeCategory;
+      
+      return matchesFilter && matchesCategory;
+    });
+  }, [data, filter, activeCategory]);
 
   const sortedData = useMemo(() => {
     if (!sortConfig) return filteredData;
@@ -71,28 +86,58 @@ export function PonteiroDataTable({ data }: DataTableProps) {
   ] as const;
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Pesquisar função ou sinal..." 
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="pl-10 bg-secondary/50 border-border focus:ring-accent"
-          />
+    <div className="space-y-6">
+      <div className="flex flex-col gap-6">
+        {/* Filtros e Busca */}
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+          <div className="relative w-full md:w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Pesquisar função ou sinal..." 
+              value={filter}
+              onChange={(e) => {
+                setFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-10 bg-secondary/50 border-border focus:ring-accent"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-accent/30 text-accent hover:bg-accent/10"
+              onClick={() => exportToCSV(sortedData)}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Exportar CSV
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="border-accent/30 text-accent hover:bg-accent/10"
-            onClick={() => exportToCSV(sortedData)}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Exportar CSV
-          </Button>
-        </div>
+
+        {/* Abas de Categorias */}
+        <Tabs 
+          value={activeCategory} 
+          onValueChange={(val) => {
+            setActiveCategory(val);
+            setCurrentPage(1);
+          }} 
+          className="w-full"
+        >
+          <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-accent/20">
+            <TabsList className="bg-muted/30 border border-border h-auto p-1 inline-flex whitespace-nowrap">
+              {categories.map((cat) => (
+                <TabsTrigger 
+                  key={cat} 
+                  value={cat}
+                  className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  {cat}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+        </Tabs>
       </div>
 
       <div className="rounded-xl border border-border bg-card/50 overflow-hidden shadow-2xl transition-all duration-300">
@@ -132,8 +177,11 @@ export function PonteiroDataTable({ data }: DataTableProps) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                  Nenhum registro encontrado.
+                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground font-medium">
+                  <div className="flex flex-col items-center gap-2">
+                    <LayoutGrid className="h-8 w-8 opacity-20" />
+                    Nenhum registro encontrado para esta categoria.
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -155,7 +203,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          <div className="flex items-center gap-1">
+          <div className="hidden sm:flex items-center gap-1">
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum = i + 1;
                 if (totalPages > 5 && currentPage > 3) {
