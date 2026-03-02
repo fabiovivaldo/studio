@@ -36,9 +36,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-32 bg-muted/50 rounded-xl border border-border"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-48 bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -55,38 +55,51 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {preferences.map((pref) => {
         // Encontrar o dado correspondente no scraping para esta faina preferida
         const fainaData = scrapedData.find(d => d.Funcao === pref.faina);
 
         return (
-          <Card key={pref.id} className="bg-card/50 border-border hover:border-accent/50 transition-all duration-300 shadow-lg relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1 h-full bg-accent"></div>
-            <CardContent className="p-5">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-foreground leading-tight">{pref.chamada}</h3>
-                  <p className="text-[10px] text-muted-foreground uppercase font-medium tracking-wider mt-1">{pref.faina}</p>
+          <Card key={pref.id} className="bg-card/50 border-border hover:border-accent/50 transition-all duration-300 shadow-xl relative overflow-hidden group min-h-[180px]">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent"></div>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div className="space-y-1">
+                   <div className="flex items-center gap-2">
+                    <h3 className="text-2xl font-bold text-foreground leading-tight">{pref.chamada}</h3>
+                    {fainaData && (
+                      <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary text-[10px] font-mono">
+                        {fainaData.Sinal}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{pref.faina}</p>
                 </div>
-                <div className="bg-accent/10 p-2 rounded-lg group-hover:bg-accent/20 transition-colors">
-                  <Activity className="h-4 w-4 text-accent" />
+                <div className="bg-accent/10 p-2.5 rounded-xl group-hover:bg-accent/20 transition-all duration-500 group-hover:rotate-12">
+                  <Activity className="h-5 w-5 text-accent" />
                 </div>
               </div>
 
               {fainaData ? (
-                <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                   <div className="space-y-1">
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase">Temp 1</p>
-                    <p className="text-2xl font-mono font-bold text-accent">{fainaData.Temporario_1}</p>
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter">Comparativo 1</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-mono font-bold text-accent">{fainaData.Temporario_1}</span>
+                      <span className="text-[10px] text-muted-foreground/60 font-mono">({fainaData.Original_1})</span>
+                    </div>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase">Temp 2</p>
-                    <p className="text-2xl font-mono font-bold text-accent">{fainaData.Temporario_2}</p>
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter">Comparativo 2</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-mono font-bold text-accent">{fainaData.Temporario_2}</span>
+                      <span className="text-[10px] text-muted-foreground/60 font-mono">({fainaData.Original_2})</span>
+                    </div>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 mt-4 text-destructive/70 italic text-xs">
+                <div className="flex items-center gap-2 mt-4 text-destructive/70 italic text-xs bg-destructive/5 p-3 rounded-lg border border-destructive/10">
                   <Zap className="h-3 w-3" />
                   <span>Não encontrado nos dados atuais</span>
                 </div>
