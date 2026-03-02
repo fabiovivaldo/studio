@@ -125,16 +125,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const handleUpdate = (id: string) => {
     if (!user || !firestore || isSubmitting) return;
 
-    const isDuplicate = preferences?.some(p => p.faina === editFaina.faina && p.id !== id);
-    if (isDuplicate) {
-      toast({
-        variant: "destructive",
-        title: "Faina duplicada",
-        description: "Esta faina já está sendo usada em outro card."
-      });
-      return;
-    }
-
     setIsSubmitting(true);
     const prefRef = doc(firestore, 'faina_preferences', id);
     setDocumentNonBlocking(prefRef, {
@@ -195,7 +185,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           if (!isPopoverOpen) setIsPopoverOpen(true);
                         }}
                         autoComplete="off"
-                        className="bg-background pr-8"
+                        className="bg-background pr-8 uppercase"
                       />
                       <button 
                         type="button"
@@ -226,7 +216,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                             <button
                               key={f}
                               className={cn(
-                                "flex w-full items-center justify-between rounded-sm px-2 py-2.5 text-xs font-medium uppercase tracking-tight transition-colors hover:bg-accent hover:text-accent-foreground text-left",
+                                "flex w-full items-center justify-between rounded-sm px-2 py-3 text-xs font-medium uppercase tracking-tight transition-colors hover:bg-accent hover:text-accent-foreground text-left",
                                 newFaina.faina === f && "bg-accent/30 text-accent"
                               )}
                               onClick={(e) => {
@@ -311,7 +301,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                                 <button
                                   key={f}
                                   className={cn(
-                                    "flex w-full items-center justify-between rounded-sm px-2 py-2 text-[10px] font-medium uppercase transition-colors hover:bg-accent hover:text-accent-foreground text-left",
+                                    "flex w-full items-center justify-between rounded-sm px-2 py-2.5 text-[10px] font-medium uppercase transition-colors hover:bg-accent hover:text-accent-foreground text-left",
                                     editFaina.faina === f && "bg-accent/30 text-accent"
                                   )}
                                   onClick={(e) => {

@@ -29,16 +29,19 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
     if (!valueStr || !targetStr) return { color: 'text-accent', showIcon: false };
     
+    // Remove qualquer caractere não numérico para comparação
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
     if (target === 0 || value === 0) return { color: 'text-accent', showIcon: false };
     
-    // Diferença absoluta: alerta se estiver a 20 ou menos números de distância (acima ou abaixo)
+    // Diferença absoluta (distância entre os números)
     const diff = Math.abs(target - value);
     
     return {
+      // Vermelho se faltar 10 ou menos para igualar (ou se já passou por pouco)
       color: diff <= 10 ? 'text-destructive font-black' : 'text-accent',
+      // Ícone se faltar 20 ou menos
       showIcon: diff <= 20
     };
   };
@@ -57,7 +60,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     return (
       <div className="bg-accent/5 border border-dashed border-accent/20 rounded-xl p-8 text-center">
         <p className="text-sm text-muted-foreground">
-          Nenhuma preferência configurada. Adicione fainas em <span className="text-accent font-bold">Configurações {' > '} Preferências</span> para vê-las aqui.
+          Nenhuma preferência configurada. Adicione fainas em <span className="text-accent font-bold">Configurações {'>'} Preferências</span> para vê-las aqui.
         </p>
       </div>
     );
@@ -68,8 +71,11 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
       {preferences.map((pref) => {
         const fainaData = scrapedData.find(d => d.Funcao === pref.faina);
         
-        const alert1 = getAlertStyle(fainaData?.Temporario_1, pref.chamada);
-        const alert2 = getAlertStyle(fainaData?.Temporario_2, pref.chamada);
+        // Aplicando a regra a todos os 4 campos para garantir que 350 vs 356 (Original) também alerte
+        const alertO1 = getAlertStyle(fainaData?.Original_1, pref.chamada);
+        const alertT1 = getAlertStyle(fainaData?.Temporario_1, pref.chamada);
+        const alertO2 = getAlertStyle(fainaData?.Original_2, pref.chamada);
+        const alertT2 = getAlertStyle(fainaData?.Temporario_2, pref.chamada);
 
         return (
           <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group h-[160px]">
@@ -97,25 +103,36 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
               {fainaData ? (
                 <div className="bg-[#161b22] rounded-lg p-2 grid grid-cols-4 gap-2 border border-white/5">
-                  <div className="flex flex-col gap-0">
-                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Original 1</span>
-                    <span className="text-lg font-bold text-accent tracking-tighter">{fainaData.Original_1}</span>
+                  {/* Original 1 */}
+                  <div className="flex flex-col gap-0 relative">
+                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
+                      O1 {alertO1.showIcon && <AlertTriangle className="h-3 w-3 text-yellow-500 animate-pulse fill-yellow-500/20" />}
+                    </span>
+                    <span className={cn("text-lg tracking-tighter transition-colors duration-300", alertO1.color)}>{fainaData.Original_1}</span>
                   </div>
+                  
+                  {/* Temporário 1 */}
                   <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
-                      Temp 1 {alert1.showIcon && <AlertTriangle className="h-4 w-4 text-yellow-500 animate-pulse fill-yellow-500/20" />}
+                      T1 {alertT1.showIcon && <AlertTriangle className="h-3 w-3 text-yellow-500 animate-pulse fill-yellow-500/20" />}
                     </span>
-                    <span className={cn("text-lg tracking-tighter transition-colors duration-300", alert1.color)}>{fainaData.Temporario_1}</span>
+                    <span className={cn("text-lg tracking-tighter transition-colors duration-300", alertT1.color)}>{fainaData.Temporario_1}</span>
                   </div>
-                  <div className="flex flex-col gap-0 border-l border-white/5 pl-2">
-                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Original 2</span>
-                    <span className="text-lg font-bold text-accent tracking-tighter">{fainaData.Original_2}</span>
-                  </div>
+
+                  {/* Original 2 */}
                   <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
-                      Temp 2 {alert2.showIcon && <AlertTriangle className="h-4 w-4 text-yellow-500 animate-pulse fill-yellow-500/20" />}
+                      O2 {alertO2.showIcon && <AlertTriangle className="h-3 w-3 text-yellow-500 animate-pulse fill-yellow-500/20" />}
                     </span>
-                    <span className={cn("text-lg tracking-tighter transition-colors duration-300", alert2.color)}>{fainaData.Temporario_2}</span>
+                    <span className={cn("text-lg tracking-tighter transition-colors duration-300", alertO2.color)}>{fainaData.Original_2}</span>
+                  </div>
+
+                  {/* Temporário 2 */}
+                  <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
+                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
+                      T2 {alertT2.showIcon && <AlertTriangle className="h-3 w-3 text-yellow-500 animate-pulse fill-yellow-500/20" />}
+                    </span>
+                    <span className={cn("text-lg tracking-tighter transition-colors duration-300", alertT2.color)}>{fainaData.Temporario_2}</span>
                   </div>
                 </div>
               ) : (
