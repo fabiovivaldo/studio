@@ -8,10 +8,7 @@ import { LastUpdatedDisplay } from '@/components/dashboard/last-updated';
 import { 
   Database, 
   LayoutDashboard, 
-  Activity, 
-  Globe,
   Settings,
-  HelpCircle,
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +21,6 @@ import {
 
 export default async function DashboardPage() {
   const data = await fetchPonteiroData();
-  // Geramos o timestamp no servidor como string ISO para o componente de cliente converter para local
   const lastUpdatedIso = new Date().toISOString();
 
   return (
@@ -45,15 +41,12 @@ export default async function DashboardPage() {
         <div className="flex-1 px-4 space-y-8 mt-4">
           <nav className="space-y-1">
             <NavItem icon={LayoutDashboard} label="Painel" active />
-            <NavItem icon={Activity} label="Monitoramento" />
-            <NavItem icon={Globe} label="Fontes Públicas" />
           </nav>
 
           <div className="space-y-4">
             <p className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Configurações</p>
             <nav className="space-y-1">
               <NavItem icon={Settings} label="Preferências" />
-              <NavItem icon={HelpCircle} label="Documentação" />
             </nav>
           </div>
         </div>
