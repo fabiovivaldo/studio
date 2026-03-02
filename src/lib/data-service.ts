@@ -1,4 +1,5 @@
 export interface PonteiroData {
+  Data_Turno: string;
   Funcao: string;
   Sinal: string;
   Original_1: string;
@@ -24,7 +25,12 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
 
     const html = await response.text();
     
-    // Regex from prompt: (?i)<tr>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*</tr>
+    // Extração do cabeçalho (Data/Turno)
+    const datePattern = /<h3>(.*?)<\/h3>/i;
+    const dateMatch = datePattern.exec(html);
+    const headerData = dateMatch ? dateMatch[1].trim() : "Sem Data";
+
+    // Regex para as linhas da tabela
     const pattern = /<tr>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/gi;
     
     const data: PonteiroData[] = [];
@@ -38,9 +44,10 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
       const col5 = match[5].trim();
       const col6 = match[6].trim();
 
-      // Filter out empty or header rows
+      // Filtrar linhas vazias ou de cabeçalho
       if (col1 && col1 !== "Lista" && !col1.includes("Função")) {
         data.push({
+          Data_Turno: headerData,
           Funcao: col1,
           Sinal: col2,
           Original_1: col3,
@@ -54,8 +61,9 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
     return data;
   } catch (error) {
     console.error("Scraping error:", error);
-    // Return mock data for development if the live site is down or blocking
+    // Dados mockados para desenvolvimento
     return Array.from({ length: 15 }, (_, i) => ({
+      Data_Turno: "01/03/2026 - 1º TURNO",
       Funcao: `MOCK_FUNC_${i + 1}`,
       Sinal: i % 2 === 0 ? "A" : "B",
       Original_1: (Math.random() * 100).toFixed(2),
@@ -67,8 +75,9 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
 }
 
 export function exportToCSV(data: PonteiroData[]) {
-  const headers = ["Funcao", "Sinal", "Original_1", "Temporario_1", "Original_2", "Temporario_2"];
+  const headers = ["Data_Turno", "Funcao", "Sinal", "Original_1", "Temporario_1", "Original_2", "Temporario_2"];
   const rows = data.map(row => [
+    row.Data_Turno,
     row.Funcao,
     row.Sinal,
     row.Original_1,

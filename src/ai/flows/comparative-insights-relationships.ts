@@ -1,31 +1,28 @@
 'use server';
 /**
- * @fileOverview This file implements a Genkit flow that analyzes tabular data.
- *
- * - analyzeComparativeInsights - A function that analyzes the provided data for insights.
- * - ComparativeInsightsInput - The input type for the analyzeComparativeInsights function.
- * - ComparativeInsightsOutput - The return type for the analyzeComparativeInsights function.
+ * @fileOverview Fluxo Genkit para análise comparativa de insights.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ComparativeDataRowSchema = z.object({
-  Funcao: z.string().describe('The function or category identifier.'),
-  Sinal: z.string().describe('An associated signal or characteristic.'),
-  Original_1: z.string().describe('The first original value.'),
-  Temporario_1: z.string().describe('The first temporary value for comparison.'),
-  Original_2: z.string().describe('The second original value.'),
-  Temporario_2: z.string().describe('The second temporary value for comparison.'),
+  Data_Turno: z.string().describe('Data e turno da extração.'),
+  Funcao: z.string().describe('Identificador da função ou categoria.'),
+  Sinal: z.string().describe('Sinal ou característica associada.'),
+  Original_1: z.string().describe('Primeiro valor original.'),
+  Temporario_1: z.string().describe('Primeiro valor temporário para comparação.'),
+  Original_2: z.string().describe('Segundo valor original.'),
+  Temporario_2: z.string().describe('Segundo valor temporário para comparação.'),
 });
 
 const ComparativeInsightsInputSchema = z.object({
-  dataRows: z.array(ComparativeDataRowSchema).describe('An array of data rows extracted from the table.'),
+  dataRows: z.array(ComparativeDataRowSchema).describe('Um array de linhas de dados extraídas da tabela.'),
 });
 export type ComparativeInsightsInput = z.infer<typeof ComparativeInsightsInputSchema>;
 
 const ComparativeInsightsOutputSchema = z.object({
-  insights: z.string().describe('A comprehensive analysis of the comparative data, highlighting relationships, trends, discrepancies, and potential reasons.'),
+  insights: z.string().describe('Uma análise abrangente dos dados comparativos.'),
 });
 export type ComparativeInsightsOutput = z.infer<typeof ComparativeInsightsOutputSchema>;
 
@@ -37,23 +34,20 @@ const prompt = ai.definePrompt({
   name: 'comparativeInsightsPrompt',
   input: {schema: ComparativeInsightsInputSchema},
   output: {schema: ComparativeInsightsOutputSchema},
-  prompt: `You are an expert data analyst specializing in comparing numerical and categorical data to find relationships, trends, and significant differences.
-Your task is to analyze the provided data, focusing on the 'Original_1' vs 'Temporario_1' and 'Original_2' vs 'Temporario_2' values for each 'Funcao'.
+  prompt: `Você é um analista de dados especialista em comparar valores numéricos para encontrar tendências e discrepâncias significativas.
+Sua tarefa é analisar os dados, focando na comparação 'Original' vs 'Temporario' para cada 'Funcao' na 'Data_Turno' especificada.
 
-Identify any patterns, relationships, trends, or significant discrepancies between the 'Original' and 'Temporario' values.
-Provide concise summaries and explain potential reasons for the observed behaviors or impacts.
+Identifique padrões, tendências ou discrepâncias significativas.
+Forneça resumos concisos e explique os impactos potenciais em português.
 
-Data for analysis:
+Dados para análise:
 {{#each dataRows}}
-Funcao: {{{Funcao}}}
-  - Sinal: {{{Sinal}}}
-  - Original 1: {{{Original_1}}}
-  - Temporario 1: {{{Temporario_1}}}
-  - Original 2: {{{Original_2}}}
-  - Temporario 2: {{{Temporario_2}}}
+Data/Turno: {{{Data_Turno}}} | Função: {{{Funcao}}} | Sinal: {{{Sinal}}}
+  - Comparativo 1: Original({{{Original_1}}}) -> Temp({{{Temporario_1}}})
+  - Comparativo 2: Original({{{Original_2}}}) -> Temp({{{Temporario_2}}})
 {{/each}}
 
-Analysis:`,
+Análise:`,
 });
 
 const comparativeInsightsFlow = ai.defineFlow(

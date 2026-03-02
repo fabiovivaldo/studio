@@ -16,8 +16,7 @@ import {
   ChevronRight, 
   ArrowUpDown, 
   Download, 
-  Search,
-  Filter
+  Search
 } from "lucide-react";
 import { PonteiroData, exportToCSV } from "@/lib/data-service";
 import { Badge } from "@/components/ui/badge";
@@ -61,13 +60,23 @@ export function PonteiroDataTable({ data }: DataTableProps) {
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
   const currentData = sortedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  const columns = [
+    { key: 'Data_Turno', label: 'Data / Turno' },
+    { key: 'Funcao', label: 'Função' },
+    { key: 'Sinal', label: 'Sinal' },
+    { key: 'Original_1', label: 'Original 1' },
+    { key: 'Temporario_1', label: 'Temp 1' },
+    { key: 'Original_2', label: 'Original 2' },
+    { key: 'Temporario_2', label: 'Temp 2' },
+  ] as const;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Search function or signal..." 
+            placeholder="Pesquisar função ou sinal..." 
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="pl-10 bg-secondary/50 border-border focus:ring-accent"
@@ -81,7 +90,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
             onClick={() => exportToCSV(sortedData)}
           >
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            Exportar CSV
           </Button>
         </div>
       </div>
@@ -90,14 +99,14 @@ export function PonteiroDataTable({ data }: DataTableProps) {
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              {(['Funcao', 'Sinal', 'Original_1', 'Temporario_1', 'Original_2', 'Temporario_2'] as const).map((key) => (
+              {columns.map(({ key, label }) => (
                 <TableHead 
                   key={key} 
-                  className="cursor-pointer hover:text-accent transition-colors py-4 font-headline uppercase tracking-wider text-xs"
-                  onClick={() => handleSort(key)}
+                  className="cursor-pointer hover:text-accent transition-colors py-4 font-headline uppercase tracking-wider text-[10px]"
+                  onClick={() => handleSort(key as keyof PonteiroData)}
                 >
                   <div className="flex items-center gap-2">
-                    {key.replace('_', ' ')}
+                    {label}
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </TableHead>
@@ -108,6 +117,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
             {currentData.length > 0 ? (
               currentData.map((row, idx) => (
                 <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200">
+                  <TableCell className="text-[11px] whitespace-nowrap text-muted-foreground">{row.Data_Turno}</TableCell>
                   <TableCell className="font-medium">{row.Funcao}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary-foreground font-mono">
@@ -122,8 +132,8 @@ export function PonteiroDataTable({ data }: DataTableProps) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                  No records found matching your criteria.
+                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                  Nenhum registro encontrado.
                 </TableCell>
               </TableRow>
             )}
@@ -133,7 +143,7 @@ export function PonteiroDataTable({ data }: DataTableProps) {
 
       <div className="flex items-center justify-between px-2 py-4">
         <p className="text-sm text-muted-foreground">
-          Showing <span className="text-foreground font-medium">{Math.min(currentData.length, itemsPerPage)}</span> of <span className="text-foreground font-medium">{sortedData.length}</span> results
+          Mostrando <span className="text-foreground font-medium">{Math.min(currentData.length, itemsPerPage)}</span> de <span className="text-foreground font-medium">{sortedData.length}</span> resultados
         </p>
         <div className="flex items-center gap-2">
           <Button

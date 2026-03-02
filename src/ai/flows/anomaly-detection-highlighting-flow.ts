@@ -1,10 +1,6 @@
 'use server';
 /**
- * @fileOverview This file implements a Genkit flow for detecting anomalies in tabular data.
- *
- * - detectAnomalies - A function that analyzes input data for anomalies.
- * - AnomalyDetectionInput - The input type for the detectAnomalies function.
- * - AnomalyDetectionOutput - The return type for the detectAnomalies function.
+ * @fileOverview Fluxo Genkit para detecção de anomalias em dados tabulares.
  */
 
 import { ai } from '@/ai/genkit';
@@ -12,24 +8,25 @@ import { z } from 'genkit';
 
 const AnomalyDetectionInputSchema = z.array(
   z.object({
-    Funcao: z.string().describe('Function name.'),
-    Sinal: z.string().describe('Signal value or identifier.'),
-    Original_1: z.string().describe('Original value 1.'),
-    Temporario_1: z.string().describe('Temporary value 1.'),
-    Original_2: z.string().describe('Original value 2.'),
-    Temporario_2: z.string().describe('Temporary value 2.'),
-  }).describe('A row of extracted tabular data.')
+    Data_Turno: z.string().describe('Data e turno da extração.'),
+    Funcao: z.string().describe('Nome da função.'),
+    Sinal: z.string().describe('Valor ou identificador do sinal.'),
+    Original_1: z.string().describe('Valor original 1.'),
+    Temporario_1: z.string().describe('Valor temporário 1.'),
+    Original_2: z.string().describe('Valor original 2.'),
+    Temporario_2: z.string().describe('Valor temporário 2.'),
+  })
 );
 export type AnomalyDetectionInput = z.infer<typeof AnomalyDetectionInputSchema>;
 
 const AnomalySchema = z.object({
-  rowIndex: z.number().describe('The 0-based index of the row where the anomaly was found.'),
-  column: z.string().describe('The name of the column where the anomaly was detected.'),
-  value: z.string().describe('The anomalous value detected in the specified column.'),
-  explanation: z.string().describe('A brief explanation of why this value is considered an anomaly.'),
+  rowIndex: z.number().describe('O índice baseado em 0 da linha onde a anomalia foi encontrada.'),
+  column: z.string().describe('O nome da coluna onde a anomalia foi detectada.'),
+  value: z.string().describe('O valor anômalo detectado.'),
+  explanation: z.string().describe('Uma breve explicação do porquê este valor é considerado uma anomalia.'),
 });
 
-const AnomalyDetectionOutputSchema = z.array(AnomalySchema).describe('A list of detected anomalies.');
+const AnomalyDetectionOutputSchema = z.array(AnomalySchema).describe('Uma lista de anomalias detectadas.');
 export type AnomalyDetectionOutput = z.infer<typeof AnomalyDetectionOutputSchema>;
 
 export async function detectAnomalies(input: AnomalyDetectionInput): Promise<AnomalyDetectionOutput> {
@@ -40,16 +37,16 @@ const anomalyDetectionPrompt = ai.definePrompt({
   name: 'anomalyDetectionPrompt',
   input: { schema: AnomalyDetectionInputSchema },
   output: { schema: AnomalyDetectionOutputSchema },
-  prompt: `You are an expert data analyst specializing in identifying anomalies and outliers in structured data.
-Your task is to analyze the provided tabular data and identify any statistically significant anomalies or outliers in the 'Sinal', 'Original_1', 'Temporario_1', 'Original_2', and 'Temporario_2' columns.
-For each anomaly, provide the 0-based row index, the column name, the anomalous value, and a brief explanation of why it is considered an anomaly.
-Focus on values that deviate significantly from typical patterns or ranges within their respective columns. If no anomalies are found, return an empty array.
+  prompt: `Você é um analista de dados especialista em identificar anomalias e discrepâncias em dados estruturados de ponteiros.
+Sua tarefa é analisar os dados fornecidos e identificar quaisquer anomalias significativas nas colunas 'Original' vs 'Temporario' e no 'Sinal'.
+Considere o contexto da 'Data_Turno'.
+Para cada anomalia, forneça o índice da linha, o nome da coluna, o valor anômalo e uma breve explicação em português.
+Se não houver anomalias, retorne um array vazio.
 
-The data is provided below in JSON format.
-Data:
+Dados:
 {{{JSON.stringify input}}}`,
   config: {
-    temperature: 0.2,
+    temperature: 0.1,
   },
 });
 
