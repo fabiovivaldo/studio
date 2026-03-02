@@ -64,25 +64,28 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
             {/* Barra lateral de destaque */}
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"></div>
             
-            <div className="p-3 pt-2 space-y-2">
-              {/* Topo: Nome Original da Faina e Sinal */}
+            <div className="p-3 pt-2 space-y-1">
+              {/* Topo: Nome Original da Faina */}
               <div className="flex justify-between items-start">
-                <div className="text-xl font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[280px]">
+                <div className="text-xl font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-full">
                   {pref.faina}
                 </div>
+              </div>
+
+              {/* Centro: Chamada Personalizada (Texto Grande) e Sinal */}
+              <div className="flex items-center gap-4 py-0">
+                <div className="text-6xl font-bold text-white tracking-tighter">
+                  {pref.chamada}
+                </div>
+                
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-[9px] font-black text-accent uppercase tracking-tighter opacity-80">Sinal</span>
-                  <div className="bg-accent/10 border border-accent/20 px-3 py-0.5 rounded-full">
+                  <div className="bg-accent/10 border border-accent/20 px-3 py-0.5 rounded-full min-w-[36px] flex items-center justify-center">
                     <span className="text-xs font-bold text-accent">
                       {fainaData?.Sinal || '+'}
                     </span>
                   </div>
                 </div>
-              </div>
-
-              {/* Centro: Chamada Personalizada (Texto Grande) */}
-              <div className="text-6xl font-bold text-white tracking-tighter py-0">
-                {pref.chamada}
               </div>
 
               {/* Rodapé: Tabela de Valores com fundo escuro */}
