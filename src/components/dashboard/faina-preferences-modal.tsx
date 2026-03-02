@@ -9,7 +9,6 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -22,13 +21,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings, Plus, Trash2, Edit2, Check, X } from "lucide-react";
 import { 
-  useFirestore, 
-  useUser, 
+  useFirebase,
   useCollection, 
   useMemoFirebase,
   setDocumentNonBlocking,
@@ -37,7 +42,11 @@ import {
 } from '@/firebase';
 import { collection, query, where, doc } from 'firebase/firestore';
 
-export function FainaPreferencesModal() {
+interface FainaPreferencesModalProps {
+  availableFainas: string[];
+}
+
+export function FainaPreferencesModal({ availableFainas }: FainaPreferencesModalProps) {
   const { firestore, auth, user, isUserLoading } = useFirebase();
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -46,7 +55,7 @@ export function FainaPreferencesModal() {
 
   // Garantir login anônimo se necessário
   useEffect(() => {
-    if (!user && !isUserLoading && isOpen) {
+    if (!user && !isUserLoading && isOpen && auth) {
       initiateAnonymousSignIn(auth);
     }
   }, [user, isUserLoading, isOpen, auth]);
@@ -59,8 +68,8 @@ export function FainaPreferencesModal() {
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
 
   const handleAdd = () => {
-    if (!user || !newFaina.faina || !newFaina.chamada) return;
-    const prefRef = doc(collection(firestore!, 'faina_preferences'));
+    if (!user || !newFaina.faina || !newFaina.chamada || !firestore) return;
+    const prefRef = doc(collection(firestore, 'faina_preferences'));
     setDocumentNonBlocking(prefRef, {
       id: prefRef.id,
       faina: newFaina.faina,
@@ -71,8 +80,8 @@ export function FainaPreferencesModal() {
   };
 
   const handleUpdate = (id: string) => {
-    if (!user) return;
-    const prefRef = doc(firestore!, 'faina_preferences', id);
+    if (!user || !firestore) return;
+    const prefRef = doc(firestore, 'faina_preferences', id);
     setDocumentNonBlocking(prefRef, {
       ...editFaina,
       userId: user.uid
@@ -81,7 +90,8 @@ export function FainaPreferencesModal() {
   };
 
   const handleDelete = (id: string) => {
-    const prefRef = doc(firestore!, 'faina_preferences', id);
+    if (!firestore) return;
+    const prefRef = doc(firestore, 'faina_preferences', id);
     deleteDocumentNonBlocking(prefRef);
   };
 
@@ -108,15 +118,22 @@ export function FainaPreferencesModal() {
               <Plus className="h-4 w-4 text-accent" />
               Adicionar Nova Faina
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="faina">Faina</Label>
-                <Input 
-                  id="faina" 
-                  placeholder="Ex: ESTIVA" 
-                  value={newFaina.faina}
-                  onChange={(e) => setNewFaina(prev => ({ ...prev, faina: e.target.value }))}
-                />
+                <Select 
+                  value={newFaina.faina} 
+                  onValueChange={(val) => setNewFaina(prev => ({ ...prev, faina: val }))}
+                >
+                  <SelectTrigger id="faina" className="bg-background">
+                    <SelectValue placeholder="Selecione a faina..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {availableFainas.map((f) => (
+                      <SelectItem key={f} value={f}>{f}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="chamada">Chamada</Label>
@@ -134,7 +151,7 @@ export function FainaPreferencesModal() {
           </div>
 
           {/* Listagem */}
-          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin">
+          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-accent/20">
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground animate-pulse">Carregando preferências...</div>
             ) : preferences?.length ? (
@@ -142,13 +159,21 @@ export function FainaPreferencesModal() {
                 <div key={pref.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/10 group">
                   {editingId === pref.id ? (
                     <div className="flex-1 grid grid-cols-2 gap-2">
-                      <Input 
-                        size={1}
+                      <Select 
                         value={editFaina.faina} 
-                        onChange={(e) => setEditFaina(prev => ({ ...prev, faina: e.target.value }))}
-                      />
+                        onValueChange={(val) => setEditFaina(prev => ({ ...prev, faina: val }))}
+                      >
+                        <SelectTrigger className="h-8 text-xs bg-background">
+                          <SelectValue placeholder="Faina" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableFainas.map((f) => (
+                            <SelectItem key={f} value={f}>{f}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Input 
-                        size={1}
+                        className="h-8 text-xs"
                         value={editFaina.chamada} 
                         onChange={(e) => setEditFaina(prev => ({ ...prev, chamada: e.target.value }))}
                       />
@@ -211,7 +236,7 @@ export function FainaPreferencesModal() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-8 text-muted-foreground text-sm border border-dashed rounded-xl">
+              <div className="text-center py-8 text-muted-foreground text-sm border border-dashed rounded-xl border-border/50">
                 Nenhuma faina personalizada encontrada.
               </div>
             )}
@@ -220,10 +245,4 @@ export function FainaPreferencesModal() {
       </DialogContent>
     </Dialog>
   );
-}
-
-// Helper hook local para facilitar acesso ao Firebase Provider
-function useFirebase() {
-  const { auth, firestore, user, isUserLoading } = require('@/firebase').useFirebase();
-  return { auth, firestore, user, isUserLoading };
 }

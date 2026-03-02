@@ -23,6 +23,9 @@ import {
 export default async function DashboardPage() {
   const data = await fetchPonteiroData();
   const lastUpdatedIso = new Date().toISOString();
+  
+  // Extrair nomes únicos de fainas para as preferências
+  const uniqueFainas = Array.from(new Set(data.map(d => d.Funcao))).sort();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -47,7 +50,7 @@ export default async function DashboardPage() {
           <div className="space-y-4">
             <p className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Configurações</p>
             <nav className="space-y-1">
-              <FainaPreferencesModal />
+              <FainaPreferencesModal availableFainas={uniqueFainas} />
             </nav>
           </div>
         </div>
