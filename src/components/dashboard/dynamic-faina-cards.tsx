@@ -4,8 +4,7 @@ import React from 'react';
 import { 
   useFirebase, 
   useCollection, 
-  useMemoFirebase,
-  initiateAnonymousSignIn
+  useMemoFirebase
 } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
@@ -17,14 +16,7 @@ interface DynamicFainaCardsProps {
 }
 
 export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
-  const { firestore, user, auth } = useFirebase();
-
-  // Garantir que o usuário esteja logado (anonimamente) para ver suas preferências
-  React.useEffect(() => {
-    if (!user && auth) {
-      initiateAnonymousSignIn(auth);
-    }
-  }, [user, auth]);
+  const { firestore, user } = useFirebase();
 
   const preferencesQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;

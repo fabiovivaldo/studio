@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -30,14 +30,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings, Plus, Trash2, Edit2, Check, X } from "lucide-react";
+import { Settings, Plus, Trash2, Edit2, Check, X, Loader2 } from "lucide-react";
 import { 
   useFirebase,
   useCollection, 
   useMemoFirebase,
   setDocumentNonBlocking,
-  deleteDocumentNonBlocking,
-  initiateAnonymousSignIn
+  deleteDocumentNonBlocking
 } from '@/firebase';
 import { collection, query, where, doc } from 'firebase/firestore';
 
@@ -47,18 +46,17 @@ interface FainaPreferencesModalProps {
 }
 
 export function FainaPreferencesModal({ availableFainas, trigger }: FainaPreferencesModalProps) {
-  const { firestore, auth, user, isUserLoading } = useFirebase();
+  const { firestore, user } = useFirebase();
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newFaina, setNewFaina] = useState({ faina: '', chamada: '' });
   const [editFaina, setEditFaina] = useState({ faina: '', chamada: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
-  // Garantir login anônimo se necessário
-  useEffect(() => {
-    if (!user && !isUserLoading && isOpen && auth) {
-      initiateAnonymousSignIn(auth);
-    }
-  }, [user, isUserLoading, isOpen, auth]);
+  const filteredAvailableFainas = useMemo(() => {
+    return availableFainas.filter(f => f && f.trim() !== '');
+  }, [availableFainas]);
 
   const preferencesQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -68,25 +66,34 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
 
   const handleAdd = () => {
-    if (!user || !newFaina.faina || !newFaina.chamada || !firestore) return;
+    if (!user || !newFaina.faina || !newFaina.chamada || !firestore || isSubmitting) return;
+    
+    setIsSubmitting(true);
     const prefRef = doc(collection(firestore, 'faina_preferences'));
+    
     setDocumentNonBlocking(prefRef, {
       id: prefRef.id,
       faina: newFaina.faina,
       chamada: newFaina.chamada,
       userId: user.uid
     }, { merge: true });
+
+    // Limpar estados e forçar reset do Select
     setNewFaina({ faina: '', chamada: '' });
+    setResetKey(prev => prev + 1);
+    setIsSubmitting(false);
   };
 
   const handleUpdate = (id: string) => {
-    if (!user || !firestore) return;
+    if (!user || !firestore || isSubmitting) return;
+    setIsSubmitting(true);
     const prefRef = doc(firestore, 'faina_preferences', id);
     setDocumentNonBlocking(prefRef, {
       ...editFaina,
       userId: user.uid
     }, { merge: true });
     setEditingId(null);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (id: string) => {
@@ -114,7 +121,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Formulário de Adição */}
           <div className="space-y-4 p-4 rounded-xl border border-border/50 bg-muted/20">
             <h4 className="text-sm font-bold flex items-center gap-2">
               <Plus className="h-4 w-4 text-accent" />
@@ -124,14 +130,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
               <div className="space-y-2">
                 <Label htmlFor="faina">Faina</Label>
                 <Select 
+                  key={resetKey}
                   value={newFaina.faina} 
                   onValueChange={(val) => setNewFaina(prev => ({ ...prev, faina: val }))}
                 >
                   <SelectTrigger id="faina" className="bg-background">
-                    <SelectValue placeholder="Selecione a faina..." />
+                    <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px]">
-                    {availableFainas.map((f) => (
+                    {filteredAvailableFainas.map((f) => (
                       <SelectItem key={f} value={f}>{f}</SelectItem>
                     ))}
                   </SelectContent>
@@ -147,12 +154,16 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 />
               </div>
             </div>
-            <Button className="w-full bg-accent hover:bg-accent/80 text-accent-foreground font-bold" onClick={handleAdd}>
+            <Button 
+              className="w-full bg-accent hover:bg-accent/80 text-accent-foreground font-bold" 
+              onClick={handleAdd}
+              disabled={!newFaina.faina || !newFaina.chamada || isSubmitting}
+            >
+              {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Adicionar
             </Button>
           </div>
 
-          {/* Listagem */}
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-accent/20">
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground animate-pulse">Carregando preferências...</div>
@@ -169,7 +180,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           <SelectValue placeholder="Faina" />
                         </SelectTrigger>
                         <SelectContent>
-                          {availableFainas.map((f) => (
+                          {filteredAvailableFainas.map((f) => (
                             <SelectItem key={f} value={f}>{f}</SelectItem>
                           ))}
                         </SelectContent>
