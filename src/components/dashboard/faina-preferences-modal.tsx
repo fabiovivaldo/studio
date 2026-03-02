@@ -21,16 +21,25 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings, Plus, Trash2, Edit2, Check, X, Loader2 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Settings, 
+  Plus, 
+  Trash2, 
+  Edit2, 
+  Check, 
+  X, 
+  Loader2, 
+  Search,
+  ChevronDown 
+} from "lucide-react";
 import { 
   useFirebase,
   useCollection, 
@@ -40,6 +49,7 @@ import {
 } from '@/firebase';
 import { collection, query, where, doc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface FainaPreferencesModalProps {
   availableFainas: string[];
@@ -51,14 +61,36 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // States para Adição
   const [newFaina, setNewFaina] = useState({ faina: '', chamada: '' });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  // States para Edição
   const [editFaina, setEditFaina] = useState({ faina: '', chamada: '' });
+  const [editSearchQuery, setEditSearchQuery] = useState('');
+  const [isEditPopoverOpen, setIsEditPopoverOpen] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [resetKey, setResetKey] = useState(0);
 
   const filteredAvailableFainas = useMemo(() => {
     return availableFainas.filter(f => f && f.trim() !== '');
   }, [availableFainas]);
+
+  // Filtro por digitação para o campo de Adição
+  const searchResults = useMemo(() => {
+    return filteredAvailableFainas.filter(f => 
+      f.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [filteredAvailableFainas, searchQuery]);
+
+  // Filtro por digitação para o campo de Edição
+  const editSearchResults = useMemo(() => {
+    return filteredAvailableFainas.filter(f => 
+      f.toLowerCase().includes(editSearchQuery.toLowerCase())
+    );
+  }, [filteredAvailableFainas, editSearchQuery]);
 
   const preferencesQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -70,7 +102,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const handleAdd = () => {
     if (!user || !newFaina.faina || !newFaina.chamada || !firestore || isSubmitting) return;
     
-    // Validar se já existe um card com esta faina
     const isDuplicate = preferences?.some(p => p.faina === newFaina.faina);
     if (isDuplicate) {
       toast({
@@ -91,16 +122,14 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       userId: user.uid
     }, { merge: true });
 
-    // Limpar estados e forçar reset do Select
     setNewFaina({ faina: '', chamada: '' });
-    setResetKey(prev => prev + 1);
+    setSearchQuery('');
     setIsSubmitting(false);
   };
 
   const handleUpdate = (id: string) => {
     if (!user || !firestore || isSubmitting) return;
 
-    // Validar se a nova faina editada já existe em outro card
     const isDuplicate = preferences?.some(p => p.faina === editFaina.faina && p.id !== id);
     if (isDuplicate) {
       toast({
@@ -118,6 +147,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       userId: user.uid
     }, { merge: true });
     setEditingId(null);
+    setEditSearchQuery('');
     setIsSubmitting(false);
   };
 
@@ -152,22 +182,60 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
               Adicionar Nova Faina
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col">
                 <Label htmlFor="faina">Faina</Label>
-                <Select 
-                  key={resetKey}
-                  value={newFaina.faina} 
-                  onValueChange={(val) => setNewFaina(prev => ({ ...prev, faina: val }))}
-                >
-                  <SelectTrigger id="faina" className="bg-background">
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
-                    {filteredAvailableFainas.map((f) => (
-                      <SelectItem key={f} value={f}>{f}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={isPopoverOpen}
+                      className="w-full justify-between bg-background font-normal"
+                    >
+                      <span className="truncate">
+                        {newFaina.faina || "Selecione..."}
+                      </span>
+                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0 bg-card border-border shadow-xl" align="start">
+                    <div className="flex items-center border-b border-border px-3">
+                      <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                      <Input
+                        placeholder="Buscar faina..."
+                        className="flex h-10 w-full border-none bg-transparent py-3 text-sm outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <ScrollArea className="h-[200px]">
+                      <div className="p-1">
+                        {searchResults.length === 0 ? (
+                          <div className="py-6 text-center text-sm text-muted-foreground">
+                            Nenhuma faina encontrada.
+                          </div>
+                        ) : (
+                          searchResults.map((f) => (
+                            <button
+                              key={f}
+                              className={cn(
+                                "flex w-full items-center justify-between rounded-sm px-2 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+                                newFaina.faina === f && "bg-accent/50"
+                              )}
+                              onClick={() => {
+                                setNewFaina(prev => ({ ...prev, faina: f }));
+                                setIsPopoverOpen(false);
+                              }}
+                            >
+                              <span className="truncate">{f}</span>
+                              {newFaina.faina === f && <Check className="h-4 w-4 text-accent" />}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="chamada">Chamada</Label>
@@ -197,21 +265,53 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 <div key={pref.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/10 group">
                   {editingId === pref.id ? (
                     <div className="flex-1 grid grid-cols-2 gap-2">
-                      <Select 
-                        value={editFaina.faina} 
-                        onValueChange={(val) => setEditFaina(prev => ({ ...prev, faina: val }))}
-                      >
-                        <SelectTrigger className="h-8 text-xs bg-background">
-                          <SelectValue placeholder="Faina" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredAvailableFainas.map((f) => (
-                            <SelectItem key={f} value={f}>{f}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={isEditPopoverOpen} onOpenChange={setIsEditPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="h-8 justify-between bg-background font-normal text-xs px-2"
+                          >
+                            <span className="truncate">
+                              {editFaina.faina || "Faina"}
+                            </span>
+                            <ChevronDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[300px] p-0 bg-card border-border shadow-xl" align="start">
+                          <div className="flex items-center border-b border-border px-3">
+                            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                            <Input
+                              placeholder="Buscar faina..."
+                              className="flex h-10 w-full border-none bg-transparent py-3 text-sm outline-none focus-visible:ring-0"
+                              value={editSearchQuery}
+                              onChange={(e) => setEditSearchQuery(e.target.value)}
+                            />
+                          </div>
+                          <ScrollArea className="h-[200px]">
+                            <div className="p-1">
+                              {editSearchResults.map((f) => (
+                                <button
+                                  key={f}
+                                  className={cn(
+                                    "flex w-full items-center justify-between rounded-sm px-2 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+                                    editFaina.faina === f && "bg-accent/50"
+                                  )}
+                                  onClick={() => {
+                                    setEditFaina(prev => ({ ...prev, faina: f }));
+                                    setIsEditPopoverOpen(false);
+                                  }}
+                                >
+                                  <span className="truncate">{f}</span>
+                                  {editFaina.faina === f && <Check className="h-4 w-4 text-accent" />}
+                                </button>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </PopoverContent>
+                      </Popover>
                       <Input 
-                        className="h-8 text-xs"
+                        className="h-8 text-xs bg-background"
                         value={editFaina.chamada} 
                         onChange={(e) => setEditFaina(prev => ({ ...prev, chamada: e.target.value }))}
                       />
@@ -229,7 +329,10 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-green-500" onClick={() => handleUpdate(pref.id)}>
                           <Check className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setEditingId(null)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => {
+                          setEditingId(null);
+                          setEditSearchQuery('');
+                        }}>
                           <X className="h-4 w-4" />
                         </Button>
                       </>
@@ -242,6 +345,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           onClick={() => {
                             setEditingId(pref.id);
                             setEditFaina({ faina: pref.faina, chamada: pref.chamada });
+                            setEditSearchQuery('');
                           }}
                         >
                           <Edit2 className="h-4 w-4" />
