@@ -64,7 +64,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
             {/* Barra lateral de destaque */}
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"></div>
             
-            <div className="p-4 pt-3 space-y-4">
+            <div className="p-3 pt-2 space-y-2">
               {/* Topo: Nome Original da Faina e Sinal */}
               <div className="flex justify-between items-start">
                 <div className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate max-w-[200px]">
@@ -72,7 +72,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-[9px] font-black text-accent uppercase tracking-tighter opacity-80">Sinal</span>
-                  <div className="bg-accent/10 border border-accent/20 px-4 py-0.5 rounded-full">
+                  <div className="bg-accent/10 border border-accent/20 px-3 py-0.5 rounded-full">
                     <span className="text-xs font-bold text-accent">
                       {fainaData?.Sinal || '+'}
                     </span>
@@ -81,13 +81,13 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               </div>
 
               {/* Centro: Chamada Personalizada (Texto Grande) */}
-              <div className="text-5xl font-bold text-white tracking-tighter py-1">
+              <div className="text-6xl font-bold text-white tracking-tighter py-0">
                 {pref.chamada}
               </div>
 
               {/* Rodapé: Tabela de Valores com fundo escuro */}
               {fainaData ? (
-                <div className="bg-[#161b22] rounded-lg p-3 grid grid-cols-4 gap-2 border border-white/5">
+                <div className="bg-[#161b22] rounded-lg p-2.5 grid grid-cols-4 gap-2 border border-white/5">
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Original 1</span>
                     <span className="text-xl font-bold text-accent tracking-tighter">{fainaData.Original_1}</span>
@@ -106,7 +106,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-destructive/70 italic text-xs bg-destructive/5 p-3 rounded-lg border border-destructive/10">
+                <div className="flex items-center gap-2 text-destructive/70 italic text-xs bg-destructive/5 p-2 rounded-lg border border-destructive/10">
                   <Zap className="h-3 w-3" />
                   <span>Não encontrado nos dados atuais</span>
                 </div>
