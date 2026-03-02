@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
@@ -6,9 +5,10 @@ import { AiInsights } from '@/components/dashboard/ai-insights';
 import { RefreshButton } from '@/components/dashboard/refresh-button';
 import { LastUpdatedDisplay } from '@/components/dashboard/last-updated';
 import { FainaPreferencesModal } from '@/components/dashboard/faina-preferences-modal';
+import { DynamicFainaCards } from '@/components/dashboard/dynamic-faina-cards';
 import { 
   Database, 
-  LayoutDashboard, 
+  LayoutDashboard as LayoutIcon, 
   Settings,
   LogOut
 } from "lucide-react";
@@ -44,7 +44,7 @@ export default async function DashboardPage() {
         
         <div className="flex-1 px-4 space-y-8 mt-4">
           <nav className="space-y-1">
-            <NavItem icon={LayoutDashboard} label="Painel" active />
+            <NavItem icon={LayoutIcon} label="Painel" active />
           </nav>
 
           <div className="space-y-4">
@@ -89,13 +89,14 @@ export default async function DashboardPage() {
         </header>
 
         <div className="p-8 max-w-[1600px] mx-auto space-y-8">
-          {/* Top Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard label="Total de Fainas" value={data.length.toString()} trend="+2.4%" color="primary" />
-            <StatCard label="Sinais Únicos" value={new Set(data.map(d => d.Sinal)).size.toString()} trend="Estável" color="accent" />
-            <StatCard label="Discrepâncias Críticas" value="12" trend="+3" color="destructive" />
-            <StatCard label="Latência do Sistema" value="124ms" trend="-12ms" color="primary" />
-          </div>
+          {/* Dynamic Preference Cards */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 px-1">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Minhas Fainas Prioritárias</h3>
+              <div className="h-px flex-1 bg-border/50"></div>
+            </div>
+            <DynamicFainaCards scrapedData={data} />
+          </section>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
             {/* Table Area */}
@@ -148,27 +149,5 @@ function NavItem({ icon: Icon, label, active = false }: { icon: any, label: stri
       {label}
       {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent shadow-glow shadow-accent"></span>}
     </button>
-  );
-}
-
-function StatCard({ label, value, trend, color }: { label: string, value: string, trend: string, color: string }) {
-  const colorMap: Record<string, string> = {
-    primary: 'border-l-primary',
-    accent: 'border-l-accent',
-    destructive: 'border-l-destructive',
-  };
-  
-  return (
-    <div className={`bg-card/50 border border-border border-l-4 ${colorMap[color]} p-6 rounded-xl shadow-lg hover:translate-y-[-2px] transition-all duration-300`}>
-      <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{label}</p>
-      <div className="flex items-end justify-between mt-2">
-        <h3 className="text-3xl font-bold font-mono">{value}</h3>
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-          trend.startsWith('+') ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'
-        }`}>
-          {trend}
-        </span>
-      </div>
-    </div>
   );
 }
