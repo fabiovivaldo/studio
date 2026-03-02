@@ -9,7 +9,7 @@ import {
 import { collection, query, where } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { Zap, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DynamicFainaCardsProps {
@@ -49,7 +49,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-40 bg-muted/50 rounded-xl border border-border"></div>
+          <div key={i} className="h-44 bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -77,24 +77,22 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const alertO = getAlertStyle(origVal, pref.chamada);
         const alertT = getAlertStyle(tempVal, pref.chamada);
 
-        // Extrair apenas a parte do turno (ex: Manhã) do texto "01/03/2026 Manhã"
         const turnoText = fainaData?.Data_Turno?.includes(' ') 
           ? fainaData.Data_Turno.split(' ').slice(1).join(' ') 
           : fainaData?.Data_Turno;
 
         return (
-          <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group h-[160px]">
+          <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group h-[185px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"></div>
             
-            <div className="p-3 pt-2 space-y-1">
+            <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
               <div className="flex justify-between items-start">
-                <div className="text-sm font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[80%]">
+                <div className="text-[11px] font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[80%]">
                   {pref.faina}
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 py-0 h-[60px]">
-                {/* Reduzido 50% de text-6xl para text-3xl */}
+              <div className="flex items-center gap-4 py-1">
                 <div className="text-3xl font-bold text-white tracking-tighter">
                   {pref.chamada}
                 </div>
@@ -106,11 +104,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </span>
                 </div>
 
-                {/* Exibição do Turno */}
                 {turnoText && (
                   <div className="flex flex-col ml-auto text-right">
-                    <span className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-tighter">Turno</span>
-                    <span className="text-[10px] font-bold text-accent/50 whitespace-nowrap">
+                    <span className="text-[8px] font-black text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
+                    <span className="text-[11px] font-bold text-accent/70 whitespace-nowrap">
                       {turnoText}
                     </span>
                   </div>
@@ -118,23 +115,23 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               </div>
 
               {fainaData ? (
-                <div className="bg-[#161b22] rounded-lg p-3 grid grid-cols-2 gap-4 border border-white/5">
+                <div className="bg-[#161b22] rounded-lg p-3 grid grid-cols-2 gap-4 border border-white/5 mt-auto mb-1">
                   <div className="flex flex-col gap-0 relative">
-                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-2">
-                      Original {isGroup2 ? '2' : '1'} {alertO.showIcon && <AlertTriangle className="h-4 w-4 text-yellow-500 animate-pulse fill-yellow-500/20" />}
+                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1.5">
+                      Original {isGroup2 ? '2' : '1'} {alertO.showIcon && <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 animate-pulse fill-yellow-500/10" />}
                     </span>
                     <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertO.color)}>{origVal}</span>
                   </div>
                   
                   <div className="flex flex-col gap-0 border-l border-white/5 pl-4 relative">
-                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-2">
-                      Temp {isGroup2 ? '2' : '1'} {alertT.showIcon && <AlertTriangle className="h-4 w-4 text-yellow-500 animate-pulse fill-yellow-500/20" />}
+                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1.5">
+                      Temp {isGroup2 ? '2' : '1'} {alertT.showIcon && <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 animate-pulse fill-yellow-500/10" />}
                     </span>
                     <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertT.color)}>{tempVal}</span>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-destructive/70 italic text-[10px] bg-destructive/5 p-2 rounded-lg border border-destructive/10">
+                <div className="flex items-center gap-2 text-destructive/70 italic text-[10px] bg-destructive/5 p-2 rounded-lg border border-destructive/10 mt-auto">
                   <Zap className="h-3 w-3" />
                   <span>Não encontrado nos dados atuais</span>
                 </div>
