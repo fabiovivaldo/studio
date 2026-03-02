@@ -215,7 +215,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onPointerDown={(e) => e.stopPropagation()}
                   >
-                    <ScrollArea className="max-h-[300px] w-full">
+                    <ScrollArea className="max-h-[600px] w-full">
                       <div className="p-1">
                         {searchResults.length === 0 ? (
                           <div className="py-6 text-center text-sm text-muted-foreground">
@@ -305,7 +305,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           onOpenAutoFocus={(e) => e.preventDefault()}
                           onPointerDown={(e) => e.stopPropagation()}
                         >
-                          <ScrollArea className="max-h-[250px] w-full">
+                          <ScrollArea className="max-h-[500px] w-full">
                             <div className="p-1">
                               {editSearchResults.map((f) => (
                                 <button
