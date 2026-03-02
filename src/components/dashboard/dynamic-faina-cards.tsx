@@ -59,7 +59,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     return (
       <div className="bg-accent/5 border border-dashed border-accent/20 rounded-xl p-8 text-center">
         <p className="text-sm text-muted-foreground">
-          Nenhuma preferência configurada. Adicione fainas em <span className="text-accent font-bold">Configurações {'->'} Preferências</span> para vê-las aqui.
+          Nenhuma preferência configurada. Adicione fainas em <span className="text-accent font-bold">Configurações {'>'} Preferências</span> para vê-las aqui.
         </p>
       </div>
     );
