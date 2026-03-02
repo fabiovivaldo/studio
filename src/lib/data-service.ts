@@ -42,7 +42,7 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
   
   try {
     const response = await fetch(url, {
-      next: { revalidate: 60 }, // Cache por 1 minuto
+      next: { revalidate: 60 },
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
@@ -54,13 +54,11 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
 
     const html = await response.text();
     
-    // Extração do cabeçalho (Data/Turno)
     const datePattern = /<h3>(.*?)<\/h3>/i;
     const dateMatch = datePattern.exec(html);
     const headerDataRaw = dateMatch ? dateMatch[1].trim() : "Sem Data";
     const headerData = decodeHtmlEntities(headerDataRaw);
 
-    // Regex para as linhas da tabela
     const pattern = /<tr>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/gi;
     
     const data: PonteiroData[] = [];
@@ -74,7 +72,6 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
       const col5 = match[5].trim();
       const col6 = match[6].trim();
 
-      // Filtrar linhas vazias ou de cabeçalho
       if (col1 && col1 !== "Lista" && !col1.includes("Função")) {
         data.push({
           Data_Turno: headerData,

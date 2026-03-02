@@ -12,8 +12,9 @@ interface DataArchiverProps {
 }
 
 /**
- * Componente invisível que arquiva automaticamente os dados raspados no Firestore.
- * Usa um ID composto (Funcao + Data_Turno) para evitar duplicatas.
+ * Componente que arquiva automaticamente os dados raspados.
+ * Para atender ao pedido de substituir turnos antigos pelos novos:
+ * O ID agora é Funcao + Nome_do_Turno, garantindo que a última "Manhã" sempre substitua a anterior.
  */
 export function DataArchiver({ data }: DataArchiverProps) {
   const { firestore, user } = useFirebase();
@@ -21,10 +22,14 @@ export function DataArchiver({ data }: DataArchiverProps) {
   useEffect(() => {
     if (!firestore || !user || !data.length) return;
 
-    // Arquivar cada linha de dados de forma não bloqueante
     data.forEach((row) => {
-      // Criar um ID amigável e único para o documento
-      const safeId = `${row.Funcao}_${row.Data_Turno}`
+      // Extrair apenas o nome do turno (ex: "Manhã") para o ID
+      // Isso garante que se o turno volta para "Manhã", ele substitua o registro anterior desse turno
+      const turnoName = row.Data_Turno.includes(' ') 
+        ? row.Data_Turno.split(' ').slice(1).join('_') 
+        : row.Data_Turno;
+
+      const safeId = `${row.Funcao}_${turnoName}`
         .replace(/[/\\#?%*:.|"<>\s]/g, '_')
         .substring(0, 100);
       

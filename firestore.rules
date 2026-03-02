@@ -4,9 +4,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     match /ponteiro_data/{ponteiroDataId} {
-      allow read: if true;
-      allow create, update: if request.auth != null;
-      allow delete: if false;
+      allow read, write: if true;
     }
 
     match /faina_preferences/{preferenceId} {
