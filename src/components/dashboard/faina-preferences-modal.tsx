@@ -195,8 +195,16 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0 bg-card border-border shadow-xl" align="start" onOpenAutoFocus={(e) => e.preventDefault()}>
-                    <div className="flex items-center border-b border-border px-3" onPointerDown={(e) => e.stopPropagation()}>
+                  <PopoverContent 
+                    className="w-[300px] p-0 bg-card border-border shadow-xl z-[150]" 
+                    align="start" 
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                  >
+                    <div 
+                      className="flex items-center border-b border-border px-3" 
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                       <Input
                         placeholder="Buscar faina..."
@@ -276,8 +284,16 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                             <ChevronDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[300px] p-0 bg-card border-border shadow-xl" align="start" onOpenAutoFocus={(e) => e.preventDefault()}>
-                          <div className="flex items-center border-b border-border px-3" onPointerDown={(e) => e.stopPropagation()}>
+                        <PopoverContent 
+                          className="w-[300px] p-0 bg-card border-border shadow-xl z-[150]" 
+                          align="start" 
+                          onOpenAutoFocus={(e) => e.preventDefault()}
+                        >
+                          <div 
+                            className="flex items-center border-b border-border px-3" 
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                             <Input
                               placeholder="Buscar faina..."
