@@ -161,7 +161,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
           </button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px] bg-card border-border" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-[550px] bg-card border-border">
         <DialogHeader>
           <DialogTitle>Preferências de Fainas</DialogTitle>
           <DialogDescription>
@@ -189,19 +189,13 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           setNewFaina(prev => ({ ...prev, faina: e.target.value }));
                           if (!isPopoverOpen) setIsPopoverOpen(true);
                         }}
-                        onMouseDown={(e) => {
-                          e.stopPropagation();
-                          if (!isPopoverOpen) setIsPopoverOpen(true);
-                        }}
+                        onFocus={() => setIsPopoverOpen(true)}
                         autoComplete="off"
                         className="bg-background pr-8 uppercase h-9 text-xs"
                       />
                       <button 
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsPopoverOpen(!isPopoverOpen);
-                        }}
+                        onClick={() => setIsPopoverOpen(!isPopoverOpen)}
                         className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 hover:opacity-100 transition-opacity"
                       >
                         <ChevronDown className="h-4 w-4" />
@@ -210,11 +204,10 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                   </PopoverAnchor>
                   <PopoverContent 
                     className="w-[var(--radix-popover-anchor-width)] p-0 bg-card border-border shadow-2xl z-[150]" 
-                    align="start" 
+                    align="start"
                     onOpenAutoFocus={(e) => e.preventDefault()}
-                    onPointerDown={(e) => e.stopPropagation()}
                   >
-                    <ScrollArea className="h-[350px] w-full" scrollHideDelay={0}>
+                    <ScrollArea className="h-[300px] w-full">
                       <div className="p-1">
                         {searchResults.length === 0 ? (
                           <div className="py-6 text-center text-sm text-muted-foreground">
@@ -224,12 +217,12 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           searchResults.map((f) => (
                             <button
                               key={f}
+                              type="button"
                               className={cn(
                                 "flex w-full items-center justify-between rounded-sm px-2 py-3 text-[10px] font-medium uppercase tracking-tight transition-colors hover:bg-accent hover:text-accent-foreground text-left",
                                 newFaina.faina === f && "bg-accent/30 text-accent"
                               )}
-                              onClick={(e) => {
-                                e.stopPropagation();
+                              onClick={() => {
                                 setNewFaina(prev => ({ ...prev, faina: f }));
                                 setIsPopoverOpen(false);
                               }}
@@ -296,15 +289,11 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                                 setEditFaina(prev => ({ ...prev, faina: e.target.value }));
                                 if (!isEditPopoverOpen) setIsEditPopoverOpen(true);
                               }}
-                              onMouseDown={(e) => e.stopPropagation()}
                               autoComplete="off"
                             />
                             <button 
                               type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setIsEditPopoverOpen(!isEditPopoverOpen);
-                              }}
+                              onClick={() => setIsEditPopoverOpen(!isEditPopoverOpen)}
                               className="absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 hover:opacity-100 transition-opacity"
                             >
                               <ChevronDown className="h-3 w-3" />
@@ -313,21 +302,20 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         </PopoverAnchor>
                         <PopoverContent 
                           className="w-[var(--radix-popover-anchor-width)] p-0 bg-card border-border shadow-xl z-[150]" 
-                          align="start" 
+                          align="start"
                           onOpenAutoFocus={(e) => e.preventDefault()}
-                          onPointerDown={(e) => e.stopPropagation()}
                         >
-                          <ScrollArea className="h-[300px] w-full" scrollHideDelay={0}>
+                          <ScrollArea className="h-[250px] w-full">
                             <div className="p-1">
                               {editSearchResults.map((f) => (
                                 <button
                                   key={f}
+                                  type="button"
                                   className={cn(
                                     "flex w-full items-center justify-between rounded-sm px-2 py-2.5 text-[10px] font-medium uppercase transition-colors hover:bg-accent hover:text-accent-foreground text-left",
                                     editFaina.faina === f && "bg-accent/30 text-accent"
                                   )}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
+                                  onClick={() => {
                                     setEditFaina(prev => ({ ...prev, faina: f }));
                                     setIsEditPopoverOpen(false);
                                   }}
