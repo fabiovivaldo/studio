@@ -2,7 +2,6 @@
 import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
-import { AiInsights } from '@/components/dashboard/ai-insights';
 import { RefreshButton } from '@/components/dashboard/refresh-button';
 import { LastUpdatedDisplay } from '@/components/dashboard/last-updated';
 import { FainaPreferencesModal } from '@/components/dashboard/faina-preferences-modal';
@@ -15,12 +14,6 @@ import {
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardContent 
-} from "@/components/ui/card";
 
 export default async function DashboardPage() {
   const data = await fetchPonteiroData();
@@ -106,35 +99,12 @@ export default async function DashboardPage() {
             <DynamicFainaCards scrapedData={data} />
           </section>
 
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
-            <section className="xl:col-span-3 space-y-6">
-              <div className="px-1">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Explorador de Registros por Faina</h3>
-                <PonteiroDataTable liveData={data} />
-              </div>
-            </section>
-
-            <aside className="space-y-6 xl:col-span-1">
-              <AiInsights data={data} />
-              
-              <Card className="bg-primary shadow-2xl shadow-primary/20 border-none overflow-hidden relative group">
-                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                  <Database className="h-32 w-32" />
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-primary-foreground text-lg">Relatórios</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-xs text-primary-foreground/80 leading-relaxed">
-                    Análise completa dos dados de ponteiros.
-                  </p>
-                  <Button variant="secondary" size="sm" className="w-full font-bold shadow-lg">
-                    Configurar Acesso
-                  </Button>
-                </CardContent>
-              </Card>
-            </aside>
-          </div>
+          <section className="space-y-6">
+            <div className="px-1">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Explorador de Registros por Faina</h3>
+              <PonteiroDataTable liveData={data} />
+            </div>
+          </section>
         </div>
       </main>
     </div>
