@@ -22,6 +22,7 @@ import {
 
 export default async function DashboardPage() {
   const data = await fetchPonteiroData();
+  const lastUpdated = new Date();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -40,16 +41,16 @@ export default async function DashboardPage() {
         
         <div className="flex-1 px-4 space-y-8 mt-4">
           <nav className="space-y-1">
-            <NavItem icon={LayoutDashboard} label="Dashboard" active />
-            <NavItem icon={Activity} label="Live Monitoring" />
-            <NavItem icon={Globe} label="Public Sources" />
+            <NavItem icon={LayoutDashboard} label="Painel" active />
+            <NavItem icon={Activity} label="Monitoramento" />
+            <NavItem icon={Globe} label="Fontes Públicas" />
           </nav>
 
           <div className="space-y-4">
-            <p className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Settings</p>
+            <p className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Configurações</p>
             <nav className="space-y-1">
-              <NavItem icon={Settings} label="Configurations" />
-              <NavItem icon={HelpCircle} label="Documentation" />
+              <NavItem icon={Settings} label="Preferências" />
+              <NavItem icon={HelpCircle} label="Documentação" />
             </nav>
           </div>
         </div>
@@ -57,7 +58,7 @@ export default async function DashboardPage() {
         <div className="p-4 border-t border-border mt-auto">
           <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10">
             <LogOut className="h-4 w-4 mr-3" />
-            Sign Out
+            Sair
           </Button>
         </div>
       </aside>
@@ -66,21 +67,27 @@ export default async function DashboardPage() {
       <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-accent/10">
         <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50 px-8 py-4 flex justify-between items-center">
           <div>
-            <h2 className="text-sm font-medium text-muted-foreground">Analytical Overview</h2>
+            <h2 className="text-sm font-medium text-muted-foreground">Visão Geral Analítica</h2>
             <div className="flex items-center gap-2">
-               <h1 className="text-2xl font-bold">Ponteiros Table</h1>
+               <h1 className="text-2xl font-bold">Tabela de Ponteiros</h1>
                <div className="flex items-center gap-1.5 ml-4 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                  <span className="text-[10px] font-bold text-green-500 uppercase tracking-tighter">Live Data</span>
+                  <span className="text-[10px] font-bold text-green-500 uppercase tracking-tighter">Dados em Tempo Real</span>
                </div>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
-             <div className="hidden md:flex flex-col items-end mr-4">
-                <span className="text-xs text-muted-foreground">Last Scraped</span>
-                <span className="text-xs font-mono font-bold text-accent">
-                   {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+             <div className="hidden md:flex flex-col items-end mr-4 text-right">
+                <span className="text-xs text-muted-foreground">Última Atualização</span>
+                <span className="text-xs font-mono font-bold text-accent whitespace-nowrap">
+                   {lastUpdated.toLocaleString('pt-BR', { 
+                     day: '2-digit', 
+                     month: '2-digit', 
+                     year: 'numeric',
+                     hour: '2-digit', 
+                     minute: '2-digit' 
+                   })}
                 </span>
              </div>
              <RefreshButton />
@@ -90,10 +97,10 @@ export default async function DashboardPage() {
         <div className="p-8 max-w-[1600px] mx-auto space-y-8">
           {/* Top Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard label="Total Functions" value={data.length.toString()} trend="+2.4%" color="primary" />
-            <StatCard label="Unique Signals" value={new Set(data.map(d => d.Sinal)).size.toString()} trend="Steady" color="accent" />
-            <StatCard label="Critical Discrepancies" value="12" trend="+3" color="destructive" />
-            <StatCard label="System Latency" value="124ms" trend="-12ms" color="primary" />
+            <StatCard label="Total de Funções" value={data.length.toString()} trend="+2.4%" color="primary" />
+            <StatCard label="Sinais Únicos" value={new Set(data.map(d => d.Sinal)).size.toString()} trend="Estável" color="accent" />
+            <StatCard label="Discrepâncias Críticas" value="12" trend="+3" color="destructive" />
+            <StatCard label="Latência do Sistema" value="124ms" trend="-12ms" color="primary" />
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
@@ -101,8 +108,8 @@ export default async function DashboardPage() {
             <section className="xl:col-span-2 space-y-6">
               <div className="bg-card/30 rounded-2xl border border-border/50 p-6 backdrop-blur-sm">
                 <div className="mb-6">
-                   <h3 className="text-lg font-bold">Ponteiro Records</h3>
-                   <p className="text-sm text-muted-foreground">Extracted from ogmopgua.com.br</p>
+                   <h3 className="text-lg font-bold">Registros de Ponteiros</h3>
+                   <p className="text-sm text-muted-foreground">Extraído de ogmopgua.com.br</p>
                 </div>
                 <PonteiroDataTable data={data} />
               </div>
@@ -117,14 +124,14 @@ export default async function DashboardPage() {
                   <Database className="h-32 w-32" />
                 </div>
                 <CardHeader>
-                  <CardTitle className="text-primary-foreground">Automated Reports</CardTitle>
+                  <CardTitle className="text-primary-foreground">Relatórios Automáticos</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-sm text-primary-foreground/80 leading-relaxed">
-                    Schedule weekly data exports and AI analysis reports sent directly to your enterprise gateway.
+                    Agende exportações semanais e relatórios de análise de IA enviados diretamente para sua empresa.
                   </p>
                   <Button variant="secondary" className="w-full font-bold shadow-lg">
-                    Configure Gateway
+                    Configurar Acesso
                   </Button>
                 </CardContent>
               </Card>

@@ -17,12 +17,12 @@ export function RefreshButton() {
   return (
     <Button 
       variant="outline" 
-      className="border-accent/30 text-accent hover:bg-accent/10 min-w-[140px]"
+      className="border-accent/30 text-accent hover:bg-accent/10 min-w-[160px]"
       onClick={handleRefresh}
       disabled={isPending}
     >
       <RefreshCcw className={`h-4 w-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
-      {isPending ? 'Atualizando...' : 'Refresh View'}
+      {isPending ? 'Atualizando...' : 'Atualizar Dados'}
     </Button>
   );
 }
