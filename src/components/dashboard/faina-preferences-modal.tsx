@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -62,12 +63,10 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  // States para Adição
   const [newFaina, setNewFaina] = useState({ faina: '', chamada: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  // States para Edição
   const [editFaina, setEditFaina] = useState({ faina: '', chamada: '' });
   const [editSearchQuery, setEditSearchQuery] = useState('');
   const [isEditPopoverOpen, setIsEditPopoverOpen] = useState(false);
@@ -78,14 +77,12 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     return availableFainas.filter(f => f && f.trim() !== '');
   }, [availableFainas]);
 
-  // Filtro por digitação para o campo de Adição
   const searchResults = useMemo(() => {
     return filteredAvailableFainas.filter(f => 
       f.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [filteredAvailableFainas, searchQuery]);
 
-  // Filtro por digitação para o campo de Edição
   const editSearchResults = useMemo(() => {
     return filteredAvailableFainas.filter(f => 
       f.toLowerCase().includes(editSearchQuery.toLowerCase())
@@ -167,7 +164,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
           </button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-card border-border">
+      <DialogContent className="sm:max-w-[500px] bg-card border-border" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Preferências de Fainas</DialogTitle>
           <DialogDescription>
@@ -198,14 +195,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0 bg-card border-border shadow-xl" align="start">
-                    <div className="flex items-center border-b border-border px-3">
+                  <PopoverContent className="w-[300px] p-0 bg-card border-border shadow-xl" align="start" onOpenAutoFocus={(e) => e.preventDefault()}>
+                    <div className="flex items-center border-b border-border px-3" onPointerDown={(e) => e.stopPropagation()}>
                       <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                       <Input
                         placeholder="Buscar faina..."
-                        className="flex h-10 w-full border-none bg-transparent py-3 text-sm outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-10 w-full border-none bg-transparent py-3 text-sm outline-none focus-visible:ring-0"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        autoFocus
                       />
                     </div>
                     <ScrollArea className="h-[200px]">
@@ -278,14 +276,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                             <ChevronDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[300px] p-0 bg-card border-border shadow-xl" align="start">
-                          <div className="flex items-center border-b border-border px-3">
+                        <PopoverContent className="w-[300px] p-0 bg-card border-border shadow-xl" align="start" onOpenAutoFocus={(e) => e.preventDefault()}>
+                          <div className="flex items-center border-b border-border px-3" onPointerDown={(e) => e.stopPropagation()}>
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                             <Input
                               placeholder="Buscar faina..."
                               className="flex h-10 w-full border-none bg-transparent py-3 text-sm outline-none focus-visible:ring-0"
                               value={editSearchQuery}
                               onChange={(e) => setEditSearchQuery(e.target.value)}
+                              autoFocus
                             />
                           </div>
                           <ScrollArea className="h-[200px]">

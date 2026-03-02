@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -9,7 +10,8 @@ import {
 import { collection, query, where } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { Zap } from 'lucide-react';
+import { Zap, AlertTriangle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface DynamicFainaCardsProps {
   scrapedData: PonteiroData[];
@@ -24,6 +26,22 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   }, [firestore, user]);
 
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
+
+  const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
+    if (!valueStr) return { color: '', showIcon: false };
+    
+    const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
+    const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
+    
+    if (target === 0) return { color: '', showIcon: false };
+    
+    const diff = target - value;
+    
+    return {
+      color: diff <= 10 && diff >= 0 ? 'text-destructive' : 'text-accent',
+      showIcon: diff <= 20 && diff >= 0
+    };
+  };
 
   if (isLoading) {
     return (
@@ -48,24 +66,23 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {preferences.map((pref) => {
-        // Encontrar o dado correspondente no scraping para esta faina preferida
         const fainaData = scrapedData.find(d => d.Funcao === pref.faina);
+        
+        const alert1 = getAlertStyle(fainaData?.Temporario_1, pref.chamada);
+        const alert2 = getAlertStyle(fainaData?.Temporario_2, pref.chamada);
 
         return (
-          <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group">
-            {/* Barra lateral de destaque */}
+          <Card key={pref.id} className="bg-[#0f1419] border-none shadow-2xl relative overflow-hidden group h-[160px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"></div>
             
             <div className="p-3 pt-2 space-y-1">
-              {/* Topo: Nome Original da Faina */}
               <div className="flex justify-between items-start">
-                <div className="text-xl font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-full">
+                <div className="text-xl font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[80%]">
                   {pref.faina}
                 </div>
               </div>
 
-              {/* Centro: Chamada Personalizada (Texto Grande) e Sinal */}
-              <div className="flex items-center gap-4 py-0">
+              <div className="flex items-center gap-4 py-0 h-[60px]">
                 <div className="text-6xl font-bold text-white tracking-tighter">
                   {pref.chamada}
                 </div>
@@ -80,28 +97,31 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                 </div>
               </div>
 
-              {/* Rodapé: Tabela de Valores com fundo escuro */}
               {fainaData ? (
-                <div className="bg-[#161b22] rounded-lg p-2.5 grid grid-cols-4 gap-2 border border-white/5">
-                  <div className="flex flex-col gap-0.5">
+                <div className="bg-[#161b22] rounded-lg p-2 grid grid-cols-4 gap-2 border border-white/5">
+                  <div className="flex flex-col gap-0">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Original 1</span>
-                    <span className="text-xl font-bold text-accent tracking-tighter">{fainaData.Original_1}</span>
+                    <span className="text-lg font-bold text-accent tracking-tighter">{fainaData.Original_1}</span>
                   </div>
-                  <div className="flex flex-col gap-0.5 border-l border-white/5 pl-2">
-                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Temp 1</span>
-                    <span className="text-xl font-bold text-accent tracking-tighter">{fainaData.Temporario_1}</span>
+                  <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
+                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
+                      Temp 1 {alert1.showIcon && <AlertTriangle className="h-2 w-2 text-yellow-500 animate-pulse" />}
+                    </span>
+                    <span className={cn("text-lg font-bold tracking-tighter", alert1.color)}>{fainaData.Temporario_1}</span>
                   </div>
-                  <div className="flex flex-col gap-0.5 border-l border-white/5 pl-2">
+                  <div className="flex flex-col gap-0 border-l border-white/5 pl-2">
                     <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Original 2</span>
-                    <span className="text-xl font-bold text-accent tracking-tighter">{fainaData.Original_2}</span>
+                    <span className="text-lg font-bold text-accent tracking-tighter">{fainaData.Original_2}</span>
                   </div>
-                  <div className="flex flex-col gap-0.5 border-l border-white/5 pl-2">
-                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Temp 2</span>
-                    <span className="text-xl font-bold text-accent tracking-tighter">{fainaData.Temporario_2}</span>
+                  <div className="flex flex-col gap-0 border-l border-white/5 pl-2 relative">
+                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1">
+                      Temp 2 {alert2.showIcon && <AlertTriangle className="h-2 w-2 text-yellow-500 animate-pulse" />}
+                    </span>
+                    <span className={cn("text-lg font-bold tracking-tighter", alert2.color)}>{fainaData.Temporario_2}</span>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-destructive/70 italic text-xs bg-destructive/5 p-2 rounded-lg border border-destructive/10">
+                <div className="flex items-center gap-2 text-destructive/70 italic text-[10px] bg-destructive/5 p-2 rounded-lg border border-destructive/10">
                   <Zap className="h-3 w-3" />
                   <span>Não encontrado nos dados atuais</span>
                 </div>
