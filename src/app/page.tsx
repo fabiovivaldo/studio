@@ -2,6 +2,7 @@ import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { PonteiroDataTable } from '@/components/dashboard/data-table';
 import { AiInsights } from '@/components/dashboard/ai-insights';
+import { RefreshButton } from '@/components/dashboard/refresh-button';
 import { 
   Database, 
   LayoutDashboard, 
@@ -12,7 +13,6 @@ import {
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { 
   Card, 
   CardHeader, 
@@ -83,9 +83,7 @@ export default async function DashboardPage() {
                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
              </div>
-             <Button variant="outline" className="border-accent/30 text-accent hover:bg-accent/10">
-                nao funciona
-             </Button>
+             <RefreshButton />
           </div>
         </header>
 
