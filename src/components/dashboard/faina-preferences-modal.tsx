@@ -40,7 +40,6 @@ import {
   Check, 
   X, 
   Loader2, 
-  ChevronDown,
   Search
 } from "lucide-react";
 import { 
@@ -100,7 +99,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
 
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
 
-  // Fechar listas ao clicar fora
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (listRef.current && !listRef.current.contains(event.target as Node)) {
@@ -175,30 +173,32 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
           </button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-card border-border max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Preferências de Fainas</DialogTitle>
-          <DialogDescription>
-            Personalize os nomes das fainas e escolha o grupo de ponteiros (1 ou 2).
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[650px] bg-card border-border max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <div className="p-6 pb-2">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Preferências de Fainas</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Personalize os nomes das fainas e escolha o grupo de ponteiros (1 ou 2).
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <div className="flex-1 overflow-y-auto p-1 space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 space-y-8 pb-8">
           {/* Formulário de Adição */}
-          <div className="space-y-4 p-4 rounded-xl border border-border/50 bg-muted/20">
-            <h4 className="text-xs font-bold flex items-center gap-2 uppercase tracking-widest text-accent">
+          <div className="space-y-5 p-5 rounded-2xl border border-border bg-accent/5">
+            <h4 className="text-[10px] font-black flex items-center gap-2 uppercase tracking-[0.2em] text-accent">
               <Plus className="h-4 w-4" />
               Adicionar Nova Faina
             </h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-              {/* Campo Faina com Lista Sugerida */}
-              <div className="md:col-span-5 space-y-2 relative" ref={listRef}>
-                <Label htmlFor="faina-input">Faina</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Campo Faina */}
+              <div className="space-y-2.5 relative" ref={listRef}>
+                <Label htmlFor="faina-input" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Faina</Label>
                 <div className="relative">
                   <Input
                     id="faina-input"
-                    placeholder="DIGITE OU BUSQUE..."
+                    placeholder="BUSQUE..."
                     value={newFaina.faina}
                     onChange={(e) => {
                       setNewFaina(prev => ({ ...prev, faina: e.target.value }));
@@ -206,18 +206,18 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     }}
                     onFocus={() => setIsListVisible(true)}
                     autoComplete="off"
-                    className="bg-background pr-8 uppercase h-9 text-xs font-bold"
+                    className="bg-background pr-9 uppercase h-10 text-xs font-bold border-border/50 focus:border-accent"
                   />
-                  <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 opacity-30" />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-20" />
                 </div>
                 
                 {isListVisible && (
-                  <div className="absolute z-[100] w-full mt-1 bg-card border border-border shadow-2xl rounded-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute z-[100] w-full mt-2 bg-card border border-border shadow-2xl rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <ScrollArea className="h-48">
                       <div className="p-1">
                         {searchResults.length === 0 ? (
                           <div className="p-4 text-center text-[10px] text-muted-foreground italic">
-                            Nenhuma faina encontrada.
+                            Nenhum resultado.
                           </div>
                         ) : (
                           searchResults.map((f) => (
@@ -225,8 +225,8 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                               key={f}
                               type="button"
                               className={cn(
-                                "flex w-full items-center justify-between px-3 py-2.5 text-[10px] font-bold uppercase tracking-tight transition-colors hover:bg-accent hover:text-accent-foreground text-left border-b border-border/30 last:border-0",
-                                newFaina.faina === f && "bg-accent/20 text-accent"
+                                "flex w-full items-center justify-between px-3 py-3 text-[10px] font-bold uppercase tracking-tight transition-all hover:bg-accent hover:text-accent-foreground text-left border-b border-border/20 last:border-0",
+                                newFaina.faina === f && "bg-accent/10 text-accent"
                               )}
                               onClick={() => {
                                 setNewFaina(prev => ({ ...prev, faina: f }));
@@ -244,33 +244,35 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 )}
               </div>
 
-              <div className="md:col-span-4 space-y-2">
-                <Label htmlFor="chamada">Nome Exibido (Chamada)</Label>
+              {/* Nome Exibido */}
+              <div className="space-y-2.5">
+                <Label htmlFor="chamada" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nome Exibido</Label>
                 <Input 
                   id="chamada" 
                   placeholder="EX: TURMA A" 
                   value={newFaina.chamada}
                   onChange={(e) => setNewFaina(prev => ({ ...prev, chamada: e.target.value }))}
-                  className="h-9 text-xs font-bold uppercase"
+                  className="h-10 text-xs font-bold uppercase border-border/50 focus:border-accent bg-background"
                 />
               </div>
 
-              <div className="md:col-span-3 space-y-2">
-                <Label>Grupo</Label>
+              {/* Grupo */}
+              <div className="space-y-2.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Grupo</Label>
                 <Select value={newFaina.tipo} onValueChange={(v) => setNewFaina(prev => ({ ...prev, tipo: v }))}>
-                  <SelectTrigger className="h-9 text-xs font-bold">
+                  <SelectTrigger className="h-10 text-xs font-bold bg-background border-border/50">
                     <SelectValue placeholder="Tipo" />
                   </SelectTrigger>
                   <SelectContent className="z-[200]">
-                    <SelectItem value="1" className="text-xs">Grupo 1</SelectItem>
-                    <SelectItem value="2" className="text-xs">Grupo 2</SelectItem>
+                    <SelectItem value="1" className="text-xs font-bold uppercase">Grupo 1</SelectItem>
+                    <SelectItem value="2" className="text-xs font-bold uppercase">Grupo 2</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <Button 
-              className="w-full bg-accent hover:bg-accent/80 text-accent-foreground font-bold h-9 uppercase tracking-widest text-[10px]" 
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-black h-11 uppercase tracking-[0.15em] text-[11px] shadow-lg shadow-accent/10 transition-all hover:scale-[1.01] active:scale-[0.99]" 
               onClick={handleAdd}
               disabled={!newFaina.faina || !newFaina.chamada || isSubmitting}
             >
@@ -279,136 +281,139 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
             </Button>
           </div>
 
-          {/* Lista de Preferências Existentes */}
-          <div className="space-y-3">
-            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] px-1">
-              Minhas Fainas Ativas ({preferences?.length || 0})
+          {/* Lista de Preferências */}
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] px-1 flex justify-between items-center">
+              <span>Minhas Fainas Ativas ({preferences?.length || 0})</span>
+              <div className="h-px flex-1 bg-border/50 ml-4"></div>
             </h4>
             
-            <div className="space-y-2 pb-4">
+            <div className="grid grid-cols-1 gap-3">
               {isLoading ? (
-                <div className="text-center py-12 text-muted-foreground animate-pulse text-xs">Sincronizando...</div>
+                <div className="text-center py-12 text-muted-foreground animate-pulse text-[10px] font-bold uppercase tracking-widest">Sincronizando Banco de Dados...</div>
               ) : preferences?.length ? (
                 preferences.map((pref) => (
-                  <div key={pref.id} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card/40 hover:bg-card/60 transition-all group relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent rounded-l-xl opacity-40"></div>
+                  <div key={pref.id} className="group relative bg-card/40 border border-border rounded-2xl p-5 hover:bg-card/60 transition-all duration-300">
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-accent/30 rounded-l-2xl group-hover:bg-accent transition-colors"></div>
                     
-                    {editingId === pref.id ? (
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 relative" ref={editListRef}>
-                        <div className="relative">
-                          <Input
-                            className="h-8 text-[10px] font-bold bg-background uppercase"
-                            value={editFaina.faina} 
-                            onChange={(e) => {
-                              setEditFaina(prev => ({ ...prev, faina: e.target.value }));
-                              setIsEditListVisible(true);
-                            }}
-                            onFocus={() => setIsEditListVisible(true)}
-                            autoComplete="off"
-                          />
-                          {isEditListVisible && (
-                            <div className="absolute z-[110] w-full mt-1 bg-card border border-border shadow-2xl rounded-lg overflow-hidden">
-                              <ScrollArea className="h-40">
-                                <div className="p-1">
-                                  {editSearchResults.map((f) => (
-                                    <button
-                                      key={f}
-                                      className="flex w-full px-2 py-2 text-[10px] font-bold uppercase hover:bg-accent hover:text-accent-foreground"
-                                      onClick={() => {
-                                        setEditFaina(prev => ({ ...prev, faina: f }));
-                                        setIsEditListVisible(false);
-                                      }}
-                                    >
-                                      {f}
-                                    </button>
-                                  ))}
-                                </div>
-                              </ScrollArea>
-                            </div>
-                          )}
-                        </div>
-                        <Input 
-                          className="h-8 text-[10px] font-bold bg-background uppercase"
-                          value={editFaina.chamada} 
-                          onChange={(e) => setEditFaina(prev => ({ ...prev, chamada: e.target.value }))}
-                        />
-                        <Select value={editFaina.tipo} onValueChange={(v) => setEditFaina(prev => ({ ...prev, tipo: v }))}>
-                          <SelectTrigger className="h-8 text-[10px] font-bold">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="z-[200]">
-                            <SelectItem value="1" className="text-xs">G1</SelectItem>
-                            <SelectItem value="2" className="text-xs">G2</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    ) : (
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-black uppercase truncate tracking-tight">{pref.faina}</p>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-black uppercase">Grupo {pref.tipo}</span>
-                        </div>
-                        <p className="text-[10px] font-bold text-accent uppercase mt-0.5">{pref.chamada}</p>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-6">
                       {editingId === pref.id ? (
-                        <>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-green-500 hover:bg-green-500/10" onClick={() => handleUpdate(pref.id)}>
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => {
-                            setEditingId(null);
-                            setIsEditListVisible(false);
-                          }}>
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </>
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 relative" ref={editListRef}>
+                          <div className="relative">
+                            <Input
+                              className="h-9 text-[10px] font-bold bg-background uppercase border-accent/50"
+                              value={editFaina.faina} 
+                              onChange={(e) => {
+                                setEditFaina(prev => ({ ...prev, faina: e.target.value }));
+                                setIsEditListVisible(true);
+                              }}
+                              onFocus={() => setIsEditListVisible(true)}
+                              autoComplete="off"
+                            />
+                            {isEditListVisible && (
+                              <div className="absolute z-[110] w-full mt-1 bg-card border border-border shadow-2xl rounded-lg overflow-hidden">
+                                <ScrollArea className="h-40">
+                                  <div className="p-1">
+                                    {editSearchResults.map((f) => (
+                                      <button
+                                        key={f}
+                                        className="flex w-full px-2 py-2.5 text-[10px] font-bold uppercase hover:bg-accent hover:text-accent-foreground border-b border-border/30 last:border-0"
+                                        onClick={() => {
+                                          setEditFaina(prev => ({ ...prev, faina: f }));
+                                          setIsEditListVisible(false);
+                                        }}
+                                      >
+                                        {f}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </ScrollArea>
+                              </div>
+                            )}
+                          </div>
+                          <Input 
+                            className="h-9 text-[10px] font-bold bg-background uppercase border-accent/50"
+                            value={editFaina.chamada} 
+                            onChange={(e) => setEditFaina(prev => ({ ...prev, chamada: e.target.value }))}
+                          />
+                          <Select value={editFaina.tipo} onValueChange={(v) => setEditFaina(prev => ({ ...prev, tipo: v }))}>
+                            <SelectTrigger className="h-9 text-[10px] font-bold border-accent/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="z-[200]">
+                              <SelectItem value="1" className="text-xs font-bold">G1</SelectItem>
+                              <SelectItem value="2" className="text-xs font-bold">G2</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       ) : (
-                        <>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-accent hover:bg-accent/10" 
-                            onClick={() => {
-                              setEditingId(pref.id);
-                              setEditFaina({ faina: pref.faina, chamada: pref.chamada, tipo: pref.tipo || '1' });
-                            }}
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-card border-border">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="uppercase font-black text-sm">Excluir Preferência?</AlertDialogTitle>
-                                <AlertDialogDescription className="text-xs">
-                                  Isso removerá a faina "{pref.faina}" do seu dashboard prioritário.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="text-xs font-bold">Cancelar</AlertDialogCancel>
-                                <AlertDialogAction className="bg-destructive hover:bg-destructive/80 text-xs font-bold" onClick={() => handleDelete(pref.id)}>
-                                  Sim, Excluir
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3">
+                            <p className="text-xs font-black uppercase truncate tracking-tight text-foreground">{pref.faina}</p>
+                            <span className="text-[9px] px-2 py-0.5 rounded-full bg-accent/10 text-accent font-black uppercase border border-accent/20">Grupo {pref.tipo}</span>
+                          </div>
+                          <p className="text-[11px] font-bold text-muted-foreground uppercase mt-1.5 opacity-60">Chamada: <span className="text-accent">{pref.chamada}</span></p>
+                        </div>
                       )}
+
+                      <div className="flex items-center gap-1.5 transition-all">
+                        {editingId === pref.id ? (
+                          <>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 text-green-500 hover:bg-green-500/10 rounded-full" onClick={() => handleUpdate(pref.id)}>
+                              <Check className="h-5 w-5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:bg-muted/10 rounded-full" onClick={() => {
+                              setEditingId(null);
+                              setIsEditListVisible(false);
+                            }}>
+                              <X className="h-5 w-5" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-9 w-9 text-accent hover:bg-accent/10 rounded-full" 
+                              onClick={() => {
+                                setEditingId(pref.id);
+                                setEditFaina({ faina: pref.faina, chamada: pref.chamada, tipo: pref.tipo || '1' });
+                              }}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:bg-destructive/10 rounded-full">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-card border-border rounded-2xl">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="uppercase font-black text-sm tracking-widest">Excluir Preferência?</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-xs font-medium text-muted-foreground">
+                                    Esta ação removerá permanentemente a faina <span className="text-foreground font-bold">"{pref.faina}"</span> das suas prioridades.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="mt-6">
+                                  <AlertDialogCancel className="text-[10px] font-black uppercase tracking-widest rounded-xl border-border h-10">Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction className="bg-destructive hover:bg-destructive/80 text-[10px] font-black uppercase tracking-widest rounded-xl h-10" onClick={() => handleDelete(pref.id)}>
+                                    Confirmar Exclusão
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center py-12 border border-dashed rounded-xl border-border/50 bg-muted/5">
-                  <Settings className="h-8 w-8 text-muted-foreground opacity-20 mb-3" />
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Nenhuma faina prioritária</p>
+                <div className="flex flex-col items-center justify-center py-16 border border-dashed rounded-2xl border-border bg-muted/5 opacity-50">
+                  <Settings className="h-10 w-10 text-muted-foreground mb-4 opacity-20" />
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Sua lista de prioridades está vazia</p>
                 </div>
               )}
             </div>
