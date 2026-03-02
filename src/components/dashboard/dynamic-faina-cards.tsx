@@ -38,9 +38,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     const diff = Math.abs(target - value);
     
     return {
-      // Vermelho se faltar 10 ou menos
+      // Vermelho se a diferença for 10 ou menos
       color: diff <= 10 ? 'text-destructive font-black' : 'text-accent',
-      // Ícone se faltar 20 ou menos
+      // Ícone se a diferença for 20 ou menos
       showIcon: diff <= 20
     };
   };
@@ -77,7 +77,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const alertO = getAlertStyle(origVal, pref.chamada);
         const alertT = getAlertStyle(tempVal, pref.chamada);
 
-        // Extrair apenas a parte do turno (ex: Manhã) do texto "Data Turno"
+        // Extrair apenas a parte do turno (ex: Manhã) do texto "01/03/2026 Manhã"
         const turnoText = fainaData?.Data_Turno?.includes(' ') 
           ? fainaData.Data_Turno.split(' ').slice(1).join(' ') 
           : fainaData?.Data_Turno;
@@ -94,7 +94,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               </div>
 
               <div className="flex items-center gap-4 py-0 h-[60px]">
-                <div className="text-6xl font-bold text-white tracking-tighter">
+                {/* Reduzido 50% de text-6xl para text-3xl */}
+                <div className="text-3xl font-bold text-white tracking-tighter">
                   {pref.chamada}
                 </div>
                 
@@ -105,7 +106,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </span>
                 </div>
 
-                {/* Exibição do Turno (Conforme imagem do usuário) */}
+                {/* Exibição do Turno */}
                 {turnoText && (
                   <div className="flex flex-col ml-auto text-right">
                     <span className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-tighter">Turno</span>
