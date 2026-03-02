@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
@@ -250,7 +249,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                   <Label htmlFor="chamada" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Nº CHAMADA</Label>
                   <Input 
                     id="chamada" 
-                    placeholder="EX: TURMA A" 
+                    placeholder="0000" 
                     value={newFaina.chamada}
                     onChange={(e) => setNewFaina(prev => ({ ...prev, chamada: e.target.value }))}
                     className="h-12 text-sm font-bold uppercase bg-[#1a212b] border-none focus:ring-1 focus:ring-accent"
