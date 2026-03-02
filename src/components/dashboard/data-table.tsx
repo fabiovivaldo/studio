@@ -23,8 +23,11 @@ import {
   Wrench,
   Eye,
   Filter,
-  History,
   Zap,
+  Sun,
+  Sunrise,
+  Moon,
+  CloudMoon,
   Calendar
 } from "lucide-react";
 import { PonteiroData, exportToCSV } from "@/lib/data-service";
@@ -37,6 +40,8 @@ interface DataTableProps {
   liveData: PonteiroData[];
 }
 
+type ViewMode = 'live' | 'Manhã' | 'Tarde' | 'Noite' | 'Madrugada';
+
 const CATEGORY_CONFIG = [
   { id: "TODOS", label: "Todos", icon: Filter, color: "text-accent" },
   { id: "ARRUMADOR", label: "Arrumador", icon: Users, color: "text-blue-400" },
@@ -47,9 +52,16 @@ const CATEGORY_CONFIG = [
   { id: "VIGIA", label: "Vigia", icon: Eye, color: "text-red-400" },
 ];
 
+const SHIFT_CONFIG = [
+  { id: 'Manhã', label: 'Manhã', icon: Sunrise, color: 'text-orange-400' },
+  { id: 'Tarde', label: 'Tarde', icon: Sun, color: 'text-yellow-400' },
+  { id: 'Noite', label: 'Noite', icon: Moon, color: 'text-blue-400' },
+  { id: 'Madrugada', label: 'Madrugada', icon: CloudMoon, color: 'text-indigo-400' },
+] as const;
+
 export function PonteiroDataTable({ liveData }: DataTableProps) {
   const { firestore } = useFirebase();
-  const [dataSource, setDataSource] = useState<'live' | 'history'>('live');
+  const [viewMode, setViewMode] = useState<ViewMode>('live');
   const [sortConfig, setSortConfig] = useState<{ key: keyof PonteiroData; direction: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>("TODOS");
@@ -57,12 +69,12 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
   // Buscar histórico do Firestore
   const historyQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'ponteiro_data'), orderBy('createdAt', 'desc'), limit(500));
+    return query(collection(firestore, 'ponteiro_data'), orderBy('createdAt', 'desc'), limit(1000));
   }, [firestore]);
 
   const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
-  // Mapear dados do Firestore para o formato da interface PonteiroData
+  // Mapear dados do Firestore
   const mappedHistory = useMemo(() => {
     if (!historyData) return [];
     return historyData.map(h => ({
@@ -76,7 +88,12 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
     }));
   }, [historyData]);
 
-  const currentData = dataSource === 'live' ? liveData : mappedHistory;
+  // Filtrar dados por modo de visualização (Tempo Real ou Turno Específico)
+  const currentData = useMemo(() => {
+    if (viewMode === 'live') return liveData;
+    // Se for um turno, filtra no histórico apenas registros que contenham o nome do turno
+    return mappedHistory.filter(h => h.Data_Turno.includes(viewMode));
+  }, [viewMode, liveData, mappedHistory]);
 
   const handleSort = (key: keyof PonteiroData) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -123,26 +140,32 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
 
   return (
     <div className="space-y-8">
-      {/* Seletor de Fonte de Dados */}
-      <div className="flex gap-2 p-1 bg-muted/30 rounded-lg w-fit">
+      {/* Seletor de Modo de Visualização (Tempo Real + 4 Turnos) */}
+      <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
         <Button 
-          variant={dataSource === 'live' ? 'secondary' : 'ghost'} 
+          variant={viewMode === 'live' ? 'secondary' : 'ghost'} 
           size="sm" 
-          onClick={() => setDataSource('live')}
-          className="h-8 text-[10px] font-bold uppercase tracking-wider"
+          onClick={() => setViewMode('live')}
+          className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4"
         >
-          <Zap className="h-3 w-3 mr-2 text-yellow-500" />
+          <Zap className="h-4 w-4 mr-2 text-yellow-500" />
           Tempo Real
         </Button>
-        <Button 
-          variant={dataSource === 'history' ? 'secondary' : 'ghost'} 
-          size="sm" 
-          onClick={() => setDataSource('history')}
-          className="h-8 text-[10px] font-bold uppercase tracking-wider"
-        >
-          <History className="h-3 w-3 mr-2 text-accent" />
-          Histórico (Arquivados)
-        </Button>
+        
+        <div className="w-px h-6 bg-border/50 mx-1 self-center hidden sm:block"></div>
+
+        {SHIFT_CONFIG.map((shift) => (
+          <Button 
+            key={shift.id}
+            variant={viewMode === shift.id ? 'secondary' : 'ghost'} 
+            size="sm" 
+            onClick={() => setViewMode(shift.id as any)}
+            className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4"
+          >
+            <shift.icon className={`h-4 w-4 mr-2 ${shift.color}`} />
+            {shift.label}
+          </Button>
+        ))}
       </div>
 
       {/* Seletor de Categorias */}
@@ -183,13 +206,13 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
             <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/10 p-2 rounded-lg">
-                  {dataSource === 'live' ? <Zap className="h-5 w-5 text-yellow-500" /> : <Calendar className="h-5 w-5 text-accent" />}
+                  {viewMode === 'live' ? <Zap className="h-5 w-5 text-yellow-500" /> : <Calendar className="h-5 w-5 text-accent" />}
                 </div>
                 <div>
                   <h3 className="text-lg font-bold">
-                    {dataSource === 'live' ? 'Dados Recentes' : 'Histórico Consolidado'}: {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}
+                    {viewMode === 'live' ? 'Dados Recentes' : `Histórico: Turno ${viewMode}`}
                   </h3>
-                  <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros</p>
+                  <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros para {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}</p>
                 </div>
               </div>
 
@@ -235,10 +258,10 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {dataSource === 'history' && isHistoryLoading ? (
+                  {viewMode !== 'live' && isHistoryLoading ? (
                     <TableRow>
                       <TableCell colSpan={7} className="h-32 text-center text-muted-foreground animate-pulse">
-                        Carregando histórico do servidor...
+                        Buscando registros no banco de dados...
                       </TableCell>
                     </TableRow>
                   ) : sortedData.length > 0 ? (
@@ -260,7 +283,9 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                        Nenhum registro encontrado.
+                        {viewMode === 'live' 
+                          ? 'Nenhum registro encontrado nos dados atuais.' 
+                          : `Nenhum registro arquivado encontrado para o turno ${viewMode}.`}
                       </TableCell>
                     </TableRow>
                   )}
