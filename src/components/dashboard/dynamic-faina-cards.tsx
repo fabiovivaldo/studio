@@ -153,7 +153,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           ? "bg-muted/30 border-border/40" 
                           : "bg-muted/5 border-dashed border-border/20 opacity-40",
                         isHighlighted && "border-accent ring-2 ring-accent/20 bg-accent/5",
-                        isCritical && "border-destructive ring-4 ring-destructive/30 animate-pulse bg-destructive/5",
+                        isCritical && "border-destructive ring-4 ring-destructive/30 bg-destructive/5",
                         (isHighlighted || isCritical) && "z-10"
                       )}
                     >
@@ -176,13 +176,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <span className={tinyLabelStyle}>P:</span>
                           <span className={cn(
                             "text-xl font-black leading-none tracking-tighter transition-colors",
-                            alertT.colorClass,
-                            isCritical && "animate-pulse"
+                            alertT.colorClass
                           )}>
                             {valT || '--'}
                           </span>
                           {alertT.showIcon && (
-                            <HardHat className={cn("h-4 w-4 animate-bounce shrink-0", alertT.colorClass)} />
+                            <HardHat className={cn("h-4 w-4 shrink-0", alertT.colorClass)} />
                           )}
                         </div>
 
