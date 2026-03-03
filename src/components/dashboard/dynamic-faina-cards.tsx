@@ -58,8 +58,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     
     const diff = Math.abs(value - target);
     
-    // Alerta Crítico (Capacete Vermelho) quando está muito perto (5 ou menos)
-    if (diff <= 5) return { status: 'critical' as AlertStatus, colorClass: 'text-destructive', showIcon: true };
+    // Alerta Crítico (Capacete Vermelho) quando está muito perto (10 ou menos)
+    // Aumentado para 10 para capturar o "6" do usuário
+    if (diff <= 10) return { status: 'critical' as AlertStatus, colorClass: 'text-destructive', showIcon: true };
     
     return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
   };
@@ -110,7 +111,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   </div>
                 </div>
                 <div className="text-right ml-4 shrink-0">
-                  <span className={labelStyle}>Rodízio</span>
+                  <span className={labelStyle}>Nº Rodízio</span>
                   <div className="text-sm font-black text-accent tracking-tighter leading-none mt-1">
                     {pref.chamada}
                   </div>
@@ -182,13 +183,13 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         </div>
 
                         {/* Diferencial Laranja (DE BAIXO) */}
-                        <div className="flex items-center justify-between min-h-[22px]">
+                        <div className="flex items-center justify-between min-h-[26px]">
                           {hasData && (
                             <div className={cn(
-                              "bg-black border border-orange-500 rounded px-1.5 py-0.5 shadow-[0_0_10px_rgba(249,115,22,0.4)] transition-all",
+                              "bg-black border border-orange-500 rounded px-2 py-0.5 shadow-[0_0_12px_rgba(249,115,22,0.6)] transition-all",
                               diffTemp === 0 && "opacity-0"
                             )}>
-                              <span className="text-[13px] font-black text-orange-500 leading-none whitespace-nowrap">
+                              <span className="text-[15px] font-black text-orange-500 leading-none whitespace-nowrap">
                                 {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                               </span>
                             </div>
