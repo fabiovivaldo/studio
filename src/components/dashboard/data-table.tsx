@@ -134,7 +134,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
     { key: 'Temporario_2', label: 'Temp 2' },
   ] as const;
 
-  const cellTextStyle = "text-[11px] font-bold tracking-tight py-1.5";
+  const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5";
 
   return (
     <div className="space-y-8">
@@ -242,7 +242,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                     {columns.map(({ key, label }) => (
                       <TableHead 
                         key={key} 
-                        className="cursor-pointer hover:text-accent transition-colors py-2 font-headline uppercase tracking-wider text-[9px]"
+                        className="cursor-pointer hover:text-accent transition-colors py-2 font-headline uppercase tracking-wider text-[10px]"
                         onClick={() => handleSort(key as keyof PonteiroData)}
                       >
                         <div className="flex items-center gap-2">
@@ -271,7 +271,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                         </TableCell>
                         <TableCell className="py-1.5">
                           <span className={cn(
-                            "font-black text-[14px] inline-block min-w-[12px] text-center",
+                            "font-black text-[18px] inline-block min-w-[12px] text-center",
                             row.Sinal === '-' 
                               ? "text-destructive" 
                               : "text-green-500"
