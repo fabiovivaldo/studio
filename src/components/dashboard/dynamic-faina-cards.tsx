@@ -95,7 +95,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
             </div>
 
-            {/* Container de Turnos - Grid de 4 colunas fixas para não quebrar no mobile */}
             <div className="p-2 sm:p-6 pt-2 grid grid-cols-4 gap-1.5 sm:gap-3 w-full pb-6">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
@@ -120,7 +119,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   <div 
                     key={shiftName} 
                     className={cn(
-                      "rounded-lg sm:rounded-xl p-2 sm:p-3 border transition-all duration-200 flex flex-col gap-1 relative min-h-[140px] sm:min-h-[151px]",
+                      "rounded-lg sm:rounded-xl p-2 sm:p-3 border transition-all duration-200 flex flex-col gap-2 relative",
                       !shiftData && "opacity-30 bg-muted/5 border-dashed",
                       shiftData && "bg-muted/10 border-border/40",
                       isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5",
@@ -144,7 +143,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       )}
                     </div>
 
-                    <div className="space-y-0.5 mt-1 flex-1">
+                    <div className="space-y-1">
                       <div className="flex items-center gap-1">
                         <span className={tinyLabelStyle}>O:</span>
                         <span className={cn(
@@ -178,7 +177,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       </div>
                     </div>
 
-                    <div className="mt-auto border-t border-border/10 pt-1">
+                    <div className="border-t border-border/10 pt-1">
                       <span className="text-base sm:text-[18px] font-black text-orange-600 tracking-tighter leading-none block">
                         {shiftData ? (diff > 0 ? `+${diff}` : diff) : ''}
                       </span>
