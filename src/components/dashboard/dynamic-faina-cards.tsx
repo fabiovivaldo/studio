@@ -10,7 +10,7 @@ import {
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, HardHat } from 'lucide-react';
+import { HardHat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewMode } from './dashboard-content';
 
@@ -58,7 +58,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     
     const diff = Math.abs(value - target);
     
-    // Alerta apenas quando está muito perto (5 ou menos)
+    // Alerta Crítico (Capacete Vermelho) quando está muito perto (5 ou menos)
     if (diff <= 5) return { status: 'critical' as AlertStatus, colorClass: 'text-destructive', showIcon: true };
     
     return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
@@ -104,7 +104,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className={labelStyle}>Faina</span>
-                    <h2 className="text-sm font-black text-foreground uppercase tracking-tight leading-none mt-1 break-words">
+                    <h2 className="text-xs font-black text-foreground uppercase tracking-tight leading-none mt-1 break-words">
                       {pref.faina}
                     </h2>
                   </div>
@@ -163,11 +163,13 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       </div>
 
                       <div className="flex flex-col gap-1">
+                        {/* Original O: */}
                         <div className="flex items-center gap-1">
                           <span className={tinyLabelStyle}>O:</span>
                           <span className="text-[10px] font-bold text-foreground opacity-40">{valO || '--'}</span>
                         </div>
                         
+                        {/* Ponteiro P: */}
                         <div className="flex items-center gap-1.5">
                           <span className={tinyLabelStyle}>P:</span>
                           <span className={cn(
@@ -178,7 +180,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                             {valT || '--'}
                           </span>
                           {alertT.showIcon && (
-                            <AlertTriangle className={cn("h-3.5 w-3.5 animate-bounce", alertT.colorClass)} />
+                            <HardHat className={cn("h-3.5 w-3.5 animate-bounce", alertT.colorClass)} />
                           )}
                           
                           {/* Diferencial Laranja */}
