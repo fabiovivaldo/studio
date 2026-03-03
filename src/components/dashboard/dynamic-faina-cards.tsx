@@ -9,7 +9,7 @@ import {
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, Clock } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DynamicFainaCardsProps {
@@ -92,13 +92,13 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               {/* Header do Card */}
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <div className="flex flex-col">
-                  <span className="text-[14px] font-black text-foreground dark:text-white uppercase tracking-widest">Faina</span>
-                  <h2 className="text-2xl font-black text-foreground dark:text-white uppercase tracking-tight truncate">
+                  <span className="text-[14px] font-black text-black dark:text-white uppercase tracking-widest">Faina</span>
+                  <h2 className="text-2xl font-black text-black dark:text-white uppercase tracking-tight truncate">
                     {pref.faina}
                   </h2>
                 </div>
                 <div className="text-right">
-                  <span className="text-[14px] font-black text-foreground dark:text-white uppercase tracking-widest">Chamada</span>
+                  <span className="text-[14px] font-black text-black dark:text-white uppercase tracking-widest">Chamada</span>
                   <div className="text-4xl font-black text-accent tracking-tighter">
                     {pref.chamada}
                   </div>
@@ -140,13 +140,13 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     >
                       {/* Coluna Turno */}
                       <div className="col-span-3 flex flex-col">
-                        <span className="text-[12px] font-black text-foreground dark:text-white uppercase tracking-tighter">Turno</span>
+                        <span className="text-[12px] font-black text-black dark:text-white uppercase tracking-tighter">Turno</span>
                         <span className="text-[15px] font-black text-accent uppercase">{shiftName}</span>
                       </div>
 
                       {/* Coluna Sinal */}
                       <div className="col-span-1 flex flex-col items-center">
-                        <span className="text-[12px] font-black text-foreground dark:text-white uppercase tracking-tighter">S</span>
+                        <span className="text-[12px] font-black text-black dark:text-white uppercase tracking-tighter">S</span>
                         <span className={cn(
                           "text-[16px] font-black",
                           shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
@@ -157,9 +157,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                       {/* Coluna Original */}
                       <div className="col-span-4 flex flex-col border-l border-border/20 pl-3">
-                        <span className="text-[12px] font-black text-foreground dark:text-white uppercase tracking-tighter">Original {isGroup2 ? '2' : '1'}</span>
+                        <span className="text-[12px] font-black text-black dark:text-white uppercase tracking-tighter">Original {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-xl font-black text-foreground dark:text-white">{valO || '--'}</span>
+                          <span className="text-xl font-black text-foreground">{valO || '--'}</span>
                           {hasData && diffOrig >= 0 && (
                             <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
                               +{diffOrig}
@@ -171,9 +171,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                       {/* Coluna Temp */}
                       <div className="col-span-4 flex flex-col border-l border-border/20 pl-3">
-                        <span className="text-[12px] font-black text-foreground dark:text-white uppercase tracking-tighter">Temp {isGroup2 ? '2' : '1'}</span>
+                        <span className="text-[12px] font-black text-black dark:text-white uppercase tracking-tighter">Temp {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-xl font-black text-foreground dark:text-white">{valT || '--'}</span>
+                          <span className="text-xl font-black text-foreground">{valT || '--'}</span>
                           {hasData && diffTemp >= 0 && (
                             <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
                               +{diffTemp}
