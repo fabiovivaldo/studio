@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -134,8 +135,8 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
     { key: 'Temporario_2', label: 'Temp 2' },
   ] as const;
 
-  // Classe utilitária para manter a mesma fonte e tamanho em toda a linha
-  const cellTextStyle = "text-[11px] font-bold tracking-tight";
+  // Classe utilitária para manter a mesma fonte e tamanho em toda a linha e reduzir altura
+  const cellTextStyle = "text-[11px] font-bold tracking-tight py-1.5";
 
   return (
     <div className="space-y-8">
@@ -243,7 +244,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                     {columns.map(({ key, label }) => (
                       <TableHead 
                         key={key} 
-                        className="cursor-pointer hover:text-accent transition-colors py-4 font-headline uppercase tracking-wider text-[9px]"
+                        className="cursor-pointer hover:text-accent transition-colors py-2 font-headline uppercase tracking-wider text-[9px]"
                         onClick={() => handleSort(key as keyof PonteiroData)}
                       >
                         <div className="flex items-center gap-2">
@@ -270,7 +271,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                         <TableCell className={cellTextStyle}>
                           {row.Funcao}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-1.5">
                           <Badge variant="outline" className={cn(
                             "border-opacity-20 px-2 font-black text-[11px]",
                             row.Sinal === '-' 
