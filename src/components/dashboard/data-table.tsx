@@ -134,7 +134,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
     { key: 'Data_Turno', label: 'Data / Turno' },
   ] as const;
 
-  const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5";
+  const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5 px-2";
 
   return (
     <div className="space-y-8">
@@ -242,7 +242,10 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                     {columns.map(({ key, label }) => (
                       <TableHead 
                         key={key} 
-                        className="cursor-pointer hover:text-accent transition-colors py-2 font-bold uppercase tracking-tight text-[11px]"
+                        className={cn(
+                          "cursor-pointer hover:text-accent transition-colors py-2 px-2 font-bold uppercase tracking-tight text-[11px]",
+                          key === 'Funcao' ? "pl-4" : ""
+                        )}
                         onClick={() => handleSort(key as keyof PonteiroData)}
                       >
                         <div className="flex items-center gap-2">
@@ -263,10 +266,10 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                   ) : sortedData.length > 0 ? (
                     sortedData.map((row, idx) => (
                       <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200 border-border/50">
-                        <TableCell className={cellTextStyle}>
+                        <TableCell className={cn(cellTextStyle, "pl-4")}>
                           {row.Funcao}
                         </TableCell>
-                        <TableCell className="py-1.5">
+                        <TableCell className="py-1.5 px-2">
                           <span className={cn(
                             "font-black text-[18px] inline-block min-w-[12px] text-center",
                             row.Sinal === '-' 
@@ -288,7 +291,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                         <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
                           {row.Temporario_2}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground")}>
+                        <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground pr-4")}>
                           {row.Data_Turno}
                         </TableCell>
                       </TableRow>
