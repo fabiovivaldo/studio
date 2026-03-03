@@ -132,7 +132,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
                   // Escolha qual valor monitorar com base na preferência (Original ou Temporário)
                   const monitorValue = pref.modo === 'original' ? valO : valT;
-
                   const alertStyle = getAlertStyle(monitorValue, pref.chamada);
 
                   const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
@@ -165,37 +164,58 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         )}>{shiftName}</span>
                       </div>
 
-                      <div className="flex flex-col gap-1">
-                        {/* Original O: */}
-                        <div className="flex items-center gap-1">
-                          <span className={tinyLabelStyle}>O:</span>
-                          <span className={cn(
-                            "text-[10px] font-bold transition-colors",
-                            pref.modo === 'original' ? "text-foreground opacity-90" : "text-foreground opacity-40"
-                          )}>
-                            {valO || '--'}
-                          </span>
-                        </div>
-                        
-                        {/* Ponteiro P: */}
-                        <div className="flex items-center gap-1.5">
-                          <span className={tinyLabelStyle}>P:</span>
-                          <span className={cn(
-                            "text-xl font-black leading-none tracking-tighter transition-colors",
-                            pref.modo === 'temporario' ? alertStyle.colorClass : "text-foreground opacity-40"
-                          )}>
-                            {valT || '--'}
-                          </span>
-                          {pref.modo === 'temporario' && alertStyle.showIcon && (
-                            <HardHat className={cn("h-4 w-4 shrink-0", alertStyle.colorClass)} />
-                          )}
-                          {pref.modo === 'original' && alertStyle.showIcon && (
-                             <HardHat className={cn("h-4 w-4 shrink-0", alertStyle.colorClass)} />
-                          )}
-                        </div>
+                      <div className="flex flex-col gap-1 min-h-[60px] justify-center">
+                        {/* Renderização Condicional com base no Modo de Monitoramento */}
+                        {pref.modo === 'original' ? (
+                          <>
+                            {/* ORIGINAL EM DESTAQUE */}
+                            <div className="flex items-center gap-1.5">
+                              <span className={tinyLabelStyle}>O:</span>
+                              <span className={cn(
+                                "text-xl font-black leading-none tracking-tighter transition-colors",
+                                alertStyle.colorClass
+                              )}>
+                                {valO || '--'}
+                              </span>
+                              {alertStyle.showIcon && (
+                                <HardHat className={cn("h-4 w-4 shrink-0", alertStyle.colorClass)} />
+                              )}
+                            </div>
+                            {/* PONTEIRO DISCRETO */}
+                            <div className="flex items-center gap-1">
+                              <span className={tinyLabelStyle}>P:</span>
+                              <span className="text-[10px] font-bold text-foreground opacity-40">
+                                {valT || '--'}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {/* ORIGINAL DISCRETO */}
+                            <div className="flex items-center gap-1">
+                              <span className={tinyLabelStyle}>O:</span>
+                              <span className="text-[10px] font-bold text-foreground opacity-40">
+                                {valO || '--'}
+                              </span>
+                            </div>
+                            {/* PONTEIRO EM DESTAQUE */}
+                            <div className="flex items-center gap-1.5">
+                              <span className={tinyLabelStyle}>P:</span>
+                              <span className={cn(
+                                "text-xl font-black leading-none tracking-tighter transition-colors",
+                                alertStyle.colorClass
+                              )}>
+                                {valT || '--'}
+                              </span>
+                              {alertStyle.showIcon && (
+                                <HardHat className={cn("h-4 w-4 shrink-0", alertStyle.colorClass)} />
+                              )}
+                            </div>
+                          </>
+                        )}
 
                         {/* Diferencial Laranja (DE BAIXO) */}
-                        <div className="flex items-center justify-between min-h-[20px]">
+                        <div className="flex items-center justify-between min-h-[20px] mt-1">
                           {hasData && (
                             <div className={cn(
                               "transition-all",
