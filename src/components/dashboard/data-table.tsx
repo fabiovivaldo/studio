@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -135,7 +134,6 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
     { key: 'Temporario_2', label: 'Temp 2' },
   ] as const;
 
-  // Classe utilitária para manter a mesma fonte e tamanho em toda a linha e reduzir altura
   const cellTextStyle = "text-[11px] font-bold tracking-tight py-1.5";
 
   return (
@@ -281,16 +279,16 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                             {row.Sinal}
                           </span>
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-muted-foreground font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent/60 font-mono")}>
                           {row.Original_1}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-bold font-mono")}>
                           {row.Temporario_1}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-muted-foreground font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent/60 font-mono")}>
                           {row.Original_2}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-bold font-mono")}>
                           {row.Temporario_2}
                         </TableCell>
                       </TableRow>

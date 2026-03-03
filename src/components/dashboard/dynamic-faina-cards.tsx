@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -37,7 +36,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     
     if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     
-    // Regra: se o número da chamada é maior, então não deve ter alerta
     if (target > value) {
       return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     }
@@ -95,7 +93,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
           ? "bg-destructive shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse" 
           : worstStatus === 'warning'
             ? "bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse"
-            : "bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]";
+            : "bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)]";
 
         const turnoText = fainaData?.Data_Turno?.includes(' ') 
           ? fainaData.Data_Turno.split(' ').slice(1).join(' ') 
