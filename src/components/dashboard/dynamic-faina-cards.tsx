@@ -169,7 +169,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                         <span className={cn(labelStyle, "text-[11px]")}>Orig {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-black text-foreground">{valO || '--'}</span>
-                          {showDiffO && (
+                          {/* Modificado: Não mostra contagem para ORIG 2 conforme solicitado */}
+                          {showDiffO && !isGroup2 && (
                             <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 shadow-sm">
                               {diffOrig > 0 ? `+${diffOrig}` : diffOrig}
                             </span>
