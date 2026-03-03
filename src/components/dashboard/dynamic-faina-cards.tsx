@@ -84,8 +84,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  const labelStyle = "text-[11px] font-black text-foreground opacity-40 uppercase tracking-tighter";
-  const tinyLabelStyle = "text-[10px] font-black opacity-30 uppercase tracking-tighter";
+  const labelStyle = "text-[11px] font-black text-foreground/40 uppercase tracking-tighter";
+  const tinyLabelStyle = "text-[10px] font-black text-foreground/30 uppercase tracking-tighter";
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -94,7 +94,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
         return (
           <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[160px]">
-            {/* Barra lateral de destaque sem efeito neon */}
+            {/* Barra lateral de destaque */}
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent z-10"></div>
             
             <div className="p-4 space-y-3 flex-1 flex flex-col">
@@ -149,8 +149,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         hasData 
                           ? "bg-muted/30 border-border/40" 
                           : "bg-muted/5 border-dashed border-border/20 opacity-40",
-                        isHighlighted && "border-accent ring-2 ring-accent/20 bg-accent/5",
-                        isCritical && "border-destructive ring-4 ring-destructive/30 bg-destructive/5",
+                        isHighlighted && "border-accent ring-1 ring-accent/30 bg-accent/5",
+                        isCritical && "border-destructive ring-2 ring-destructive/30 bg-destructive/5",
                         (isHighlighted || isCritical) && "z-10"
                       )}
                     >
@@ -161,14 +161,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         )}>{shiftName}</span>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
+                      <div className="flex flex-col gap-1">
                         {/* Original O: */}
                         <div className="flex items-center gap-1">
                           <span className={tinyLabelStyle}>O:</span>
                           <span className="text-[10px] font-bold text-foreground opacity-40">{valO || '--'}</span>
                         </div>
                         
-                        {/* Ponteiro P: (Agora no mesmo estilo que O:) */}
+                        {/* Ponteiro P: */}
                         <div className="flex items-center gap-1.5">
                           <span className={tinyLabelStyle}>P:</span>
                           <span className={cn(
@@ -182,11 +182,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           )}
                         </div>
 
-                        {/* Diferencial Laranja (DE BAIXO) - Sem efeito neon */}
-                        <div className="flex items-center justify-between min-h-[26px]">
+                        {/* Diferencial Laranja (DE BAIXO) - Sem fundo preto para maior harmonia */}
+                        <div className="flex items-center justify-between min-h-[20px]">
                           {hasData && (
                             <div className={cn(
-                              "bg-black border border-orange-500 rounded px-2 py-0.5 transition-all",
+                              "transition-all",
                               diffTemp === 0 && "opacity-0"
                             )}>
                               <span className="text-[15px] font-black text-orange-500 leading-none whitespace-nowrap">
