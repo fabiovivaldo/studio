@@ -36,7 +36,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     
     if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     
-    // Alerta só se o valor atual for igual ou maior que a chamada
+    // Se a chamada é maior que o ponteiro, não há alerta
     if (target > value) {
       return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     }
@@ -50,15 +50,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     }
     
     return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
-  };
-
-  const getDiff = (current: string | undefined, target: string) => {
-    if (!current || !target) return null;
-    const c = parseInt(current.replace(/\D/g, '')) || 0;
-    const t = parseInt(target.replace(/\D/g, '')) || 0;
-    if (c === 0) return null;
-    const diff = c - t;
-    return diff >= 0 ? `+${diff}` : `${diff}`;
   };
 
   if (isLoading) {
@@ -92,9 +83,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         
         const alertO = getAlertStyle(origVal, pref.chamada);
         const alertT = getAlertStyle(tempVal, pref.chamada);
-        
-        const diffO = getDiff(origVal, pref.chamada);
-        const diffT = getDiff(tempVal, pref.chamada);
 
         const worstStatus: AlertStatus = (alertO.status === 'critical' || alertT.status === 'critical') 
           ? 'critical' 
@@ -106,7 +94,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
           ? "bg-destructive shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse" 
           : worstStatus === 'warning'
             ? "bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse"
-            : "bg-primary shadow-[0_0_15px_hsl(var(--primary)/0.5)]";
+            : "bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)]";
 
         const turnoText = fainaData?.Data_Turno?.includes(' ') 
           ? fainaData.Data_Turno.split(' ').slice(1).join(' ') 
@@ -114,23 +102,23 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
         const sinalValue = fainaData?.Sinal || '+';
 
+        // Cálculo das diferenças
+        const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+        const origNum = parseInt(origVal?.replace(/\D/g, '') || '0') || 0;
+        const tempNum = parseInt(tempVal?.replace(/\D/g, '') || '0') || 0;
+        
+        const diffOrig = origNum - targetNum;
+        const diffTemp = tempNum - targetNum;
+
         return (
-          <Card key={pref.id} className="bg-card border-border/50 shadow-2xl relative overflow-hidden group h-[185px]">
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group h-[185px]">
             <div className={cn("absolute top-0 left-0 w-1.5 h-full transition-all duration-500 z-10", barColorClass)}></div>
             
             <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
               <div className="flex justify-between items-start">
-                <div className="text-[10px] font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[70%]">
+                <div className="text-[11px] font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[80%]">
                   {pref.faina}
                 </div>
-                {turnoText && (
-                  <div className="flex flex-col text-right">
-                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
-                    <span className="text-xs font-black text-primary uppercase whitespace-nowrap">
-                      {turnoText}
-                    </span>
-                  </div>
-                )}
               </div>
 
               <div className="flex items-center gap-4 py-1">
@@ -138,8 +126,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   {pref.chamada}
                 </div>
                 
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/5 border border-primary/20">
-                  <span className="text-[9px] font-black text-primary uppercase tracking-tighter opacity-80">Sinal</span>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/5 border border-accent/20">
+                  <span className="text-[9px] font-black text-accent uppercase tracking-tighter opacity-80">Sinal</span>
                   <span className={cn(
                     "text-xl font-black transition-colors duration-300",
                     sinalValue === '-' ? "text-destructive" : "text-green-500"
@@ -147,51 +135,50 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     {sinalValue}
                   </span>
                 </div>
+
+                {turnoText && (
+                  <div className="flex flex-col ml-auto text-right">
+                    <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
+                    <span className="text-lg font-black text-accent whitespace-nowrap">
+                      {turnoText}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {fainaData ? (
-                <div className="bg-muted/30 rounded-lg p-3 grid grid-cols-2 gap-2 border border-border/10 mt-auto mb-1">
+                <div className="bg-muted/30 dark:bg-[#161b22] rounded-lg p-3 grid grid-cols-2 gap-4 border border-border/10 mt-auto mb-1">
                   <div className="flex flex-col gap-0 relative">
-                    <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
+                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
                       Original {isGroup2 ? '2' : '1'}
                     </span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl tracking-tighter text-primary font-bold">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-2xl tracking-tighter text-accent font-bold">
                         {origVal}
                       </span>
-                      {diffO && (
-                        <span className={cn(
-                          "text-[10px] font-black px-1.5 py-0.5 rounded-md border",
-                          parseInt(diffO) >= 0 
-                            ? "bg-accent/10 border-accent text-accent" 
-                            : "bg-muted border-border text-muted-foreground"
-                        )}>
-                          {diffO}
+                      {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertO.iconColor)} />}
+                      {diffOrig >= 0 && (
+                        <span className="ml-auto text-[16px] font-black text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded shadow-sm">
+                          +{diffOrig}
                         </span>
                       )}
-                      {alertO.showIcon && <AlertTriangle className={cn("h-3 w-3 animate-bounce ml-auto", alertO.iconColor)} />}
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-0 border-l border-border/10 pl-3 relative">
-                    <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
+                  <div className="flex flex-col gap-0 border-l border-border/10 pl-4 relative">
+                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
                       Temp {isGroup2 ? '2' : '1'}
                     </span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl tracking-tighter text-primary font-bold">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-2xl tracking-tighter text-accent font-bold">
                         {tempVal}
                       </span>
-                      {diffT && (
-                        <span className={cn(
-                          "text-[10px] font-black px-1.5 py-0.5 rounded-md border",
-                          parseInt(diffT) >= 0 
-                            ? "bg-accent/10 border-accent text-accent" 
-                            : "bg-muted border-border text-muted-foreground"
-                        )}>
-                          {diffT}
+                      {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertT.iconColor)} />}
+                      {diffTemp >= 0 && (
+                        <span className="ml-auto text-[16px] font-black text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded shadow-sm">
+                          +{diffTemp}
                         </span>
                       )}
-                      {alertT.showIcon && <AlertTriangle className={cn("h-3 w-3 animate-bounce ml-auto", alertT.iconColor)} />}
                     </div>
                   </div>
                 </div>
