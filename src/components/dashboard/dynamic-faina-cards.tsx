@@ -30,22 +30,22 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
 
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
-    if (!valueStr || !targetStr) return { status: 'normal' as AlertStatus, numColor: 'text-accent', iconColor: '', showIcon: false };
+    if (!valueStr || !targetStr) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
-    if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, numColor: 'text-accent', iconColor: '', showIcon: false };
+    if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     
     const diff = Math.abs(target - value);
     
     if (diff <= 10) {
-      return { status: 'critical' as AlertStatus, numColor: 'text-accent', iconColor: 'text-destructive fill-destructive/10', showIcon: true };
+      return { status: 'critical' as AlertStatus, iconColor: 'text-destructive fill-destructive/10', showIcon: true };
     } else if (diff <= 20) {
-      return { status: 'warning' as AlertStatus, numColor: 'text-accent', iconColor: 'text-yellow-500 fill-yellow-500/10', showIcon: true };
+      return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500 fill-yellow-500/10', showIcon: true };
     }
     
-    return { status: 'normal' as AlertStatus, numColor: 'text-accent', iconColor: '', showIcon: false };
+    return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
   };
 
   if (isLoading) {
@@ -87,9 +87,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
             : 'normal';
 
         const barColorClass = worstStatus === 'critical' 
-          ? "bg-destructive shadow-[0_0_15px_rgba(239,68,68,0.5)]" 
+          ? "bg-destructive shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse" 
           : worstStatus === 'warning'
-            ? "bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]"
+            ? "bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse"
             : "bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]";
 
         const turnoText = fainaData?.Data_Turno?.includes(' ') 
@@ -100,7 +100,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
         return (
           <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group h-[185px]">
-            <div className={cn("absolute top-0 left-0 w-1.5 h-full transition-colors duration-500", barColorClass)}></div>
+            <div className={cn("absolute top-0 left-0 w-1.5 h-full transition-all duration-500 z-10", barColorClass)}></div>
             
             <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
               <div className="flex justify-between items-start">
@@ -141,10 +141,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                       Original {isGroup2 ? '2' : '1'}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertO.numColor)}>
+                      <span className="text-2xl tracking-tighter text-accent font-bold">
                         {origVal}
                       </span>
-                      {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertO.iconColor)} />}
+                      {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertO.iconColor)} />}
                     </div>
                   </div>
                   
@@ -153,10 +153,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                       Temp {isGroup2 ? '2' : '1'}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertT.numColor)}>
+                      <span className="text-2xl tracking-tighter text-accent font-bold">
                         {tempVal}
                       </span>
-                      {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
+                      {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertT.iconColor)} />}
                     </div>
                   </div>
                 </div>
