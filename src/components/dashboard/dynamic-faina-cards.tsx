@@ -116,7 +116,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
             
             <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
               <div className="flex justify-between items-start">
-                {/* Título da Faina: Preto no claro, Branco no escuro, maior e extra negrito */}
                 <div className="text-[15px] font-black text-foreground uppercase tracking-tight truncate max-w-[80%]">
                   {pref.faina}
                 </div>
@@ -139,7 +138,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                 {turnoText && (
                   <div className="flex flex-col ml-auto text-right">
-                    {/* Rótulo TURNO: Preto no claro, Branco no escuro, maior e extra negrito */}
                     <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">Turno</span>
                     <span className="text-lg font-black text-accent whitespace-nowrap">
                       {turnoText}
@@ -149,9 +147,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               </div>
 
               {fainaData ? (
-                <div className="bg-muted/30 dark:bg-[#161b22] rounded-lg p-3 grid grid-cols-2 gap-4 border border-border/10 mt-auto mb-1">
+                <div className="bg-muted/30 dark:bg-[#161b22] rounded-lg p-2.5 grid grid-cols-2 gap-3 border border-border/10 mt-auto mb-1">
                   <div className="flex flex-col gap-0 relative">
-                    {/* Rótulo ORIGINAL: Preto no claro, Branco no escuro, maior e extra negrito */}
                     <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">
                       Original {isGroup2 ? '2' : '1'}
                     </span>
@@ -168,8 +165,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-0 border-l border-border/10 pl-4 relative">
-                    {/* Rótulo TEMP: Preto no claro, Branco no escuro, maior e extra negrito */}
+                  <div className="flex flex-col gap-0 border-l border-border/10 pl-3 relative">
                     <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">
                       Temp {isGroup2 ? '2' : '1'}
                     </span>
