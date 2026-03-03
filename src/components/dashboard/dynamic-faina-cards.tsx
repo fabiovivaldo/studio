@@ -10,7 +10,7 @@ import {
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, HardHat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewMode } from './dashboard-content';
 
@@ -84,8 +84,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  const labelStyle = "text-[11px] font-black text-foreground uppercase tracking-tighter";
-  const tinyLabelStyle = "text-[10px] font-black opacity-50 uppercase tracking-tighter";
+  const labelStyle = "text-[11px] font-black text-foreground opacity-40 uppercase tracking-tighter";
+  const tinyLabelStyle = "text-[10px] font-black opacity-30 uppercase tracking-tighter";
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -98,11 +98,16 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
             
             <div className="p-4 space-y-3 flex-1 flex flex-col">
               <div className="flex justify-between items-end border-b border-border/40 pb-2">
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className={labelStyle}>Faina</span>
-                  <h2 className="text-sm font-black text-foreground uppercase tracking-tight leading-none mt-1 break-words">
-                    {pref.faina}
-                  </h2>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div className="bg-muted/50 p-1.5 rounded-md shrink-0">
+                    <HardHat className="h-4 w-4 text-accent/60" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className={labelStyle}>Faina</span>
+                    <h2 className="text-sm font-black text-foreground uppercase tracking-tight leading-none mt-1 break-words">
+                      {pref.faina}
+                    </h2>
+                  </div>
                 </div>
                 <div className="text-right ml-4 shrink-0">
                   <span className={labelStyle}>Rodízio</span>
@@ -127,10 +132,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   const tempNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
                   const diffTemp = tempNum - targetNum;
                   const hasData = !!shiftData;
-                  const isDecreasing = shiftData?.sinal === '-';
                   
-                  const showDiffT = hasData && (isDecreasing || (tempNum > targetNum)) && diffTemp !== 0;
-
                   const isHighlighted = selectedShift === 'live' 
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
@@ -160,45 +162,42 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         )}>{shiftName}</span>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
+                      <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-1">
                           <span className={tinyLabelStyle}>O:</span>
-                          <span className="text-[10px] font-bold text-foreground opacity-60">{valO || '--'}</span>
+                          <span className="text-[10px] font-bold text-foreground opacity-40">{valO || '--'}</span>
                         </div>
                         
-                        <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-1.5">
-                            <span className={tinyLabelStyle}>P:</span>
-                            <span className={cn(
-                              "text-xl font-black leading-none tracking-tighter transition-colors",
-                              alertT.colorClass,
-                              alertT.status === 'critical' && "animate-pulse"
-                            )}>
-                              {valT || '--'}
-                            </span>
-                            {alertT.showIcon && (
-                              <AlertTriangle className={cn("h-3 w-3 animate-bounce", alertT.colorClass)} />
-                            )}
-                          </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className={tinyLabelStyle}>P:</span>
+                          <span className={cn(
+                            "text-xl font-black leading-none tracking-tighter transition-colors",
+                            alertT.colorClass,
+                            alertT.status === 'critical' && "animate-pulse"
+                          )}>
+                            {valT || '--'}
+                          </span>
+                          {alertT.showIcon && (
+                            <AlertTriangle className={cn("h-3.5 w-3.5 animate-bounce", alertT.colorClass)} />
+                          )}
                           
-                          <div className="flex items-center gap-1 flex-wrap">
-                            {showDiffT && (
-                              <div className="bg-black border border-amber-500 rounded px-1.5 py-1 shadow-[0_0_8px_rgba(245,158,11,0.3)]">
-                                <span className="text-[13px] font-black text-amber-500 leading-none whitespace-nowrap">
-                                  {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
-                                </span>
-                              </div>
-                            )}
-
-                            <div className="flex items-center gap-0.5">
-                               <span className={cn(
-                                "text-xs font-black",
-                                shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
-                              )}>
-                                {shiftData?.sinal || '+'}
+                          {/* Diferencial Laranja */}
+                          {hasData && diffTemp !== 0 && (
+                            <div className="bg-black border border-orange-500 rounded px-1 py-0.5 shadow-[0_0_8px_rgba(249,115,22,0.4)] ml-auto">
+                              <span className="text-[13px] font-black text-orange-500 leading-none whitespace-nowrap">
+                                {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                               </span>
                             </div>
-                          </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-end">
+                           <span className={cn(
+                            "text-[10px] font-black",
+                            shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
+                          )}>
+                            {shiftData?.sinal || '+'}
+                          </span>
                         </div>
                       </div>
                     </div>
