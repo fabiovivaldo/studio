@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -40,7 +39,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   const { data: preferences, isLoading: isPrefsLoading } = useCollection(preferencesQuery);
 
-  // Aumentamos o limite para 1000 para garantir que pegamos todos os turnos de todas as fainas arquivadas
   const historyQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(
@@ -96,8 +94,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
         return (
           <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[160px]">
-            {/* Barra lateral de destaque */}
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
+            {/* Barra lateral de destaque sem efeito neon */}
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent z-10"></div>
             
             <div className="p-4 space-y-3 flex-1 flex flex-col">
               <div className="flex justify-between items-end border-b border-border/40 pb-2">
@@ -123,7 +121,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               {/* Grid de Turnos - 4 turnos em uma linha */}
               <div className="flex-1 grid grid-cols-4 gap-2 mt-1">
                 {SHIFT_ORDER.map((shiftName) => {
-                  // Busca no histórico (que inclui o dado raspado agora mesmo)
                   const shiftData = historyData?.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
@@ -185,11 +182,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           )}
                         </div>
 
-                        {/* Diferencial Laranja (DE BAIXO) - Maior e mais nítido */}
+                        {/* Diferencial Laranja (DE BAIXO) - Sem efeito neon */}
                         <div className="flex items-center justify-between min-h-[26px]">
                           {hasData && (
                             <div className={cn(
-                              "bg-black border border-orange-500 rounded px-2 py-0.5 shadow-[0_0_12px_rgba(249,115,22,0.6)] transition-all",
+                              "bg-black border border-orange-500 rounded px-2 py-0.5 transition-all",
                               diffTemp === 0 && "opacity-0"
                             )}>
                               <span className="text-[15px] font-black text-orange-500 leading-none whitespace-nowrap">

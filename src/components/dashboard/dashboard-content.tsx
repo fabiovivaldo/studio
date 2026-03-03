@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -71,7 +70,7 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
             <div className="flex items-center gap-2">
                <h1 className="text-2xl font-bold">Dashboard OGMOPR</h1>
                <div className="flex items-center gap-1.5 ml-4 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                   <span className="text-[10px] font-bold text-green-500 uppercase tracking-tighter">Tempo Real</span>
                </div>
             </div>
@@ -131,7 +130,7 @@ function NavItem({ icon: Icon, label, active = false }: { icon: any, label: stri
     }`}>
       <Icon className={`h-5 w-5 mr-3 transition-transform group-hover:scale-110 ${active ? 'text-accent' : 'text-muted-foreground'}`} />
       {label}
-      {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent shadow-glow shadow-accent"></span>}
+      {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent"></span>}
     </button>
   );
 }
