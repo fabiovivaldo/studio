@@ -67,9 +67,8 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
         <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50 px-8 py-4 flex justify-between items-center">
           <div>
             <h2 className="text-sm font-medium text-muted-foreground">Monitoramento de Ponteiros</h2>
-            <div className="flex items-center gap-2">
-               <h1 className="text-2xl font-bold">Dashboard OGMOPR</h1>
-               <div className="flex items-center gap-1.5 ml-4 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
+            <div className="flex items-center gap-2 mt-1">
+               <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                   <span className="text-[10px] font-bold text-green-500 uppercase tracking-tighter">Tempo Real</span>
                </div>
