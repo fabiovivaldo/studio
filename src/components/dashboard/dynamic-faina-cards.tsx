@@ -90,7 +90,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[180px]">
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[160px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
             
             <div className="p-4 space-y-3 flex-1 flex flex-col">
@@ -157,22 +157,24 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         )}>{shiftName}</span>
                       </div>
 
-                      <div className="flex flex-col gap-0.5">
+                      <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1 opacity-50">
                           <span className={tinyLabelStyle}>O:</span>
                           <span className="text-[10px] font-bold text-foreground">{valO || '--'}</span>
                         </div>
                         
-                        <div className="flex flex-col">
-                          <span className={tinyLabelStyle}>Ponteiro</span>
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-2xl font-black leading-none tracking-tighter text-foreground">
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-1">
+                            <span className={cn(tinyLabelStyle, "opacity-50")}>P:</span>
+                            <span className="text-xl font-black leading-none tracking-tighter text-foreground">
                               {valT || '--'}
                             </span>
-                            
+                          </div>
+                          
+                          <div className="flex items-center gap-1 flex-wrap">
                             {showDiffT && (
-                              <div className="bg-black/40 border border-amber-500/50 rounded px-1 py-0.5 shadow-sm">
-                                <span className="text-xs font-black text-amber-500 leading-none whitespace-nowrap">
+                              <div className="bg-black border border-amber-500 rounded px-1.5 py-1 shadow-[0_0_8px_rgba(245,158,11,0.2)]">
+                                <span className="text-[11px] font-black text-amber-500 leading-none whitespace-nowrap">
                                   {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                                 </span>
                               </div>
@@ -180,7 +182,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
                             <div className="flex items-center gap-0.5">
                                <span className={cn(
-                                "text-sm font-black",
+                                "text-xs font-black",
                                 shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
                               )}>
                                 {shiftData?.sinal || '+'}

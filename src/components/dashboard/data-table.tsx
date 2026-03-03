@@ -144,11 +144,11 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
 
   const columns = [
     { key: 'Funcao', label: 'Faina' },
-    { key: 'Sinal', label: 'Sinal' },
-    { key: 'Original_1', label: 'Orig 1' },
-    { key: 'Temporario_1', label: 'Ponteiro 1' },
-    { key: 'Original_2', label: 'Orig 2' },
-    { key: 'Temporario_2', label: 'Ponteiro 2' },
+    { key: 'Sinal', label: 'S' },
+    { key: 'Original_1', label: 'O: 1' },
+    { key: 'Temporario_1', label: 'P: 1' },
+    { key: 'Original_2', label: 'O: 2' },
+    { key: 'Temporario_2', label: 'P: 2' },
     { key: 'Data_Turno', label: 'Data / Turno' },
   ] as const;
 
