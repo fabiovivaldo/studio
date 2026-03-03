@@ -19,8 +19,6 @@ interface DynamicFainaCardsProps {
   selectedShift?: ViewMode;
 }
 
-type AlertStatus = 'critical' | 'normal';
-
 const SHIFT_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
 
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
@@ -51,25 +49,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
-  const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
-    if (!valueStr || !targetStr) return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
-    const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
-    const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
-    if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
-    
-    const diff = Math.abs(value - target);
-    
-    // Alerta Crítico (Capacete Vermelho) quando está a 10 ou menos da chamada
-    if (diff <= 10) return { status: 'critical' as AlertStatus, colorClass: 'text-destructive', showIcon: true };
-    
-    return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
-  };
-
   if (isPrefsLoading || isHistoryLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-[180px] bg-muted/50 rounded-xl border border-border"></div>
+          <div key={i} className="h-[200px] bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -78,15 +62,15 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   if (!preferences || preferences.length === 0) {
     return (
       <div className="bg-accent/5 border border-dashed border-accent/20 rounded-xl p-8 text-center">
-        <p className="text-sm text-muted-foreground font-bold">
-          Nenhuma faina prioritária. Adicione em Configurações para monitorar.
+        <p className="text-sm text-muted-foreground font-bold italic">
+          Nenhuma faina prioritária configurada.
         </p>
       </div>
     );
   }
 
-  const labelStyle = "text-[11px] font-black text-foreground/40 uppercase tracking-tighter";
-  const tinyLabelStyle = "text-[10px] font-black text-foreground/30 uppercase tracking-tighter";
+  const labelStyle = "text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider";
+  const tinyLabelStyle = "text-[11px] font-bold text-muted-foreground/40 uppercase";
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -94,151 +78,106 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[160px]">
-            {/* Barra lateral de destaque */}
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent z-10"></div>
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-sm relative overflow-hidden flex flex-col min-h-[180px]">
+            {/* Barra lateral azul da imagem */}
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600 z-10"></div>
             
-            <div className="p-4 space-y-3 flex-1 flex flex-col">
-              <div className="flex justify-between items-end border-b border-border/40 pb-2">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="bg-muted/50 p-1.5 rounded-md shrink-0">
-                    <HardHat className="h-4 w-4 text-accent/60" />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className={labelStyle}>Faina</span>
-                    <h2 className="text-xs font-black text-foreground uppercase tracking-tight leading-none mt-1 break-words">
-                      {pref.faina}
-                    </h2>
-                  </div>
-                </div>
-                <div className="text-right ml-4 shrink-0">
-                  <span className={labelStyle}>Chamada</span>
-                  <div className="text-sm font-black text-accent tracking-tighter leading-none mt-1">
-                    {pref.chamada}
-                  </div>
+            <div className="p-6 pb-2 flex items-start gap-12">
+              <div className="space-y-1">
+                <span className={labelStyle}>Chamada</span>
+                <div className="text-xl font-black text-blue-600 leading-none">
+                  {pref.chamada}
                 </div>
               </div>
+              <div className="space-y-1">
+                <span className={labelStyle}>Faina</span>
+                <h2 className="text-sm font-black text-foreground uppercase tracking-tight">
+                  {pref.faina}
+                </h2>
+              </div>
+            </div>
 
-              {/* Grid de Turnos - 4 turnos em uma linha */}
-              <div className="flex-1 grid grid-cols-4 gap-2 mt-1">
-                {SHIFT_ORDER.map((shiftName) => {
-                  const shiftData = historyData?.find(d => 
-                    d.funcao === pref.faina && d.dataTurno.includes(shiftName)
-                  );
+            <div className="p-6 pt-2 grid grid-cols-4 gap-4">
+              {SHIFT_ORDER.map((shiftName) => {
+                const shiftData = historyData?.find(d => 
+                  d.funcao === pref.faina && d.dataTurno.includes(shiftName)
+                );
 
-                  const isGroup2 = pref.tipo === '2';
-                  const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
-                  const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
+                const isGroup2 = pref.tipo === '2';
+                const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
+                const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
 
-                  // Escolha qual valor monitorar com base na preferência (Original ou Temporário)
-                  const monitorValue = pref.modo === 'original' ? valO : valT;
-                  const alertStyle = getAlertStyle(monitorValue, pref.chamada);
+                // Valor monitorado para o alerta
+                const monitorValue = pref.modo === 'original' ? valO : valT;
+                const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
+                const diff = monitorNum - targetNum;
+                const isCritical = Math.abs(diff) <= 10 && !!shiftData;
 
-                  const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
-                  const diff = monitorNum - targetNum;
-                  const hasData = !!shiftData;
-                  
-                  const isHighlighted = selectedShift === 'live' 
-                    ? activeShiftFromData === shiftName 
-                    : selectedShift === shiftName;
+                const isHighlighted = selectedShift === 'live' 
+                  ? activeShiftFromData === shiftName 
+                  : selectedShift === shiftName;
 
-                  const isCritical = alertStyle.status === 'critical';
+                return (
+                  <div 
+                    key={shiftName} 
+                    className={cn(
+                      "rounded-xl p-4 border transition-all duration-200 flex flex-col gap-2 relative",
+                      !shiftData && "opacity-30 bg-muted/5 border-dashed",
+                      shiftData && "bg-muted/10 border-border/40",
+                      isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5"
+                    )}
+                  >
+                    <span className={cn(
+                      "text-[10px] font-black uppercase tracking-widest",
+                      isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
+                    )}>
+                      {shiftName}
+                    </span>
 
-                  return (
-                    <div 
-                      key={shiftName} 
-                      className={cn(
-                        "rounded-lg p-2 border transition-all duration-300 flex flex-col gap-1 relative overflow-hidden",
-                        hasData 
-                          ? "bg-muted/30 border-border/40" 
-                          : "bg-muted/5 border-dashed border-border/20 opacity-40",
-                        isHighlighted && "border-accent ring-1 ring-accent/30 bg-accent/5",
-                        isCritical && "border-destructive ring-2 ring-destructive/30 bg-destructive/5",
-                        (isHighlighted || isCritical) && "z-10"
-                      )}
-                    >
-                      <div className="flex justify-between items-center border-b border-border/10 pb-1">
+                    <div className="space-y-1.5 mt-1">
+                      {/* ORIGINAL */}
+                      <div className="flex items-center gap-2">
+                        <span className={tinyLabelStyle}>O:</span>
                         <span className={cn(
-                          "text-[10px] font-black uppercase tracking-tighter",
-                          isCritical ? "text-destructive" : isHighlighted ? "text-accent" : "text-foreground opacity-60"
-                        )}>{shiftName}</span>
+                          pref.modo === 'original' ? "text-xl font-black text-foreground" : "text-sm font-bold text-muted-foreground/60",
+                          pref.modo === 'original' && isCritical && "text-destructive"
+                        )}>
+                          {valO || '--'}
+                        </span>
+                        {pref.modo === 'original' && isCritical && (
+                          <HardHat className="h-4 w-4 text-destructive" />
+                        )}
                       </div>
 
-                      <div className="flex flex-col gap-1 min-h-[60px] justify-center">
-                        {/* Renderização Condicional com base no Modo de Monitoramento */}
-                        {pref.modo === 'original' ? (
-                          <>
-                            {/* ORIGINAL EM DESTAQUE */}
-                            <div className="flex items-center gap-1.5">
-                              <span className={tinyLabelStyle}>O:</span>
-                              <span className={cn(
-                                "text-xl font-black leading-none tracking-tighter transition-colors",
-                                alertStyle.colorClass
-                              )}>
-                                {valO || '--'}
-                              </span>
-                              {alertStyle.showIcon && (
-                                <HardHat className={cn("h-4 w-4 shrink-0", alertStyle.colorClass)} />
-                              )}
-                            </div>
-                            {/* PONTEIRO DISCRETO */}
-                            <div className="flex items-center gap-1">
-                              <span className={tinyLabelStyle}>P:</span>
-                              <span className="text-[10px] font-bold text-foreground opacity-40">
-                                {valT || '--'}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            {/* ORIGINAL DISCRETO */}
-                            <div className="flex items-center gap-1">
-                              <span className={tinyLabelStyle}>O:</span>
-                              <span className="text-[10px] font-bold text-foreground opacity-40">
-                                {valO || '--'}
-                              </span>
-                            </div>
-                            {/* PONTEIRO EM DESTAQUE */}
-                            <div className="flex items-center gap-1.5">
-                              <span className={tinyLabelStyle}>P:</span>
-                              <span className={cn(
-                                "text-xl font-black leading-none tracking-tighter transition-colors",
-                                alertStyle.colorClass
-                              )}>
-                                {valT || '--'}
-                              </span>
-                              {alertStyle.showIcon && (
-                                <HardHat className={cn("h-4 w-4 shrink-0", alertStyle.colorClass)} />
-                              )}
-                            </div>
-                          </>
+                      {/* PONTEIRO */}
+                      <div className="flex items-center gap-2">
+                        <span className={tinyLabelStyle}>P:</span>
+                        <span className={cn(
+                          pref.modo === 'temporario' ? "text-xl font-black text-foreground" : "text-sm font-bold text-muted-foreground/60",
+                          pref.modo === 'temporario' && isCritical && "text-destructive"
+                        )}>
+                          {valT || '--'}
+                        </span>
+                        {pref.modo === 'temporario' && isCritical && (
+                          <HardHat className="h-4 w-4 text-destructive" />
                         )}
-
-                        {/* Diferencial Laranja (DE BAIXO) */}
-                        <div className="flex items-center justify-between min-h-[20px] mt-1">
-                          {hasData && (
-                            <div className={cn(
-                              "transition-all",
-                              diff === 0 && "opacity-0"
-                            )}>
-                              <span className="text-[15px] font-black text-orange-500 leading-none whitespace-nowrap">
-                                {diff > 0 ? `+${diff}` : diff}
-                              </span>
-                            </div>
-                          )}
-                          
-                          <span className={cn(
-                            "text-[10px] font-black ml-auto",
-                            shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
-                          )}>
-                            {shiftData?.sinal || (hasData ? '+' : '')}
-                          </span>
-                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+
+                    <div className="mt-auto pt-2 flex justify-between items-end">
+                      <span className="text-[15px] font-black text-orange-600 tracking-tighter leading-none">
+                        {shiftData ? (diff > 0 ? `+${diff}` : diff) : ''}
+                      </span>
+                      <span className={cn(
+                        "text-[12px] font-black",
+                        shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
+                      )}>
+                        {shiftData?.sinal || ''}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </Card>
         );
