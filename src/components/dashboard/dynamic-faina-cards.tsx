@@ -49,9 +49,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   if (isPrefsLoading || isHistoryLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 animate-pulse">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-[200px] bg-muted/50 rounded-xl border border-border"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-[220px] bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -71,7 +71,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   const tinyLabelStyle = "text-[9px] sm:text-[10px] font-bold text-muted-foreground/40 uppercase";
 
   return (
-    <div className="grid grid-cols-1 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {preferences.map((pref) => {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
         const modoAtivo = pref.modo || 'temporario';
@@ -95,7 +95,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
             </div>
 
-            {/* Container de Turnos - Grid de 4 colunas para mobile e desktop */}
+            {/* Container de Turnos - Grid de 4 colunas fixas para não quebrar no mobile */}
             <div className="p-2 sm:p-6 pt-2 grid grid-cols-4 gap-1.5 sm:gap-3 w-full pb-6">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
