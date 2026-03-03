@@ -26,6 +26,7 @@ const SHIFT_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
 
+  // Identifica o turno ativo nos dados raspados agora
   const activeShiftFromData = useMemo(() => {
     if (!scrapedData.length) return null;
     const turnoStr = scrapedData[0].Data_Turno;
@@ -39,12 +40,13 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   const { data: preferences, isLoading: isPrefsLoading } = useCollection(preferencesQuery);
 
+  // Aumentamos o limite para 1000 para garantir que pegamos todos os turnos de todas as fainas arquivadas
   const historyQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(
       collection(firestore, 'ponteiro_data'), 
       orderBy('createdAt', 'desc'), 
-      limit(200)
+      limit(1000) 
     );
   }, [firestore]);
 
@@ -58,8 +60,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     
     const diff = Math.abs(value - target);
     
-    // Alerta Crítico (Capacete Vermelho) quando está muito perto (10 ou menos)
-    // Aumentado para 10 para capturar o "6" do usuário
+    // Alerta Crítico (Capacete Vermelho) quando está a 10 ou menos da chamada
     if (diff <= 10) return { status: 'critical' as AlertStatus, colorClass: 'text-destructive', showIcon: true };
     
     return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
@@ -79,7 +80,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return (
       <div className="bg-accent/5 border border-dashed border-accent/20 rounded-xl p-8 text-center">
         <p className="text-sm text-muted-foreground font-bold">
-          Nenhuma preferência configurada. Adicione fainas em Configurações para vê-las aqui.
+          Nenhuma faina prioritária. Adicione em Configurações para monitorar.
         </p>
       </div>
     );
@@ -95,6 +96,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
         return (
           <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[160px]">
+            {/* Barra lateral de destaque */}
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
             
             <div className="p-4 space-y-3 flex-1 flex flex-col">
@@ -111,15 +113,17 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   </div>
                 </div>
                 <div className="text-right ml-4 shrink-0">
-                  <span className={labelStyle}>Nº Rodízio</span>
+                  <span className={labelStyle}>Chamada</span>
                   <div className="text-sm font-black text-accent tracking-tighter leading-none mt-1">
                     {pref.chamada}
                   </div>
                 </div>
               </div>
 
+              {/* Grid de Turnos - 4 turnos em uma linha */}
               <div className="flex-1 grid grid-cols-4 gap-2 mt-1">
                 {SHIFT_ORDER.map((shiftName) => {
+                  // Busca no histórico (que inclui o dado raspado agora mesmo)
                   const shiftData = historyData?.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
@@ -167,7 +171,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <span className="text-[10px] font-bold text-foreground opacity-40">{valO || '--'}</span>
                         </div>
                         
-                        {/* Ponteiro P: */}
+                        {/* Ponteiro P: (Agora no mesmo estilo que O:) */}
                         <div className="flex items-center gap-1.5">
                           <span className={tinyLabelStyle}>P:</span>
                           <span className={cn(
@@ -182,7 +186,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           )}
                         </div>
 
-                        {/* Diferencial Laranja (DE BAIXO) */}
+                        {/* Diferencial Laranja (DE BAIXO) - Maior e mais nítido */}
                         <div className="flex items-center justify-between min-h-[26px]">
                           {hasData && (
                             <div className={cn(

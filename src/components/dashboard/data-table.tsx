@@ -156,6 +156,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
 
   return (
     <div className="space-y-8">
+      {/* Seletor de Turno Principal */}
       <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
         <Button 
           variant={viewMode === 'live' ? 'secondary' : 'ghost'} 
@@ -183,6 +184,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
         ))}
       </div>
 
+      {/* Categorias */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {CATEGORY_CONFIG.map((cat) => {
           const Icon = cat.icon;
