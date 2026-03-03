@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
@@ -63,11 +64,11 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  const [newFaina, setNewFaina] = useState({ faina: '', chamada: '', tipo: '1' });
+  const [newFaina, setNewFaina] = useState({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
   const [isListVisible, setIsListVisible] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const [editFaina, setEditFaina] = useState({ faina: '', chamada: '', tipo: '1' });
+  const [editFaina, setEditFaina] = useState({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
   const [isEditListVisible, setIsEditListVisible] = useState(false);
   const editListRef = useRef<HTMLDivElement>(null);
 
@@ -132,10 +133,11 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       faina: newFaina.faina.toUpperCase(),
       chamada: newFaina.chamada.toUpperCase(),
       tipo: newFaina.tipo,
+      modo: newFaina.modo,
       userId: user.uid
     }, { merge: true });
 
-    setNewFaina({ faina: '', chamada: '', tipo: '1' });
+    setNewFaina({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
     setIsSubmitting(false);
     setIsListVisible(false);
   };
@@ -268,6 +270,19 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Modo de Monitoramento</Label>
+                  <Select value={newFaina.modo} onValueChange={(v) => setNewFaina(prev => ({ ...prev, modo: v }))}>
+                    <SelectTrigger className="h-12 text-sm font-bold bg-background border-border focus:ring-1 focus:ring-primary">
+                      <SelectValue placeholder="Modo" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border">
+                      <SelectItem value="original" className="text-xs font-bold uppercase">Original</SelectItem>
+                      <SelectItem value="temporario" className="text-xs font-bold uppercase">Temporário (Ponteiro)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
@@ -297,7 +312,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     
                     <div className="flex items-center justify-between gap-4">
                       {editingId === pref.id ? (
-                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 relative" ref={editListRef}>
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-3 relative" ref={editListRef}>
                           <div className="relative">
                             <Input
                               className="h-10 text-xs font-bold bg-background border-border uppercase focus:ring-1 focus:ring-primary"
@@ -344,12 +359,24 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                               <SelectItem value="2" className="text-[10px] font-bold">G2</SelectItem>
                             </SelectContent>
                           </Select>
+                          <Select value={editFaina.modo} onValueChange={(v) => setEditFaina(prev => ({ ...prev, modo: v }))}>
+                            <SelectTrigger className="h-10 text-xs font-bold bg-background border-border focus:ring-1 focus:ring-primary">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover border-border">
+                              <SelectItem value="original" className="text-[10px] font-bold">ORIG</SelectItem>
+                              <SelectItem value="temporario" className="text-[10px] font-bold">TEMP</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       ) : (
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3">
                             <p className="text-sm font-bold uppercase truncate text-foreground tracking-tight">{pref.faina}</p>
-                            <span className="text-[9px] px-2 py-0.5 rounded bg-primary/10 text-primary font-black uppercase border border-primary/20">Grupo {pref.tipo}</span>
+                            <div className="flex gap-1">
+                              <span className="text-[9px] px-2 py-0.5 rounded bg-primary/10 text-primary font-black uppercase border border-primary/20">Grupo {pref.tipo}</span>
+                              <span className="text-[9px] px-2 py-0.5 rounded bg-accent/10 text-accent font-black uppercase border border-accent/20">{pref.modo === 'original' ? 'ORIG' : 'TEMP'}</span>
+                            </div>
                           </div>
                           <p className="text-[11px] font-bold text-muted-foreground uppercase mt-1.5 opacity-70">Nº Rodízio: <span className="text-primary font-mono">{pref.chamada}</span></p>
                         </div>
@@ -376,7 +403,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                               className="h-8 w-8 text-primary hover:bg-primary/10" 
                               onClick={() => {
                                 setEditingId(pref.id);
-                                setEditFaina({ faina: pref.faina, chamada: pref.chamada, tipo: pref.tipo || '1' });
+                                setEditFaina({ faina: pref.faina, chamada: pref.chamada, tipo: pref.tipo || '1', modo: pref.modo || 'temporario' });
                               }}
                             >
                               <Edit2 className="h-4 w-4" />

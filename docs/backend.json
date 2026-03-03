@@ -77,12 +77,17 @@
           "enum": ["1", "2"],
           "description": "Determines if the card shows Original/Temp 1 or 2."
         },
+        "modo": {
+          "type": "string",
+          "enum": ["original", "temporario"],
+          "description": "Escolha entre monitorar o valor Original ou o Temporário (Ponteiro)."
+        },
         "userId": {
           "type": "string",
           "description": "The ID of the user who owns this preference."
         }
       },
-      "required": ["id", "faina", "chamada", "tipo", "userId"]
+      "required": ["id", "faina", "chamada", "tipo", "modo", "userId"]
     }
   },
   "auth": {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -129,17 +130,20 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
                   const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
 
-                  const alertT = getAlertStyle(valT, pref.chamada);
+                  // Escolha qual valor monitorar com base na preferência (Original ou Temporário)
+                  const monitorValue = pref.modo === 'original' ? valO : valT;
 
-                  const tempNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
-                  const diffTemp = tempNum - targetNum;
+                  const alertStyle = getAlertStyle(monitorValue, pref.chamada);
+
+                  const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
+                  const diff = monitorNum - targetNum;
                   const hasData = !!shiftData;
                   
                   const isHighlighted = selectedShift === 'live' 
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
 
-                  const isCritical = alertT.status === 'critical';
+                  const isCritical = alertStyle.status === 'critical';
 
                   return (
                     <div 
@@ -165,7 +169,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         {/* Original O: */}
                         <div className="flex items-center gap-1">
                           <span className={tinyLabelStyle}>O:</span>
-                          <span className="text-[10px] font-bold text-foreground opacity-40">{valO || '--'}</span>
+                          <span className={cn(
+                            "text-[10px] font-bold transition-colors",
+                            pref.modo === 'original' ? "text-foreground opacity-90" : "text-foreground opacity-40"
+                          )}>
+                            {valO || '--'}
+                          </span>
                         </div>
                         
                         {/* Ponteiro P: */}
@@ -173,24 +182,27 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <span className={tinyLabelStyle}>P:</span>
                           <span className={cn(
                             "text-xl font-black leading-none tracking-tighter transition-colors",
-                            alertT.colorClass
+                            pref.modo === 'temporario' ? alertStyle.colorClass : "text-foreground opacity-40"
                           )}>
                             {valT || '--'}
                           </span>
-                          {alertT.showIcon && (
-                            <HardHat className={cn("h-4 w-4 shrink-0", alertT.colorClass)} />
+                          {pref.modo === 'temporario' && alertStyle.showIcon && (
+                            <HardHat className={cn("h-4 w-4 shrink-0", alertStyle.colorClass)} />
+                          )}
+                          {pref.modo === 'original' && alertStyle.showIcon && (
+                             <HardHat className={cn("h-4 w-4 shrink-0", alertStyle.colorClass)} />
                           )}
                         </div>
 
-                        {/* Diferencial Laranja (DE BAIXO) - Sem fundo preto para maior harmonia */}
+                        {/* Diferencial Laranja (DE BAIXO) */}
                         <div className="flex items-center justify-between min-h-[20px]">
                           {hasData && (
                             <div className={cn(
                               "transition-all",
-                              diffTemp === 0 && "opacity-0"
+                              diff === 0 && "opacity-0"
                             )}>
                               <span className="text-[15px] font-black text-orange-500 leading-none whitespace-nowrap">
-                                {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
+                                {diff > 0 ? `+${diff}` : diff}
                               </span>
                             </div>
                           )}
