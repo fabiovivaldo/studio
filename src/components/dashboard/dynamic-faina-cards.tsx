@@ -158,7 +158,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                       </span>
                       {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertO.iconColor)} />}
                       {diffOrig >= 0 && (
-                        <span className="ml-auto text-[14px] font-black text-foreground/40 bg-background/50 px-1.5 rounded">
+                        <span className="ml-auto text-[16px] font-black text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded shadow-sm">
                           +{diffOrig}
                         </span>
                       )}
@@ -175,7 +175,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                       </span>
                       {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertT.iconColor)} />}
                       {diffTemp >= 0 && (
-                        <span className="ml-auto text-[14px] font-black text-foreground/40 bg-background/50 px-1.5 rounded">
+                        <span className="ml-auto text-[16px] font-black text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded shadow-sm">
                           +{diffTemp}
                         </span>
                       )}
