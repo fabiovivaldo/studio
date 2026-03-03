@@ -95,7 +95,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
             </div>
 
-            {/* Container de Turnos - Scroll horizontal sem quebra no mobile */}
+            {/* Container de Turnos - Flexível e com scroll horizontal no mobile */}
             <div className="p-6 pt-2 flex flex-row flex-nowrap overflow-x-auto gap-3 w-full scrollbar-none pb-8 md:pb-6">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
@@ -120,8 +120,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   <div 
                     key={shiftName} 
                     className={cn(
-                      "rounded-xl p-3 border transition-all duration-200 flex flex-col gap-1 relative flex-shrink-0",
-                      "w-[103px] h-[151px]", // Tamanho fixo obrigatório
+                      "rounded-xl p-3 border transition-all duration-200 flex flex-col gap-1 relative flex-1 flex-shrink-0",
+                      "min-w-[103px] min-h-[151px]", // Largura e altura mínima preservadas, mas agora é flexível
                       !shiftData && "opacity-30 bg-muted/5 border-dashed",
                       shiftData && "bg-muted/10 border-border/40",
                       isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5",
