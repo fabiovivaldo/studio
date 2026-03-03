@@ -36,6 +36,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     
     if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     
+    // Se a chamada é maior que o ponteiro, não há alerta
     if (target > value) {
       return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     }
@@ -43,9 +44,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     const diff = Math.abs(value - target);
     
     if (diff <= 10) {
-      return { status: 'critical' as AlertStatus, iconColor: 'text-destructive fill-destructive/10', showIcon: true };
+      return { status: 'critical' as AlertStatus, iconColor: 'text-destructive', showIcon: true };
     } else if (diff <= 20) {
-      return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500 fill-yellow-500/10', showIcon: true };
+      return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500', showIcon: true };
     }
     
     return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
@@ -101,6 +102,14 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
         const sinalValue = fainaData?.Sinal || '+';
 
+        // Cálculo das diferenças
+        const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+        const origNum = parseInt(origVal?.replace(/\D/g, '') || '0') || 0;
+        const tempNum = parseInt(tempVal?.replace(/\D/g, '') || '0') || 0;
+        
+        const diffOrig = origNum - targetNum;
+        const diffTemp = tempNum - targetNum;
+
         return (
           <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group h-[185px]">
             <div className={cn("absolute top-0 left-0 w-1.5 h-full transition-all duration-500 z-10", barColorClass)}></div>
@@ -143,11 +152,16 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
                       Original {isGroup2 ? '2' : '1'}
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <span className="text-2xl tracking-tighter text-accent font-bold">
                         {origVal}
                       </span>
                       {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertO.iconColor)} />}
+                      {diffOrig >= 0 && (
+                        <span className="ml-auto text-[14px] font-black text-foreground/40 bg-background/50 px-1.5 rounded">
+                          +{diffOrig}
+                        </span>
+                      )}
                     </div>
                   </div>
                   
@@ -155,11 +169,16 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
                       Temp {isGroup2 ? '2' : '1'}
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <span className="text-2xl tracking-tighter text-accent font-bold">
                         {tempVal}
                       </span>
                       {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertT.iconColor)} />}
+                      {diffTemp >= 0 && (
+                        <span className="ml-auto text-[14px] font-black text-foreground/40 bg-background/50 px-1.5 rounded">
+                          +{diffTemp}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
