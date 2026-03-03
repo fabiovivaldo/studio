@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFirebase } from '@/firebase';
 import { doc, serverTimestamp } from 'firebase/firestore';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -13,18 +13,34 @@ interface DataArchiverProps {
 
 /**
  * Componente que arquiva automaticamente os dados raspados.
- * Para atender ao pedido de substituir turnos antigos pelos novos:
- * O ID agora é Funcao + Nome_do_Turno, garantindo que a última "Manhã" sempre substitua a anterior.
+ * Otimizado para evitar "Quota Exceeded" no Firestore.
  */
 export function DataArchiver({ data }: DataArchiverProps) {
   const { firestore, user } = useFirebase();
+  const lastArchivedRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!firestore || !user || !data.length) return;
 
+    // Pega o identificador do turno atual (ex: "03/03/2026 Manhã")
+    const currentTurno = data[0].Data_Turno;
+
+    // Verifica se já arquivamos este turno específico nesta sessão do navegador
+    // ou se o turno é o mesmo que acabamos de processar
+    const sessionKey = `archived_${currentTurno.replace(/\s+/g, '_')}`;
+    const alreadyArchivedInSession = sessionStorage.getItem(sessionKey);
+
+    if (alreadyArchivedInSession === 'true' || lastArchivedRef.current === currentTurno) {
+      return;
+    }
+
+    // Marca como processado para evitar loops e excesso de escrita
+    lastArchivedRef.current = currentTurno;
+    sessionStorage.setItem(sessionKey, 'true');
+
+    // Executa o arquivamento de cada linha
     data.forEach((row) => {
       // Extrair apenas o nome do turno (ex: "Manhã") para o ID
-      // Isso garante que se o turno volta para "Manhã", ele substitua o registro anterior desse turno
       const turnoName = row.Data_Turno.includes(' ') 
         ? row.Data_Turno.split(' ').slice(1).join('_') 
         : row.Data_Turno;
