@@ -272,14 +272,14 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                           {row.Funcao}
                         </TableCell>
                         <TableCell className="py-1.5">
-                          <Badge variant="outline" className={cn(
-                            "border-opacity-20 px-2 font-black text-[11px]",
+                          <span className={cn(
+                            "font-black text-[14px] inline-block min-w-[12px] text-center",
                             row.Sinal === '-' 
-                              ? "bg-destructive/10 border-destructive/20 text-destructive" 
-                              : "bg-green-500/10 border-green-500/20 text-green-500"
+                              ? "text-destructive" 
+                              : "text-green-500"
                           )}>
                             {row.Sinal}
-                          </Badge>
+                          </span>
                         </TableCell>
                         <TableCell className={cn(cellTextStyle, "text-muted-foreground font-mono")}>
                           {row.Original_1}
