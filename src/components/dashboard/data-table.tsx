@@ -125,13 +125,13 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
   }, [filteredData, sortConfig]);
 
   const columns = [
-    { key: 'Data_Turno', label: 'Data / Turno' },
     { key: 'Funcao', label: 'Faina' },
     { key: 'Sinal', label: 'Sinal' },
     { key: 'Original_1', label: 'Original 1' },
     { key: 'Temporario_1', label: 'Temp 1' },
     { key: 'Original_2', label: 'Original 2' },
     { key: 'Temporario_2', label: 'Temp 2' },
+    { key: 'Data_Turno', label: 'Data / Turno' },
   ] as const;
 
   const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5";
@@ -263,9 +263,6 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                   ) : sortedData.length > 0 ? (
                     sortedData.map((row, idx) => (
                       <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200 border-border/50">
-                        <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground")}>
-                          {row.Data_Turno}
-                        </TableCell>
                         <TableCell className={cellTextStyle}>
                           {row.Funcao}
                         </TableCell>
@@ -290,6 +287,9 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                         </TableCell>
                         <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
                           {row.Temporario_2}
+                        </TableCell>
+                        <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground")}>
+                          {row.Data_Turno}
                         </TableCell>
                       </TableRow>
                     ))
