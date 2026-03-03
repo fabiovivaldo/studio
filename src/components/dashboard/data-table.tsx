@@ -123,7 +123,8 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
       );
       
       const functionUpper = item.Funcao.toUpperCase();
-      const matchesCategory = activeCategory === "TODOS" || functionUpper.includes(activeCategory);
+      // O filtro agora é conforme a primeira palavra (prefixo)
+      const matchesCategory = activeCategory === "TODOS" || functionUpper.startsWith(activeCategory);
       
       const isFavorite = favoriteFainas.has(functionUpper);
       const matchesFavorites = !showFavoritesOnly || isFavorite;
