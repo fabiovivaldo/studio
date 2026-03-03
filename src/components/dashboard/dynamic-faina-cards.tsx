@@ -6,10 +6,10 @@ import {
   useCollection, 
   useMemoFirebase
 } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, Zap } from 'lucide-react';
+import { AlertTriangle, Zap, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DynamicFainaCardsProps {
@@ -18,15 +18,30 @@ interface DynamicFainaCardsProps {
 
 type AlertStatus = 'critical' | 'warning' | 'normal';
 
+const SHIFTS = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
+
 export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
 
+  // Buscar preferências do usuário
   const preferencesQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(collection(firestore, 'faina_preferences'), where('userId', '==', user.uid));
   }, [firestore, user]);
 
-  const { data: preferences, isLoading } = useCollection(preferencesQuery);
+  const { data: preferences, isLoading: isPrefsLoading } = useCollection(preferencesQuery);
+
+  // Buscar dados históricos do Firestore para compor os 4 turnos
+  const historyQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(
+      collection(firestore, 'ponteiro_data'), 
+      orderBy('createdAt', 'desc'), 
+      limit(200)
+    );
+  }, [firestore]);
+
+  const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
     if (!valueStr || !targetStr) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
@@ -35,28 +50,20 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
     if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
-    
-    // Se a chamada é maior que o ponteiro, não há alerta
-    if (target > value) {
-      return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
-    }
+    if (target > value) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
 
     const diff = Math.abs(value - target);
-    
-    if (diff <= 10) {
-      return { status: 'critical' as AlertStatus, iconColor: 'text-destructive', showIcon: true };
-    } else if (diff <= 20) {
-      return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500', showIcon: true };
-    }
+    if (diff <= 10) return { status: 'critical' as AlertStatus, iconColor: 'text-destructive', showIcon: true };
+    else if (diff <= 20) return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500', showIcon: true };
     
     return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
   };
 
-  if (isLoading) {
+  if (isPrefsLoading || isHistoryLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-[185px] bg-muted/50 rounded-xl border border-border"></div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 animate-pulse">
+        {[1, 2].map((i) => (
+          <div key={i} className="h-[320px] bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -73,121 +80,116 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
       {preferences.map((pref) => {
-        const fainaData = scrapedData.find(d => d.Funcao === pref.faina);
-        const isGroup2 = pref.tipo === '2';
-        
-        const origVal = isGroup2 ? fainaData?.Original_2 : fainaData?.Original_1;
-        const tempVal = isGroup2 ? fainaData?.Temporario_2 : fainaData?.Temporario_1;
-        
-        const alertO = getAlertStyle(origVal, pref.chamada);
-        const alertT = getAlertStyle(tempVal, pref.chamada);
-
-        const worstStatus: AlertStatus = (alertO.status === 'critical' || alertT.status === 'critical') 
-          ? 'critical' 
-          : (alertO.status === 'warning' || alertT.status === 'warning') 
-            ? 'warning' 
-            : 'normal';
-
-        const barColorClass = worstStatus === 'critical' 
-          ? "bg-destructive shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse" 
-          : worstStatus === 'warning'
-            ? "bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse"
-            : "bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)]";
-
-        const turnoText = fainaData?.Data_Turno?.includes(' ') 
-          ? fainaData.Data_Turno.split(' ').slice(1).join(' ') 
-          : fainaData?.Data_Turno;
-
-        const sinalValue = fainaData?.Sinal || '+';
-
-        // Cálculo das diferenças
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-        const origNum = parseInt(origVal?.replace(/\D/g, '') || '0') || 0;
-        const tempNum = parseInt(tempVal?.replace(/\D/g, '') || '0') || 0;
-        
-        const diffOrig = origNum - targetNum;
-        const diffTemp = tempNum - targetNum;
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group h-[185px]">
-            <div className={cn("absolute top-0 left-0 w-1.5 h-full transition-all duration-500 z-10", barColorClass)}></div>
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group min-h-[320px] flex flex-col">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
             
-            <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
-              <div className="flex justify-between items-start">
-                <div className="text-[15px] font-black text-foreground uppercase tracking-tight truncate max-w-[80%]">
-                  {pref.faina}
+            <div className="p-5 space-y-4 flex-1 flex flex-col">
+              {/* Header do Card */}
+              <div className="flex justify-between items-center border-b border-border/50 pb-3">
+                <div className="flex flex-col">
+                  <span className="text-[12px] font-black text-foreground uppercase tracking-widest">Faina</span>
+                  <h2 className="text-xl font-black text-foreground uppercase tracking-tight truncate">
+                    {pref.faina}
+                  </h2>
+                </div>
+                <div className="text-right">
+                  <span className="text-[12px] font-black text-foreground uppercase tracking-widest">Chamada</span>
+                  <div className="text-3xl font-black text-accent tracking-tighter">
+                    {pref.chamada}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 py-1">
-                <div className="text-3xl font-black text-foreground tracking-tighter">
-                  {pref.chamada}
-                </div>
-                
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/5 border border-accent/20">
-                  <span className="text-[9px] font-black text-accent uppercase tracking-tighter opacity-80">Sinal</span>
-                  <span className={cn(
-                    "text-xl font-black transition-colors duration-300",
-                    sinalValue === '-' ? "text-destructive" : "text-green-500"
-                  )}>
-                    {sinalValue}
-                  </span>
-                </div>
+              {/* Grid de Turnos */}
+              <div className="grid grid-cols-1 gap-3 mt-2">
+                {SHIFTS.map((shiftName) => {
+                  // Tentar encontrar o dado no histórico do Firestore ou no scrape atual
+                  const shiftData = historyData?.find(d => 
+                    d.funcao === pref.faina && d.dataTurno.includes(shiftName)
+                  );
 
-                {turnoText && (
-                  <div className="flex flex-col ml-auto text-right">
-                    <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">Turno</span>
-                    <span className="text-lg font-black text-accent whitespace-nowrap">
-                      {turnoText}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {fainaData ? (
-                <div className="bg-muted/30 dark:bg-[#161b22] rounded-lg p-2.5 grid grid-cols-2 gap-3 border border-border/10 mt-auto mb-1">
-                  <div className="flex flex-col gap-0 relative">
-                    <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">
-                      Original {isGroup2 ? '2' : '1'}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-2xl tracking-tighter text-accent font-bold">
-                        {origVal}
-                      </span>
-                      {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertO.iconColor)} />}
-                      {diffOrig >= 0 && (
-                        <span className="ml-auto text-[16px] font-black text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded shadow-sm">
-                          +{diffOrig}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  const isGroup2 = pref.tipo === '2';
+                  const origVal = isGroup2 ? shiftData?.original2 : shiftData?.original1;
+                  const tempVal = isGroup2 ? shiftData?.temporario1 : shiftData?.temporario1; // Erro no original2/temp2? Ajustado para condicional.
                   
-                  <div className="flex flex-col gap-0 border-l border-border/10 pl-3 relative">
-                    <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">
-                      Temp {isGroup2 ? '2' : '1'}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-2xl tracking-tighter text-accent font-bold">
-                        {tempVal}
-                      </span>
-                      {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertT.iconColor)} />}
-                      {diffTemp >= 0 && (
-                        <span className="ml-auto text-[16px] font-black text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded shadow-sm">
-                          +{diffTemp}
-                        </span>
+                  // Re-ajustando extração baseada no tipo
+                  const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
+                  const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
+
+                  const alertO = getAlertStyle(valO, pref.chamada);
+                  const alertT = getAlertStyle(valT, pref.chamada);
+
+                  const origNum = parseInt(valO?.replace(/\D/g, '') || '0') || 0;
+                  const tempNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
+                  
+                  const diffOrig = origNum - targetNum;
+                  const diffTemp = tempNum - targetNum;
+
+                  const hasData = !!shiftData;
+
+                  return (
+                    <div 
+                      key={shiftName} 
+                      className={cn(
+                        "rounded-lg p-3 border transition-all duration-300 grid grid-cols-12 items-center gap-2",
+                        hasData 
+                          ? "bg-muted/30 border-border/50" 
+                          : "bg-muted/5 border-dashed border-border/20 opacity-40"
                       )}
+                    >
+                      {/* Coluna Turno */}
+                      <div className="col-span-3 flex flex-col">
+                        <span className="text-[10px] font-black text-foreground uppercase tracking-tighter">Turno</span>
+                        <span className="text-[13px] font-black text-accent uppercase">{shiftName}</span>
+                      </div>
+
+                      {/* Coluna Sinal */}
+                      <div className="col-span-1 flex flex-col items-center">
+                        <span className="text-[10px] font-black text-foreground uppercase tracking-tighter">S</span>
+                        <span className={cn(
+                          "text-[14px] font-black",
+                          shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
+                        )}>
+                          {shiftData?.sinal || '+'}
+                        </span>
+                      </div>
+
+                      {/* Coluna Original */}
+                      <div className="col-span-4 flex flex-col border-l border-border/20 pl-3">
+                        <span className="text-[10px] font-black text-foreground uppercase tracking-tighter">Original {isGroup2 ? '2' : '1'}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-black text-foreground">{valO || '--'}</span>
+                          {hasData && diffOrig >= 0 && (
+                            <span className="text-[11px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
+                              +{diffOrig}
+                            </span>
+                          )}
+                          {alertO.showIcon && <AlertTriangle className={cn("h-3 w-3 animate-pulse", alertO.iconColor)} />}
+                        </div>
+                      </div>
+
+                      {/* Coluna Temp */}
+                      <div className="col-span-4 flex flex-col border-l border-border/20 pl-3">
+                        <span className="text-[10px] font-black text-foreground uppercase tracking-tighter">Temp {isGroup2 ? '2' : '1'}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-black text-foreground">{valT || '--'}</span>
+                          {hasData && diffTemp >= 0 && (
+                            <span className="text-[11px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
+                              +{diffTemp}
+                            </span>
+                          )}
+                          {alertT.showIcon && <AlertTriangle className={cn("h-3 w-3 animate-pulse", alertT.iconColor)} />}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-destructive/70 italic text-[10px] bg-destructive/5 p-2 rounded-lg border border-destructive/10 mt-auto">
-                  <Zap className="h-3 w-3" />
-                  <span>Não encontrado nos dados atuais</span>
-                </div>
-              )}
+                  );
+                })}
+              </div>
             </div>
           </Card>
         );
