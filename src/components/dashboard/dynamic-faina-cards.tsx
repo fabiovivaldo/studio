@@ -124,7 +124,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   const isIncreasing = !isDecreasing; 
                   
                   // Lógica inteligente de exibição da diferença (balão azul)
-                  // ORIG 2 não precisa de contagem (pref.tipo === '2' esconde no Orig se necessário, mas aqui controlamos o Temp)
                   const showDiffT = hasData && (isDecreasing || (isIncreasing && tempNum > targetNum)) && diffTemp !== 0;
 
                   return (
@@ -151,18 +150,20 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                         
                         <div className="flex flex-col">
                           <span className={tinyLabelStyle}>Temp</span>
-                          <div className="flex items-center gap-1.5 flex-wrap">
+                          <div className="flex items-center gap-1.5">
                             <span className="text-2xl font-black text-foreground leading-none tracking-tighter">
                               {valT || '--'}
                             </span>
-                            {/* O balão azul aparece agora colado ao Temp para leitura rápida */}
+                            
+                            {/* O balão azul agora colado ao Temp */}
                             {showDiffT && (
-                              <span className="text-[11px] font-black text-accent bg-accent/10 px-1 rounded border border-accent/20 shadow-sm">
+                              <span className="text-[11px] font-black text-accent bg-accent/10 px-1 rounded border border-accent/20 shadow-sm whitespace-nowrap">
                                 {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                               </span>
                             )}
-                            {/* O Sinal e Alerta também colados ao valor principal */}
-                            <div className="flex items-center gap-1 ml-auto">
+
+                            {/* O Sinal e Alerta colados logo em seguida, sem ml-auto */}
+                            <div className="flex items-center gap-1">
                                <span className={cn(
                                 "text-sm font-black",
                                 shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
