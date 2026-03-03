@@ -9,7 +9,7 @@ import {
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, Zap, Clock } from 'lucide-react';
+import { AlertTriangle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DynamicFainaCardsProps {
@@ -63,7 +63,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     return (
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 animate-pulse">
         {[1, 2].map((i) => (
-          <div key={i} className="h-[320px] bg-muted/50 rounded-xl border border-border"></div>
+          <div key={i} className="h-[350px] bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -85,21 +85,21 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group min-h-[320px] flex flex-col">
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group min-h-[350px] flex flex-col">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
             
             <div className="p-5 space-y-4 flex-1 flex flex-col">
               {/* Header do Card */}
               <div className="flex justify-between items-center border-b border-border/50 pb-3">
                 <div className="flex flex-col">
-                  <span className="text-[12px] font-black text-foreground uppercase tracking-widest">Faina</span>
-                  <h2 className="text-xl font-black text-foreground uppercase tracking-tight truncate">
+                  <span className="text-[14px] font-black text-foreground dark:text-white uppercase tracking-widest">Faina</span>
+                  <h2 className="text-2xl font-black text-foreground dark:text-white uppercase tracking-tight truncate">
                     {pref.faina}
                   </h2>
                 </div>
                 <div className="text-right">
-                  <span className="text-[12px] font-black text-foreground uppercase tracking-widest">Chamada</span>
-                  <div className="text-3xl font-black text-accent tracking-tighter">
+                  <span className="text-[14px] font-black text-foreground dark:text-white uppercase tracking-widest">Chamada</span>
+                  <div className="text-4xl font-black text-accent tracking-tighter">
                     {pref.chamada}
                   </div>
                 </div>
@@ -108,16 +108,12 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               {/* Grid de Turnos */}
               <div className="grid grid-cols-1 gap-3 mt-2">
                 {SHIFTS.map((shiftName) => {
-                  // Tentar encontrar o dado no histórico do Firestore ou no scrape atual
+                  // Tentar encontrar o dado no histórico do Firestore
                   const shiftData = historyData?.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
 
                   const isGroup2 = pref.tipo === '2';
-                  const origVal = isGroup2 ? shiftData?.original2 : shiftData?.original1;
-                  const tempVal = isGroup2 ? shiftData?.temporario1 : shiftData?.temporario1; // Erro no original2/temp2? Ajustado para condicional.
-                  
-                  // Re-ajustando extração baseada no tipo
                   const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
                   const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
 
@@ -144,15 +140,15 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     >
                       {/* Coluna Turno */}
                       <div className="col-span-3 flex flex-col">
-                        <span className="text-[10px] font-black text-foreground uppercase tracking-tighter">Turno</span>
-                        <span className="text-[13px] font-black text-accent uppercase">{shiftName}</span>
+                        <span className="text-[12px] font-black text-foreground dark:text-white uppercase tracking-tighter">Turno</span>
+                        <span className="text-[15px] font-black text-accent uppercase">{shiftName}</span>
                       </div>
 
                       {/* Coluna Sinal */}
                       <div className="col-span-1 flex flex-col items-center">
-                        <span className="text-[10px] font-black text-foreground uppercase tracking-tighter">S</span>
+                        <span className="text-[12px] font-black text-foreground dark:text-white uppercase tracking-tighter">S</span>
                         <span className={cn(
-                          "text-[14px] font-black",
+                          "text-[16px] font-black",
                           shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
                         )}>
                           {shiftData?.sinal || '+'}
@@ -161,11 +157,11 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                       {/* Coluna Original */}
                       <div className="col-span-4 flex flex-col border-l border-border/20 pl-3">
-                        <span className="text-[10px] font-black text-foreground uppercase tracking-tighter">Original {isGroup2 ? '2' : '1'}</span>
+                        <span className="text-[12px] font-black text-foreground dark:text-white uppercase tracking-tighter">Original {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-lg font-black text-foreground">{valO || '--'}</span>
+                          <span className="text-xl font-black text-foreground dark:text-white">{valO || '--'}</span>
                           {hasData && diffOrig >= 0 && (
-                            <span className="text-[11px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
+                            <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
                               +{diffOrig}
                             </span>
                           )}
@@ -175,11 +171,11 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                       {/* Coluna Temp */}
                       <div className="col-span-4 flex flex-col border-l border-border/20 pl-3">
-                        <span className="text-[10px] font-black text-foreground uppercase tracking-tighter">Temp {isGroup2 ? '2' : '1'}</span>
+                        <span className="text-[12px] font-black text-foreground dark:text-white uppercase tracking-tighter">Temp {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-lg font-black text-foreground">{valT || '--'}</span>
+                          <span className="text-xl font-black text-foreground dark:text-white">{valT || '--'}</span>
                           {hasData && diffTemp >= 0 && (
-                            <span className="text-[11px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
+                            <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
                               +{diffTemp}
                             </span>
                           )}
