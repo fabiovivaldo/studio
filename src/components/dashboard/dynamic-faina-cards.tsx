@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -132,12 +131,22 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       isCritical && "border-destructive/50 bg-destructive/5"
                     )}
                   >
-                    <span className={cn(
-                      "text-[10px] font-black uppercase tracking-widest",
-                      isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
-                    )}>
-                      {shiftName}
-                    </span>
+                    <div className="flex justify-between items-start">
+                      <span className={cn(
+                        "text-[10px] font-black uppercase tracking-widest",
+                        isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
+                      )}>
+                        {shiftName}
+                      </span>
+                      {shiftData?.sinal && (
+                        <span className={cn(
+                          "text-[12px] font-black leading-none",
+                          shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
+                        )}>
+                          {shiftData.sinal}
+                        </span>
+                      )}
+                    </div>
 
                     <div className="space-y-1.5 mt-1 flex-1">
                       {/* ORIGINAL */}
@@ -181,12 +190,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           {shiftData ? (diff > 0 ? `+${diff}` : diff) : ''}
                         </span>
                       </div>
-                      <span className={cn(
-                        "text-[12px] font-black",
-                        shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
-                      )}>
-                        {shiftData?.sinal || ''}
-                      </span>
                     </div>
                   </div>
                 );
