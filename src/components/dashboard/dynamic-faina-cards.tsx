@@ -31,7 +31,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
   const { data: preferences, isLoading: isPrefsLoading } = useCollection(preferencesQuery);
 
-  // Buscar dados históricos do Firestore para compor os 4 turnos
+  // Buscar dados históricos do Firestore para comporar os 4 turnos
   const historyQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(
