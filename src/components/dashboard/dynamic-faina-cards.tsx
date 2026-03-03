@@ -17,6 +17,8 @@ interface DynamicFainaCardsProps {
   scrapedData: PonteiroData[];
 }
 
+type AlertStatus = 'critical' | 'warning' | 'normal';
+
 export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
 
@@ -28,25 +30,22 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
 
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
-    if (!valueStr || !targetStr) return { numColor: 'text-accent', iconColor: '', showIcon: false };
+    if (!valueStr || !targetStr) return { status: 'normal' as AlertStatus, numColor: 'text-accent', iconColor: '', showIcon: false };
     
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
-    if (target === 0 || value === 0) return { numColor: 'text-accent', iconColor: '', showIcon: false };
+    if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, numColor: 'text-accent', iconColor: '', showIcon: false };
     
     const diff = Math.abs(target - value);
     
-    // Regra lógica: 
-    // Diferença <= 10: Ícone Vermelho (Crítico)
-    // Diferença <= 20: Ícone Amarelo (Atenção)
     if (diff <= 10) {
-      return { numColor: 'text-accent', iconColor: 'text-destructive fill-destructive/10', showIcon: true };
+      return { status: 'critical' as AlertStatus, numColor: 'text-accent', iconColor: 'text-destructive fill-destructive/10', showIcon: true };
     } else if (diff <= 20) {
-      return { numColor: 'text-accent', iconColor: 'text-yellow-500 fill-yellow-500/10', showIcon: true };
+      return { status: 'warning' as AlertStatus, numColor: 'text-accent', iconColor: 'text-yellow-500 fill-yellow-500/10', showIcon: true };
     }
     
-    return { numColor: 'text-accent', iconColor: '', showIcon: false };
+    return { status: 'normal' as AlertStatus, numColor: 'text-accent', iconColor: '', showIcon: false };
   };
 
   if (isLoading) {
@@ -81,6 +80,18 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const alertO = getAlertStyle(origVal, pref.chamada);
         const alertT = getAlertStyle(tempVal, pref.chamada);
 
+        const worstStatus: AlertStatus = (alertO.status === 'critical' || alertT.status === 'critical') 
+          ? 'critical' 
+          : (alertO.status === 'warning' || alertT.status === 'warning') 
+            ? 'warning' 
+            : 'normal';
+
+        const barColorClass = worstStatus === 'critical' 
+          ? "bg-destructive shadow-[0_0_15px_rgba(239,68,68,0.5)]" 
+          : worstStatus === 'warning'
+            ? "bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]"
+            : "bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]";
+
         const turnoText = fainaData?.Data_Turno?.includes(' ') 
           ? fainaData.Data_Turno.split(' ').slice(1).join(' ') 
           : fainaData?.Data_Turno;
@@ -89,7 +100,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
         return (
           <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-2xl relative overflow-hidden group h-[185px]">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"></div>
+            <div className={cn("absolute top-0 left-0 w-1.5 h-full transition-colors duration-500", barColorClass)}></div>
             
             <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
               <div className="flex justify-between items-start">
