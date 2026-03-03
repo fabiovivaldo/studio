@@ -37,7 +37,12 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     
     if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
     
-    const diff = Math.abs(target - value);
+    // Regra: se o número da chamada é maior, então não deve ter alerta
+    if (target > value) {
+      return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
+    }
+
+    const diff = Math.abs(value - target);
     
     if (diff <= 10) {
       return { status: 'critical' as AlertStatus, iconColor: 'text-destructive fill-destructive/10', showIcon: true };
