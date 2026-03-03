@@ -76,9 +76,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     <div className="grid grid-cols-1 gap-6">
       {preferences.map((pref) => {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+        // Fallback para modo se estiver indefinido (para fainas antigas)
+        const modoAtivo = pref.modo || 'temporario';
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-sm relative overflow-hidden flex flex-col min-h-[180px]">
+          <Card key={pref.id} className="bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col min-h-[180px]">
             {/* Barra lateral azul da imagem */}
             <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600 z-10"></div>
             
@@ -97,7 +99,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
             </div>
 
-            <div className="p-6 pt-2 grid grid-cols-4 gap-4">
+            <div className="p-6 pt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
                   d.funcao === pref.faina && d.dataTurno.includes(shiftName)
@@ -108,9 +110,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
 
                 // Valor monitorado para o alerta
-                const monitorValue = pref.modo === 'original' ? valO : valT;
+                const monitorValue = modoAtivo === 'original' ? valO : valT;
                 const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
                 const diff = monitorNum - targetNum;
+                
+                // Alerta crítico: diferença de 10 ou menos
                 const isCritical = Math.abs(diff) <= 10 && !!shiftData;
 
                 const isHighlighted = selectedShift === 'live' 
@@ -124,7 +128,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       "rounded-xl p-4 border transition-all duration-200 flex flex-col gap-2 relative",
                       !shiftData && "opacity-30 bg-muted/5 border-dashed",
                       shiftData && "bg-muted/10 border-border/40",
-                      isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5"
+                      isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5",
+                      isCritical && "border-destructive/50 bg-destructive/5"
                     )}
                   >
                     <span className={cn(
@@ -134,17 +139,20 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       {shiftName}
                     </span>
 
-                    <div className="space-y-1.5 mt-1">
+                    <div className="space-y-1.5 mt-1 flex-1">
                       {/* ORIGINAL */}
                       <div className="flex items-center gap-2">
                         <span className={tinyLabelStyle}>O:</span>
                         <span className={cn(
-                          pref.modo === 'original' ? "text-xl font-black text-foreground" : "text-sm font-bold text-muted-foreground/60",
-                          pref.modo === 'original' && isCritical && "text-destructive"
+                          "transition-all duration-200",
+                          modoAtivo === 'original' 
+                            ? "text-xl font-black text-foreground" 
+                            : "text-sm font-bold text-muted-foreground/40",
+                          modoAtivo === 'original' && isCritical && "text-destructive"
                         )}>
                           {valO || '--'}
                         </span>
-                        {pref.modo === 'original' && isCritical && (
+                        {modoAtivo === 'original' && isCritical && (
                           <HardHat className="h-4 w-4 text-destructive" />
                         )}
                       </div>
@@ -153,21 +161,26 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <div className="flex items-center gap-2">
                         <span className={tinyLabelStyle}>P:</span>
                         <span className={cn(
-                          pref.modo === 'temporario' ? "text-xl font-black text-foreground" : "text-sm font-bold text-muted-foreground/60",
-                          pref.modo === 'temporario' && isCritical && "text-destructive"
+                          "transition-all duration-200",
+                          modoAtivo === 'temporario' 
+                            ? "text-xl font-black text-foreground" 
+                            : "text-sm font-bold text-muted-foreground/40",
+                          modoAtivo === 'temporario' && isCritical && "text-destructive"
                         )}>
                           {valT || '--'}
                         </span>
-                        {pref.modo === 'temporario' && isCritical && (
+                        {modoAtivo === 'temporario' && isCritical && (
                           <HardHat className="h-4 w-4 text-destructive" />
                         )}
                       </div>
                     </div>
 
-                    <div className="mt-auto pt-2 flex justify-between items-end">
-                      <span className="text-[15px] font-black text-orange-600 tracking-tighter leading-none">
-                        {shiftData ? (diff > 0 ? `+${diff}` : diff) : ''}
-                      </span>
+                    <div className="mt-2 flex justify-between items-end border-t border-border/10 pt-2">
+                      <div className="flex flex-col">
+                        <span className="text-[15px] font-black text-orange-600 tracking-tighter leading-none">
+                          {shiftData ? (diff > 0 ? `+${diff}` : diff) : ''}
+                        </span>
+                      </div>
                       <span className={cn(
                         "text-[12px] font-black",
                         shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
