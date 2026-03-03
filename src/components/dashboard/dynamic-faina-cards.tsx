@@ -67,8 +67,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  const labelStyle = "text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider";
-  const tinyLabelStyle = "text-[10px] font-bold text-muted-foreground/40 uppercase";
+  const labelStyle = "text-[9px] sm:text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider";
+  const tinyLabelStyle = "text-[9px] sm:text-[10px] font-bold text-muted-foreground/40 uppercase";
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -80,23 +80,23 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
           <Card key={pref.id} className="bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col min-h-[220px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600 z-10"></div>
             
-            <div className="p-6 pb-2 flex items-start gap-8 sm:gap-12">
+            <div className="p-4 sm:p-6 pb-2 flex items-start gap-4 sm:gap-12">
               <div className="space-y-1">
                 <span className={labelStyle}>Chamada</span>
-                <div className="text-2xl font-black text-blue-600 leading-none">
+                <div className="text-xl sm:text-2xl font-black text-blue-600 leading-none">
                   {pref.chamada}
                 </div>
               </div>
               <div className="space-y-1 min-w-0">
                 <span className={labelStyle}>Faina</span>
-                <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words">
+                <h2 className="text-xs sm:text-sm font-black text-foreground uppercase tracking-tight break-words">
                   {pref.faina}
                 </h2>
               </div>
             </div>
 
-            {/* Container de Turnos - Flexível e com scroll horizontal no mobile */}
-            <div className="p-6 pt-2 flex flex-row flex-nowrap overflow-x-auto gap-3 w-full scrollbar-none pb-8 md:pb-6">
+            {/* Container de Turnos - Grid de 4 colunas para mobile e desktop */}
+            <div className="p-2 sm:p-6 pt-2 grid grid-cols-4 gap-1.5 sm:gap-3 w-full pb-6">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
                   d.funcao === pref.faina && d.dataTurno.includes(shiftName)
@@ -120,24 +120,23 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   <div 
                     key={shiftName} 
                     className={cn(
-                      "rounded-xl p-3 border transition-all duration-200 flex flex-col gap-1 relative flex-1 flex-shrink-0",
-                      "min-w-[103px] min-h-[151px]", // Largura e altura mínima preservadas, mas agora é flexível
+                      "rounded-lg sm:rounded-xl p-2 sm:p-3 border transition-all duration-200 flex flex-col gap-1 relative min-h-[140px] sm:min-h-[151px]",
                       !shiftData && "opacity-30 bg-muted/5 border-dashed",
                       shiftData && "bg-muted/10 border-border/40",
                       isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5",
                       isCritical && "border-destructive/50 bg-destructive/5"
                     )}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5 sm:gap-1">
                       <span className={cn(
-                        "text-[9px] font-black uppercase tracking-widest truncate",
+                        "text-[8px] sm:text-[9px] font-black uppercase tracking-widest truncate",
                         isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
                       )}>
                         {shiftName}
                       </span>
                       {shiftData?.sinal && (
                         <span className={cn(
-                          "text-[11px] font-black leading-none",
+                          "text-[9px] sm:text-[11px] font-black leading-none",
                           shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
                         )}>
                           {shiftData.sinal}
@@ -146,41 +145,41 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     </div>
 
                     <div className="space-y-0.5 mt-1 flex-1">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <span className={tinyLabelStyle}>O:</span>
                         <span className={cn(
                           "transition-all duration-200",
                           modoAtivo === 'original' 
-                            ? "text-lg font-black text-foreground leading-none" 
-                            : "text-[10px] font-bold text-muted-foreground/40",
+                            ? "text-sm sm:text-lg font-black text-foreground leading-none" 
+                            : "text-[8px] sm:text-[10px] font-bold text-muted-foreground/40",
                           modoAtivo === 'original' && isCritical && "text-destructive"
                         )}>
                           {valO || '--'}
                         </span>
                         {modoAtivo === 'original' && isCritical && (
-                          <HardHat className="h-3 w-3 text-destructive" />
+                          <HardHat className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-destructive" />
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <span className={tinyLabelStyle}>P:</span>
                         <span className={cn(
                           "transition-all duration-200",
                           modoAtivo === 'temporario' 
-                            ? "text-lg font-black text-foreground leading-none" 
-                            : "text-[10px] font-bold text-muted-foreground/40",
+                            ? "text-sm sm:text-lg font-black text-foreground leading-none" 
+                            : "text-[8px] sm:text-[10px] font-bold text-muted-foreground/40",
                           modoAtivo === 'temporario' && isCritical && "text-destructive"
                         )}>
                           {valT || '--'}
                         </span>
                         {modoAtivo === 'temporario' && isCritical && (
-                          <HardHat className="h-3 w-3 text-destructive" />
+                          <HardHat className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-destructive" />
                         )}
                       </div>
                     </div>
 
                     <div className="mt-auto border-t border-border/10 pt-1">
-                      <span className="text-[18px] font-black text-orange-600 tracking-tighter leading-none block">
+                      <span className="text-base sm:text-[18px] font-black text-orange-600 tracking-tighter leading-none block">
                         {shiftData ? (diff > 0 ? `+${diff}` : diff) : ''}
                       </span>
                     </div>
