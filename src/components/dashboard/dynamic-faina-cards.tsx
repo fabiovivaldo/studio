@@ -174,7 +174,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <div className="flex items-center gap-1 flex-wrap">
                             {showDiffT && (
                               <div className="bg-black border border-amber-500 rounded px-1.5 py-1 shadow-[0_0_8px_rgba(245,158,11,0.2)]">
-                                <span className="text-[11px] font-black text-amber-500 leading-none whitespace-nowrap">
+                                <span className="text-[13px] font-black text-amber-500 leading-none whitespace-nowrap">
                                   {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                                 </span>
                               </div>
