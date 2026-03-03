@@ -246,7 +246,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="chamada" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Nº CHAMADA</Label>
+                  <Label htmlFor="chamada" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Nº RODÍZIO</Label>
                   <Input 
                     id="chamada" 
                     placeholder="0000" 
@@ -351,7 +351,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                             <p className="text-sm font-bold uppercase truncate text-foreground tracking-tight">{pref.faina}</p>
                             <span className="text-[9px] px-2 py-0.5 rounded bg-primary/10 text-primary font-black uppercase border border-primary/20">Grupo {pref.tipo}</span>
                           </div>
-                          <p className="text-[11px] font-bold text-muted-foreground uppercase mt-1.5 opacity-70">Nº Chamada: <span className="text-primary font-mono">{pref.chamada}</span></p>
+                          <p className="text-[11px] font-bold text-muted-foreground uppercase mt-1.5 opacity-70">Nº Rodízio: <span className="text-primary font-mono">{pref.chamada}</span></p>
                         </div>
                       )}
 

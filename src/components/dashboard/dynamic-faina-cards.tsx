@@ -19,11 +19,8 @@ interface DynamicFainaCardsProps {
 type AlertStatus = 'critical' | 'warning' | 'normal';
 
 // Ordem para o grid 2x2: 
-// Col 1: Manhã (0), Tarde (1) 
-// Col 2: Noite (2), Madrugada (3)
-// No grid padrão grid-cols-2: item 0 e 1 ficam na Row 1. Item 2 e 3 na Row 2.
-// Para ter Manhã/Tarde na Col 1 e Noite/Madruga na Col 2, a ordem deve ser:
-// Manhã, Noite, Tarde, Madrugada
+// Col 1: Manhã (em cima), Tarde (em baixo)
+// Col 2: Noite (em cima), Madrugada (em baixo)
 const SHIFT_ORDER = ['Manhã', 'Noite', 'Tarde', 'Madrugada'] as const;
 
 export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
@@ -100,14 +97,14 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </h2>
                 </div>
                 <div className="text-right ml-4 shrink-0">
-                  <span className={labelStyle}>Chamada</span>
-                  <div className="text-2xl font-black text-accent tracking-tighter leading-none mt-1">
+                  <span className={labelStyle}>Rodízio</span>
+                  <div className="text-lg font-black text-accent tracking-tighter leading-none mt-1">
                     {pref.chamada}
                   </div>
                 </div>
               </div>
 
-              {/* Grid de Turnos 2x2 */}
+              {/* Grid de Turnos 2x2 (Manhã/Tarde na Col 1, Noite/Madrugada na Col 2) */}
               <div className="flex-1 grid grid-cols-2 gap-2 mt-1">
                 {SHIFT_ORDER.map((shiftName) => {
                   const shiftData = historyData?.find(d => 
@@ -120,13 +117,13 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                   const alertT = getAlertStyle(valT, pref.chamada);
 
-                  const origNum = parseInt(valO?.replace(/\D/g, '') || '0') || 0;
                   const tempNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
-                  
                   const diffTemp = tempNum - targetNum;
                   const hasData = !!shiftData;
                   const isDecreasing = shiftData?.sinal === '-';
                   const isIncreasing = !isDecreasing; 
+                  
+                  // Lógica inteligente de exibição da diferença (balão azul)
                   const showDiffT = hasData && (isDecreasing || (isIncreasing && tempNum > targetNum)) && diffTemp !== 0;
 
                   return (
@@ -139,18 +136,12 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                           : "bg-muted/5 border-dashed border-border/20 opacity-40"
                       )}
                     >
-                      {/* Header do Turno no Card */}
+                      {/* Header do Turno */}
                       <div className="flex justify-between items-center border-b border-border/10 pb-1">
                         <span className="text-[10px] font-black text-accent uppercase tracking-tighter">{shiftName}</span>
-                        <span className={cn(
-                          "text-sm font-black",
-                          shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
-                        )}>
-                          {shiftData?.sinal || '+'}
-                        </span>
                       </div>
 
-                      {/* Valores */}
+                      {/* Valores com foco total no Temp */}
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1 opacity-60">
                           <span className={tinyLabelStyle}>O:</span>
@@ -163,12 +154,22 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                             <span className="text-2xl font-black text-foreground leading-none tracking-tighter">
                               {valT || '--'}
                             </span>
+                            {/* O balão azul aparece agora colado ao Temp para leitura rápida */}
                             {showDiffT && (
                               <span className="text-[11px] font-black text-accent bg-accent/10 px-1 rounded border border-accent/20 shadow-sm">
                                 {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                               </span>
                             )}
-                            {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
+                            {/* O Sinal e Alerta também colados ao valor principal */}
+                            <div className="flex items-center gap-1 ml-auto">
+                               <span className={cn(
+                                "text-sm font-black",
+                                shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
+                              )}>
+                                {shiftData?.sinal || '+'}
+                              </span>
+                              {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
+                            </div>
                           </div>
                         </div>
                       </div>
