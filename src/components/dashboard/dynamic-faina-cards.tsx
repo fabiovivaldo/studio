@@ -131,7 +131,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       isCritical && "border-destructive/50 bg-destructive/5"
                     )}
                   >
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-2">
                       <span className={cn(
                         "text-[10px] font-black uppercase tracking-widest",
                         isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
