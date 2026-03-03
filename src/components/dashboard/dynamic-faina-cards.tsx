@@ -28,20 +28,25 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const { data: preferences, isLoading } = useCollection(preferencesQuery);
 
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
-    if (!valueStr || !targetStr) return { color: 'text-accent', showIcon: false };
+    if (!valueStr || !targetStr) return { numColor: 'text-accent', iconColor: '', showIcon: false };
     
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
-    if (target === 0 || value === 0) return { color: 'text-accent', showIcon: false };
+    if (target === 0 || value === 0) return { numColor: 'text-accent', iconColor: '', showIcon: false };
     
     const diff = Math.abs(target - value);
     
-    // Alerta: Ícone para 20 ou menos, Vermelho para 10 ou menos
-    return {
-      color: diff <= 10 ? 'text-destructive font-black' : 'text-accent',
-      showIcon: diff <= 20
-    };
+    // Regra lógica: 
+    // Diferença <= 10: Ícone Vermelho (Crítico)
+    // Diferença <= 20: Ícone Amarelo (Atenção)
+    if (diff <= 10) {
+      return { numColor: 'text-accent', iconColor: 'text-destructive fill-destructive/10', showIcon: true };
+    } else if (diff <= 20) {
+      return { numColor: 'text-accent', iconColor: 'text-yellow-500 fill-yellow-500/10', showIcon: true };
+    }
+    
+    return { numColor: 'text-accent', iconColor: '', showIcon: false };
   };
 
   if (isLoading) {
@@ -125,10 +130,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                       Original {isGroup2 ? '2' : '1'}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertO.color)}>
+                      <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertO.numColor)}>
                         {origVal}
                       </span>
-                      {alertO.showIcon && <AlertTriangle className="h-4 w-4 text-yellow-500 animate-pulse fill-yellow-500/10" />}
+                      {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertO.iconColor)} />}
                     </div>
                   </div>
                   
@@ -137,10 +142,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                       Temp {isGroup2 ? '2' : '1'}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertT.color)}>
+                      <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertT.numColor)}>
                         {tempVal}
                       </span>
-                      {alertT.showIcon && <AlertTriangle className="h-4 w-4 text-yellow-500 animate-pulse fill-yellow-500/10" />}
+                      {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
                     </div>
                   </div>
                 </div>
