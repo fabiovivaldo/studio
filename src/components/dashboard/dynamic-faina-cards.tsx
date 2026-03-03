@@ -80,22 +80,22 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
           <Card key={pref.id} className="bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col min-h-[220px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600 z-10"></div>
             
-            <div className="p-6 pb-2 flex items-start gap-12">
+            <div className="p-6 pb-2 flex items-start gap-8 sm:gap-12">
               <div className="space-y-1">
                 <span className={labelStyle}>Chamada</span>
-                <div className="text-xl font-black text-blue-600 leading-none">
+                <div className="text-2xl font-black text-blue-600 leading-none">
                   {pref.chamada}
                 </div>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0">
                 <span className={labelStyle}>Faina</span>
-                <h2 className="text-sm font-black text-foreground uppercase tracking-tight">
+                <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words">
                   {pref.faina}
                 </h2>
               </div>
             </div>
 
-            <div className="p-6 pt-2 flex flex-wrap gap-3">
+            <div className="p-6 pt-2 grid grid-cols-2 md:flex md:flex-wrap gap-3 w-fit mx-auto md:mx-0">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
                   d.funcao === pref.faina && d.dataTurno.includes(shiftName)
