@@ -51,14 +51,17 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
-    if (!valueStr || !targetStr) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
+    if (!valueStr || !targetStr) return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
-    if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
+    if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
+    
     const diff = Math.abs(value - target);
-    if (diff <= 5) return { status: 'critical' as AlertStatus, iconColor: 'text-destructive', showIcon: true };
-    else if (diff <= 15) return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500', showIcon: true };
-    return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
+    
+    if (diff <= 5) return { status: 'critical' as AlertStatus, colorClass: 'text-destructive', showIcon: true };
+    else if (diff <= 15) return { status: 'warning' as AlertStatus, colorClass: 'text-yellow-500', showIcon: true };
+    
+    return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
   };
 
   if (isPrefsLoading || isHistoryLoading) {
@@ -82,7 +85,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   }
 
   const labelStyle = "text-[11px] font-black text-foreground uppercase tracking-tighter";
-  const tinyLabelStyle = "text-[10px] font-black text-foreground uppercase opacity-80 tracking-tighter";
+  const tinyLabelStyle = "text-[10px] font-black opacity-50 uppercase tracking-tighter";
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -126,6 +129,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   const hasData = !!shiftData;
                   const isDecreasing = shiftData?.sinal === '-';
                   
+                  // Lógica: Mostrar diferença se estiver descendo (-) ou se ultrapassou o alvo subindo (+)
                   const showDiffT = hasData && (isDecreasing || (tempNum > targetNum)) && diffTemp !== 0;
 
                   const isHighlighted = selectedShift === 'live' 
@@ -158,22 +162,29 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-1 opacity-50">
+                        <div className="flex items-center gap-1">
                           <span className={tinyLabelStyle}>O:</span>
-                          <span className="text-[10px] font-bold text-foreground">{valO || '--'}</span>
+                          <span className="text-[10px] font-bold text-foreground opacity-60">{valO || '--'}</span>
                         </div>
                         
                         <div className="flex flex-col gap-0.5">
                           <div className="flex items-center gap-1">
-                            <span className={cn(tinyLabelStyle, "opacity-50")}>P:</span>
-                            <span className="text-xl font-black leading-none tracking-tighter text-foreground">
+                            <span className={tinyLabelStyle}>P:</span>
+                            <span className={cn(
+                              "text-xl font-black leading-none tracking-tighter transition-colors",
+                              alertT.colorClass,
+                              alertT.status === 'critical' && "animate-pulse"
+                            )}>
                               {valT || '--'}
                             </span>
+                            {alertT.showIcon && (
+                              <AlertTriangle className={cn("h-3 w-3 animate-bounce", alertT.colorClass)} />
+                            )}
                           </div>
                           
                           <div className="flex items-center gap-1 flex-wrap">
                             {showDiffT && (
-                              <div className="bg-black border border-amber-500 rounded px-1.5 py-1 shadow-[0_0_8px_rgba(245,158,11,0.2)]">
+                              <div className="bg-black border border-amber-500 rounded px-1.5 py-1 shadow-[0_0_8px_rgba(245,158,11,0.3)]">
                                 <span className="text-[13px] font-black text-amber-500 leading-none whitespace-nowrap">
                                   {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                                 </span>
@@ -187,7 +198,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                               )}>
                                 {shiftData?.sinal || '+'}
                               </span>
-                              {alertT.showIcon && <AlertTriangle className={cn("h-3 w-3 animate-pulse", alertT.iconColor)} />}
                             </div>
                           </div>
                         </div>
