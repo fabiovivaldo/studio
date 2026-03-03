@@ -137,32 +137,29 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
 
+                  const isCritical = alertT.status === 'critical';
+
                   return (
                     <div 
                       key={shiftName} 
                       className={cn(
-                        "rounded-lg p-2 border transition-all duration-300 flex flex-col justify-between gap-1 relative overflow-hidden",
+                        "rounded-lg p-2 border transition-all duration-300 flex flex-col gap-1 relative overflow-hidden",
                         hasData 
                           ? "bg-muted/30 border-border/40" 
                           : "bg-muted/5 border-dashed border-border/20 opacity-40",
-                        isHighlighted && "border-accent ring-2 ring-accent/20 bg-accent/5 shadow-[inset_0_0_12px_rgba(var(--accent-rgb),0.05)]",
-                        isHighlighted && "scale-[1.02] z-10"
+                        isHighlighted && "border-accent ring-2 ring-accent/20 bg-accent/5",
+                        isCritical && "border-destructive ring-4 ring-destructive/30 animate-pulse bg-destructive/5",
+                        (isHighlighted || isCritical) && "z-10"
                       )}
                     >
-                      {isHighlighted && (
-                        <div className="absolute top-0 right-0 p-0.5">
-                           <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_hsl(var(--accent))]"></div>
-                        </div>
-                      )}
-
                       <div className="flex justify-between items-center border-b border-border/10 pb-1">
                         <span className={cn(
                           "text-[10px] font-black uppercase tracking-tighter",
-                          isHighlighted ? "text-accent" : "text-foreground opacity-60"
+                          isCritical ? "text-destructive" : isHighlighted ? "text-accent" : "text-foreground opacity-60"
                         )}>{shiftName}</span>
                       </div>
 
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-1.5">
                         {/* Original O: */}
                         <div className="flex items-center gap-1">
                           <span className={tinyLabelStyle}>O:</span>
@@ -175,30 +172,33 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <span className={cn(
                             "text-xl font-black leading-none tracking-tighter transition-colors",
                             alertT.colorClass,
-                            alertT.status === 'critical' && "animate-pulse"
+                            isCritical && "animate-pulse"
                           )}>
                             {valT || '--'}
                           </span>
                           {alertT.showIcon && (
-                            <HardHat className={cn("h-3.5 w-3.5 animate-bounce", alertT.colorClass)} />
+                            <HardHat className={cn("h-4 w-4 animate-bounce shrink-0", alertT.colorClass)} />
                           )}
-                          
-                          {/* Diferencial Laranja */}
-                          {hasData && diffTemp !== 0 && (
-                            <div className="bg-black border border-orange-500 rounded px-1 py-0.5 shadow-[0_0_8px_rgba(249,115,22,0.4)] ml-auto">
+                        </div>
+
+                        {/* Diferencial Laranja (DE BAIXO) */}
+                        <div className="flex items-center justify-between min-h-[22px]">
+                          {hasData && (
+                            <div className={cn(
+                              "bg-black border border-orange-500 rounded px-1.5 py-0.5 shadow-[0_0_10px_rgba(249,115,22,0.4)] transition-all",
+                              diffTemp === 0 && "opacity-0"
+                            )}>
                               <span className="text-[13px] font-black text-orange-500 leading-none whitespace-nowrap">
                                 {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                               </span>
                             </div>
                           )}
-                        </div>
-
-                        <div className="flex items-center justify-end">
-                           <span className={cn(
-                            "text-[10px] font-black",
+                          
+                          <span className={cn(
+                            "text-[10px] font-black ml-auto",
                             shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
                           )}>
-                            {shiftData?.sinal || '+'}
+                            {shiftData?.sinal || (hasData ? '+' : '')}
                           </span>
                         </div>
                       </div>
