@@ -68,7 +68,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   }
 
   const labelStyle = "text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider";
-  const tinyLabelStyle = "text-[11px] font-bold text-muted-foreground/40 uppercase";
+  const tinyLabelStyle = "text-[10px] font-bold text-muted-foreground/40 uppercase";
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -95,7 +95,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
             </div>
 
-            <div className="p-6 pt-2 flex flex-wrap gap-4">
+            <div className="p-6 pt-2 flex flex-wrap gap-3">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
                   d.funcao === pref.faina && d.dataTurno.includes(shiftName)
@@ -119,23 +119,23 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   <div 
                     key={shiftName} 
                     className={cn(
-                      "rounded-xl p-4 border transition-all duration-200 flex flex-col gap-2 relative w-[136px] h-[153px] flex-shrink-0",
+                      "rounded-xl p-3 border transition-all duration-200 flex flex-col gap-1 relative w-[103px] h-[151px] flex-shrink-0",
                       !shiftData && "opacity-30 bg-muted/5 border-dashed",
                       shiftData && "bg-muted/10 border-border/40",
                       isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5",
                       isCritical && "border-destructive/50 bg-destructive/5"
                     )}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <span className={cn(
-                        "text-[10px] font-black uppercase tracking-widest",
+                        "text-[9px] font-black uppercase tracking-widest truncate",
                         isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
                       )}>
                         {shiftName}
                       </span>
                       {shiftData?.sinal && (
                         <span className={cn(
-                          "text-[12px] font-black leading-none",
+                          "text-[11px] font-black leading-none",
                           shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
                         )}>
                           {shiftData.sinal}
@@ -143,41 +143,41 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       )}
                     </div>
 
-                    <div className="space-y-1 mt-1 flex-1">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-0.5 mt-1 flex-1">
+                      <div className="flex items-center gap-1.5">
                         <span className={tinyLabelStyle}>O:</span>
                         <span className={cn(
                           "transition-all duration-200",
                           modoAtivo === 'original' 
-                            ? "text-xl font-black text-foreground" 
-                            : "text-sm font-bold text-muted-foreground/40",
+                            ? "text-lg font-black text-foreground" 
+                            : "text-xs font-bold text-muted-foreground/40",
                           modoAtivo === 'original' && isCritical && "text-destructive"
                         )}>
                           {valO || '--'}
                         </span>
                         {modoAtivo === 'original' && isCritical && (
-                          <HardHat className="h-4 w-4 text-destructive" />
+                          <HardHat className="h-3 w-3 text-destructive" />
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <span className={tinyLabelStyle}>P:</span>
                         <span className={cn(
                           "transition-all duration-200",
                           modoAtivo === 'temporario' 
-                            ? "text-xl font-black text-foreground" 
-                            : "text-sm font-bold text-muted-foreground/40",
+                            ? "text-lg font-black text-foreground" 
+                            : "text-xs font-bold text-muted-foreground/40",
                           modoAtivo === 'temporario' && isCritical && "text-destructive"
                         )}>
                           {valT || '--'}
                         </span>
                         {modoAtivo === 'temporario' && isCritical && (
-                          <HardHat className="h-4 w-4 text-destructive" />
+                          <HardHat className="h-3 w-3 text-destructive" />
                         )}
                       </div>
                     </div>
 
-                    <div className="mt-auto border-t border-border/10 pt-2">
+                    <div className="mt-auto border-t border-border/10 pt-1">
                       <span className="text-[18px] font-black text-orange-600 tracking-tighter leading-none block">
                         {shiftData ? (diff > 0 ? `+${diff}` : diff) : ''}
                       </span>
