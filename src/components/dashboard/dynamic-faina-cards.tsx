@@ -95,7 +95,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
             </div>
 
-            <div className="p-6 pt-2 grid grid-cols-2 md:flex md:flex-wrap gap-3 w-fit mx-auto md:mx-0">
+            {/* Container de Turnos - Scroll horizontal sem quebra no mobile */}
+            <div className="p-6 pt-2 flex flex-row flex-nowrap overflow-x-auto gap-3 w-full scrollbar-none pb-8 md:pb-6">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
                   d.funcao === pref.faina && d.dataTurno.includes(shiftName)
@@ -119,7 +120,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   <div 
                     key={shiftName} 
                     className={cn(
-                      "rounded-xl p-3 border transition-all duration-200 flex flex-col gap-1 relative w-[103px] h-[151px] flex-shrink-0",
+                      "rounded-xl p-3 border transition-all duration-200 flex flex-col gap-1 relative flex-shrink-0",
+                      "w-[103px] h-[151px]", // Tamanho fixo obrigatório
                       !shiftData && "opacity-30 bg-muted/5 border-dashed",
                       shiftData && "bg-muted/10 border-border/40",
                       isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5",
@@ -149,8 +151,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         <span className={cn(
                           "transition-all duration-200",
                           modoAtivo === 'original' 
-                            ? "text-lg font-black text-foreground" 
-                            : "text-xs font-bold text-muted-foreground/40",
+                            ? "text-lg font-black text-foreground leading-none" 
+                            : "text-[10px] font-bold text-muted-foreground/40",
                           modoAtivo === 'original' && isCritical && "text-destructive"
                         )}>
                           {valO || '--'}
@@ -165,8 +167,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         <span className={cn(
                           "transition-all duration-200",
                           modoAtivo === 'temporario' 
-                            ? "text-lg font-black text-foreground" 
-                            : "text-xs font-bold text-muted-foreground/40",
+                            ? "text-lg font-black text-foreground leading-none" 
+                            : "text-[10px] font-bold text-muted-foreground/40",
                           modoAtivo === 'temporario' && isCritical && "text-destructive"
                         )}>
                           {valT || '--'}
