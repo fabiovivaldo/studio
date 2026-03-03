@@ -26,7 +26,6 @@ const SHIFT_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
 
-  // Detecta o turno ativo dos dados raspados para destacar no modo "Tempo Real"
   const activeShiftFromData = useMemo(() => {
     if (!scrapedData.length) return null;
     const turnoStr = scrapedData[0].Data_Turno;
@@ -82,8 +81,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  const labelStyle = "text-[11px] font-black text-black dark:text-white uppercase tracking-tighter";
-  const tinyLabelStyle = "text-[9px] font-black text-black dark:text-white uppercase opacity-70 tracking-tighter";
+  // Estilo de Alto Contraste para Títulos e Rótulos (Preto no Claro / Branco no Escuro)
+  const labelStyle = "text-[11px] font-black text-foreground uppercase tracking-tighter";
+  const tinyLabelStyle = "text-[10px] font-black text-foreground uppercase opacity-80 tracking-tighter";
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -91,20 +91,20 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[220px]">
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[200px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
             
             <div className="p-4 space-y-3 flex-1 flex flex-col">
               <div className="flex justify-between items-end border-b border-border/40 pb-2">
                 <div className="flex flex-col flex-1 min-w-0">
                   <span className={labelStyle}>Faina</span>
-                  <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-tight leading-none mt-1 break-words">
+                  <h2 className="text-sm font-black text-foreground uppercase tracking-tight leading-none mt-1 break-words">
                     {pref.faina}
                   </h2>
                 </div>
                 <div className="text-right ml-4 shrink-0">
                   <span className={labelStyle}>Rodízio</span>
-                  <div className="text-lg font-black text-accent tracking-tighter leading-none mt-1">
+                  <div className="text-sm font-black text-accent tracking-tighter leading-none mt-1">
                     {pref.chamada}
                   </div>
                 </div>
@@ -127,11 +127,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   const hasData = !!shiftData;
                   const isDecreasing = shiftData?.sinal === '-';
                   
+                  // Lógica Inteligente de Diferença solicitada:
+                  // 1. Mostrar se o ponteiro subir além do número (Sinal + e Temp > Rodizio)
+                  // 2. Mostrar se estiver descendo (Sinal -)
                   const showDiffT = hasData && (isDecreasing || (tempNum > targetNum)) && diffTemp !== 0;
 
-                  // Lógica de destaque:
-                  // Se o modo for 'live', destaca o turno que vem dos dados atuais.
-                  // Se o modo for um turno específico, destaca esse turno.
                   const isHighlighted = selectedShift === 'live' 
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
@@ -157,12 +157,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <div className="flex justify-between items-center border-b border-border/10 pb-1">
                         <span className={cn(
                           "text-[10px] font-black uppercase tracking-tighter",
-                          isHighlighted ? "text-accent" : "text-muted-foreground opacity-70"
+                          isHighlighted ? "text-accent" : "text-foreground opacity-60"
                         )}>{shiftName}</span>
                       </div>
 
                       <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1 opacity-60">
+                        <div className="flex items-center gap-1 opacity-50">
                           <span className={tinyLabelStyle}>O:</span>
                           <span className="text-[10px] font-bold text-foreground">{valO || '--'}</span>
                         </div>
@@ -170,15 +170,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         <div className="flex flex-col">
                           <span className={tinyLabelStyle}>Temp</span>
                           <div className="flex items-center gap-1 flex-wrap">
-                            <span className={cn(
-                              "text-xl font-black leading-none tracking-tighter",
-                              isHighlighted ? "text-accent" : "text-foreground"
-                            )}>
+                            {/* Valor Principal em ALTO CONTRASTE (Preto/Branco) */}
+                            <span className="text-2xl font-black leading-none tracking-tighter text-foreground">
                               {valT || '--'}
                             </span>
                             
+                            {/* Diferença em cor DISTINTA (Laranja/Âmbar) para não confundir */}
                             {showDiffT && (
-                              <span className="text-[10px] font-black text-accent bg-accent/10 px-0.5 rounded border border-accent/20 shadow-sm whitespace-nowrap">
+                              <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-0.5 rounded border border-amber-500/20 shadow-sm whitespace-nowrap">
                                 {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                               </span>
                             )}
