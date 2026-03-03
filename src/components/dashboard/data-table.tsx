@@ -27,13 +27,14 @@ import {
   Sunrise,
   Moon,
   CloudMoon,
-  Calendar
+  Calendar,
+  Star
 } from "lucide-react";
 import { PonteiroData, exportToCSV } from "@/lib/data-service";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, limit } from 'firebase/firestore';
+import { collection, query, orderBy, limit, where } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 
 interface DataTableProps {
@@ -60,11 +61,25 @@ const SHIFT_CONFIG = [
 ] as const;
 
 export function PonteiroDataTable({ liveData }: DataTableProps) {
-  const { firestore } = useFirebase();
+  const { firestore, user } = useFirebase();
   const [viewMode, setViewMode] = useState<ViewMode>('live');
   const [sortConfig, setSortConfig] = useState<{ key: keyof PonteiroData; direction: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>("TODOS");
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+  // Buscar preferências do usuário para o filtro de favoritos
+  const preferencesQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'faina_preferences'), where('userId', '==', user.uid));
+  }, [firestore, user]);
+
+  const { data: preferences } = useCollection(preferencesQuery);
+
+  const favoriteFainas = useMemo(() => {
+    if (!preferences) return new Set<string>();
+    return new Set(preferences.map(p => p.faina.toUpperCase()));
+  }, [preferences]);
 
   const historyQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -110,9 +125,12 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
       const functionUpper = item.Funcao.toUpperCase();
       const matchesCategory = activeCategory === "TODOS" || functionUpper.includes(activeCategory);
       
-      return matchesFilter && matchesCategory;
+      const isFavorite = favoriteFainas.has(functionUpper);
+      const matchesFavorites = !showFavoritesOnly || isFavorite;
+      
+      return matchesFilter && matchesCategory && matchesFavorites;
     });
-  }, [currentData, filter, activeCategory]);
+  }, [currentData, filter, activeCategory, showFavoritesOnly, favoriteFainas]);
 
   const sortedData = useMemo(() => {
     if (!sortConfig) return filteredData;
@@ -134,7 +152,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
     { key: 'Data_Turno', label: 'Data / Turno' },
   ] as const;
 
-  const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5 px-2";
+  const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5 px-1.5";
 
   return (
     <div className="space-y-8">
@@ -212,7 +230,21 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+              <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
+                <Button 
+                  variant={showFavoritesOnly ? "secondary" : "outline"} 
+                  size="sm" 
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  className={cn(
+                    "h-9 px-4 border-accent/30 transition-all",
+                    showFavoritesOnly ? "bg-accent/20 text-accent border-accent" : "text-muted-foreground"
+                  )}
+                  title="Mostrar apenas minhas fainas favoritas"
+                >
+                  <Star className={cn("h-4 w-4 mr-2", showFavoritesOnly ? "fill-accent text-accent" : "")} />
+                  <span className="text-[10px] font-bold uppercase">Favoritos</span>
+                </Button>
+
                 <div className="relative w-full md:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                   <Input 
@@ -243,12 +275,12 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                       <TableHead 
                         key={key} 
                         className={cn(
-                          "cursor-pointer hover:text-accent transition-colors py-2 px-2 font-bold uppercase tracking-tight text-[11px]",
+                          "cursor-pointer hover:text-accent transition-colors py-2 px-1.5 font-bold uppercase tracking-tight text-[11px]",
                           key === 'Funcao' ? "pl-4" : ""
                         )}
                         onClick={() => handleSort(key as keyof PonteiroData)}
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           {label}
                           <ArrowUpDown className="h-3 w-3 opacity-30" />
                         </div>
@@ -269,7 +301,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                         <TableCell className={cn(cellTextStyle, "pl-4")}>
                           {row.Funcao}
                         </TableCell>
-                        <TableCell className="py-1.5 px-2">
+                        <TableCell className="py-1.5 px-1.5">
                           <span className={cn(
                             "font-black text-[18px] inline-block min-w-[12px] text-center",
                             row.Sinal === '-' 
