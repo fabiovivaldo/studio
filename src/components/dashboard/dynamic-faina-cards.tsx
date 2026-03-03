@@ -116,8 +116,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
             
             <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
               <div className="flex justify-between items-start">
-                {/* Título com destaque solicitado: Preto no claro, Branco no escuro, extra negrito */}
-                <div className="text-[13px] font-black text-foreground uppercase tracking-tight truncate max-w-[80%]">
+                {/* Título da Faina: Preto no claro, Branco no escuro, maior e extra negrito */}
+                <div className="text-[15px] font-black text-foreground uppercase tracking-tight truncate max-w-[80%]">
                   {pref.faina}
                 </div>
               </div>
@@ -139,7 +139,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                 {turnoText && (
                   <div className="flex flex-col ml-auto text-right">
-                    <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
+                    {/* Rótulo TURNO: Preto no claro, Branco no escuro, maior e extra negrito */}
+                    <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">Turno</span>
                     <span className="text-lg font-black text-accent whitespace-nowrap">
                       {turnoText}
                     </span>
@@ -150,7 +151,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               {fainaData ? (
                 <div className="bg-muted/30 dark:bg-[#161b22] rounded-lg p-3 grid grid-cols-2 gap-4 border border-border/10 mt-auto mb-1">
                   <div className="flex flex-col gap-0 relative">
-                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
+                    {/* Rótulo ORIGINAL: Preto no claro, Branco no escuro, maior e extra negrito */}
+                    <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">
                       Original {isGroup2 ? '2' : '1'}
                     </span>
                     <div className="flex items-center gap-1.5">
@@ -167,7 +169,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   </div>
                   
                   <div className="flex flex-col gap-0 border-l border-border/10 pl-4 relative">
-                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
+                    {/* Rótulo TEMP: Preto no claro, Branco no escuro, maior e extra negrito */}
+                    <span className="text-[12px] font-black text-foreground uppercase tracking-tighter">
                       Temp {isGroup2 ? '2' : '1'}
                     </span>
                     <div className="flex items-center gap-1.5">
