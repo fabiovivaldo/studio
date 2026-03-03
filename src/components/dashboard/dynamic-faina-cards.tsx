@@ -19,7 +19,7 @@ interface DynamicFainaCardsProps {
   selectedShift?: ViewMode;
 }
 
-type AlertStatus = 'critical' | 'warning' | 'normal';
+type AlertStatus = 'critical' | 'normal';
 
 const SHIFT_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
 
@@ -58,8 +58,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     
     const diff = Math.abs(value - target);
     
+    // Alerta apenas quando está muito perto (5 ou menos)
     if (diff <= 5) return { status: 'critical' as AlertStatus, colorClass: 'text-destructive', showIcon: true };
-    else if (diff <= 15) return { status: 'warning' as AlertStatus, colorClass: 'text-yellow-500', showIcon: true };
     
     return { status: 'normal' as AlertStatus, colorClass: 'text-foreground', showIcon: false };
   };
@@ -129,7 +129,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   const hasData = !!shiftData;
                   const isDecreasing = shiftData?.sinal === '-';
                   
-                  // Lógica: Mostrar diferença se estiver descendo (-) ou se ultrapassou o alvo subindo (+)
                   const showDiffT = hasData && (isDecreasing || (tempNum > targetNum)) && diffTemp !== 0;
 
                   const isHighlighted = selectedShift === 'live' 
@@ -168,7 +167,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         </div>
                         
                         <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1.5">
                             <span className={tinyLabelStyle}>P:</span>
                             <span className={cn(
                               "text-xl font-black leading-none tracking-tighter transition-colors",
