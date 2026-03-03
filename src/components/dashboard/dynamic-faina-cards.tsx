@@ -129,11 +129,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                   const hasData = !!shiftData;
                   const isDecreasing = shiftData?.sinal === '-';
-                  const isIncreasing = !isDecreasing; // Considera + por padrão
+                  const isIncreasing = !isDecreasing; 
 
-                  // Lógica solicitada: 
-                  // Mostrar se for sinal '-' (descendo) 
-                  // OU se for sinal '+' e o ponteiro for maior que a chamada
                   const showDiffO = hasData && (isDecreasing || (isIncreasing && origNum > targetNum)) && diffOrig !== 0;
                   const showDiffT = hasData && (isDecreasing || (isIncreasing && tempNum > targetNum)) && diffTemp !== 0;
 
@@ -141,7 +138,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     <div 
                       key={shiftName} 
                       className={cn(
-                        "rounded-xl p-2.5 border transition-all duration-300 grid grid-cols-12 items-center gap-3",
+                        "rounded-xl p-2.5 border transition-all duration-300 grid grid-cols-12 items-center gap-2",
                         hasData 
                           ? "bg-muted/30 border-border/40" 
                           : "bg-muted/5 border-dashed border-border/20 opacity-40"
@@ -149,41 +146,24 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     >
                       {/* Coluna Turno */}
                       <div className="col-span-3 flex flex-col">
-                        <span className={cn(labelStyle, "text-[10px]")}>Turno</span>
-                        <span className="text-[14px] font-black text-accent uppercase leading-tight">{shiftName}</span>
+                        <span className={cn(labelStyle, "text-[9px] opacity-60")}>Turno</span>
+                        <span className="text-[13px] font-black text-accent uppercase leading-tight">{shiftName}</span>
                       </div>
 
-                      {/* Coluna Sinal */}
-                      <div className="col-span-1 flex flex-col items-center">
-                        <span className={cn(labelStyle, "text-[10px]")}>S</span>
-                        <span className={cn(
-                          "text-[16px] font-black",
-                          shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
-                        )}>
-                          {shiftData?.sinal || '+'}
-                        </span>
-                      </div>
-
-                      {/* Coluna Original */}
-                      <div className="col-span-4 flex flex-col border-l border-border/20 pl-3">
-                        <span className={cn(labelStyle, "text-[11px]")}>Orig {isGroup2 ? '2' : '1'}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl font-black text-foreground">{valO || '--'}</span>
-                          {/* Modificado: Não mostra contagem para ORIG 2 conforme solicitado */}
-                          {showDiffO && !isGroup2 && (
-                            <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 shadow-sm">
-                              {diffOrig > 0 ? `+${diffOrig}` : diffOrig}
-                            </span>
-                          )}
-                          {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertO.iconColor)} />}
+                      {/* Coluna Original (MENOR conforme solicitado) */}
+                      <div className="col-span-2 flex flex-col border-l border-border/20 pl-2">
+                        <span className={cn(labelStyle, "text-[8px] opacity-50")}>Orig {isGroup2 ? '2' : '1'}</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm font-bold text-muted-foreground">{valO || '--'}</span>
+                          {/* Contagem Omitida em Orig conforme regra anterior, ou se preferir menor ainda */}
                         </div>
                       </div>
 
-                      {/* Coluna Temp */}
-                      <div className="col-span-4 flex flex-col border-l border-border/20 pl-3">
+                      {/* Coluna Temp (FOCO PRINCIPAL - MAIOR) */}
+                      <div className="col-span-5 flex flex-col border-l border-border/20 pl-3">
                         <span className={cn(labelStyle, "text-[11px]")}>Temp {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-xl font-black text-foreground">{valT || '--'}</span>
+                          <span className="text-2xl font-black text-foreground leading-none">{valT || '--'}</span>
                           {showDiffT && (
                             <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 shadow-sm">
                               {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
@@ -191,6 +171,17 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                           )}
                           {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
                         </div>
+                      </div>
+
+                      {/* Coluna Sinal (AO LADO DO TEMP conforme solicitado) */}
+                      <div className="col-span-2 flex flex-col items-center border-l border-border/20">
+                        <span className={cn(labelStyle, "text-[9px] opacity-60")}>S</span>
+                        <span className={cn(
+                          "text-[18px] font-black",
+                          shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
+                        )}>
+                          {shiftData?.sinal || '+'}
+                        </span>
                       </div>
                     </div>
                   );
