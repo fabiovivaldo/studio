@@ -52,6 +52,15 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
   };
 
+  const getDiff = (current: string | undefined, target: string) => {
+    if (!current || !target) return null;
+    const c = parseInt(current.replace(/\D/g, '')) || 0;
+    const t = parseInt(target.replace(/\D/g, '')) || 0;
+    if (c === 0) return null;
+    const diff = c - t;
+    return diff >= 0 ? `+${diff}` : `${diff}`;
+  };
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
@@ -83,6 +92,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         
         const alertO = getAlertStyle(origVal, pref.chamada);
         const alertT = getAlertStyle(tempVal, pref.chamada);
+        
+        const diffO = getDiff(origVal, pref.chamada);
+        const diffT = getDiff(tempVal, pref.chamada);
 
         const worstStatus: AlertStatus = (alertO.status === 'critical' || alertT.status === 'critical') 
           ? 'critical' 
@@ -108,9 +120,17 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
             
             <div className="p-4 pt-3 space-y-2 h-full flex flex-col">
               <div className="flex justify-between items-start">
-                <div className="text-xs font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[80%]">
+                <div className="text-[10px] font-bold text-muted-foreground/80 uppercase tracking-tighter truncate max-w-[70%]">
                   {pref.faina}
                 </div>
+                {turnoText && (
+                  <div className="flex flex-col text-right">
+                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
+                    <span className="text-xs font-black text-primary uppercase whitespace-nowrap">
+                      {turnoText}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-4 py-1">
@@ -127,40 +147,51 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                     {sinalValue}
                   </span>
                 </div>
-
-                {turnoText && (
-                  <div className="flex flex-col ml-auto text-right">
-                    <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Turno</span>
-                    <span className="text-lg font-black text-primary whitespace-nowrap">
-                      {turnoText}
-                    </span>
-                  </div>
-                )}
               </div>
 
               {fainaData ? (
-                <div className="bg-muted/30 rounded-lg p-3 grid grid-cols-2 gap-4 border border-border/10 mt-auto mb-1">
+                <div className="bg-muted/30 rounded-lg p-3 grid grid-cols-2 gap-2 border border-border/10 mt-auto mb-1">
                   <div className="flex flex-col gap-0 relative">
-                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
+                    <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
                       Original {isGroup2 ? '2' : '1'}
                     </span>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-baseline gap-2">
                       <span className="text-2xl tracking-tighter text-primary font-bold">
                         {origVal}
                       </span>
-                      {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertO.iconColor)} />}
+                      {diffO && (
+                        <span className={cn(
+                          "text-[10px] font-black px-1.5 py-0.5 rounded-md border",
+                          parseInt(diffO) >= 0 
+                            ? "bg-accent/10 border-accent text-accent" 
+                            : "bg-muted border-border text-muted-foreground"
+                        )}>
+                          {diffO}
+                        </span>
+                      )}
+                      {alertO.showIcon && <AlertTriangle className={cn("h-3 w-3 animate-bounce ml-auto", alertO.iconColor)} />}
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-0 border-l border-border/10 pl-4 relative">
-                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
+                  <div className="flex flex-col gap-0 border-l border-border/10 pl-3 relative">
+                    <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
                       Temp {isGroup2 ? '2' : '1'}
                     </span>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-baseline gap-2">
                       <span className="text-2xl tracking-tighter text-primary font-bold">
                         {tempVal}
                       </span>
-                      {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-bounce", alertT.iconColor)} />}
+                      {diffT && (
+                        <span className={cn(
+                          "text-[10px] font-black px-1.5 py-0.5 rounded-md border",
+                          parseInt(diffT) >= 0 
+                            ? "bg-accent/10 border-accent text-accent" 
+                            : "bg-muted border-border text-muted-foreground"
+                        )}>
+                          {diffT}
+                        </span>
+                      )}
+                      {alertT.showIcon && <AlertTriangle className={cn("h-3 w-3 animate-bounce ml-auto", alertT.iconColor)} />}
                     </div>
                   </div>
                 </div>
