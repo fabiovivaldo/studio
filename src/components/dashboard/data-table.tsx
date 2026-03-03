@@ -145,10 +145,10 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
   const columns = [
     { key: 'Funcao', label: 'Faina' },
     { key: 'Sinal', label: 'Sinal' },
-    { key: 'Original_1', label: 'Original 1' },
-    { key: 'Temporario_1', label: 'Temp 1' },
-    { key: 'Original_2', label: 'Original 2' },
-    { key: 'Temporario_2', label: 'Temp 2' },
+    { key: 'Original_1', label: 'Orig 1' },
+    { key: 'Temporario_1', label: 'Ponteiro 1' },
+    { key: 'Original_2', label: 'Orig 2' },
+    { key: 'Temporario_2', label: 'Ponteiro 2' },
     { key: 'Data_Turno', label: 'Data / Turno' },
   ] as const;
 
@@ -311,16 +311,16 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                             {row.Sinal}
                           </span>
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-mono opacity-50")}>
                           {row.Original_1}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>
                           {row.Temporario_1}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-mono opacity-50")}>
                           {row.Original_2}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>
                           {row.Temporario_2}
                         </TableCell>
                         <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground pr-4")}>

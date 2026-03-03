@@ -64,8 +64,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   if (isPrefsLoading || isHistoryLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 animate-pulse">
-        {[1, 2].map((i) => (
-          <div key={i} className="h-[200px] bg-muted/50 rounded-xl border border-border"></div>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-[180px] bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -81,7 +81,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  // Estilo de Alto Contraste para Títulos e Rótulos (Preto no Claro / Branco no Escuro)
   const labelStyle = "text-[11px] font-black text-foreground uppercase tracking-tighter";
   const tinyLabelStyle = "text-[10px] font-black text-foreground uppercase opacity-80 tracking-tighter";
 
@@ -91,7 +90,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[200px]">
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[180px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
             
             <div className="p-4 space-y-3 flex-1 flex flex-col">
@@ -127,9 +126,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   const hasData = !!shiftData;
                   const isDecreasing = shiftData?.sinal === '-';
                   
-                  // Lógica Inteligente de Diferença solicitada:
-                  // 1. Mostrar se o ponteiro subir além do número (Sinal + e Temp > Rodizio)
-                  // 2. Mostrar se estiver descendo (Sinal -)
                   const showDiffT = hasData && (isDecreasing || (tempNum > targetNum)) && diffTemp !== 0;
 
                   const isHighlighted = selectedShift === 'live' 
@@ -168,23 +164,23 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         </div>
                         
                         <div className="flex flex-col">
-                          <span className={tinyLabelStyle}>Temp</span>
-                          <div className="flex items-center gap-1 flex-wrap">
-                            {/* Valor Principal em ALTO CONTRASTE (Preto/Branco) */}
+                          <span className={tinyLabelStyle}>Ponteiro</span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="text-2xl font-black leading-none tracking-tighter text-foreground">
                               {valT || '--'}
                             </span>
                             
-                            {/* Diferença em cor DISTINTA (Laranja/Âmbar) para não confundir */}
                             {showDiffT && (
-                              <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-0.5 rounded border border-amber-500/20 shadow-sm whitespace-nowrap">
-                                {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
-                              </span>
+                              <div className="bg-black/40 border border-amber-500/50 rounded px-1 py-0.5 shadow-sm">
+                                <span className="text-xs font-black text-amber-500 leading-none whitespace-nowrap">
+                                  {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
+                                </span>
+                              </div>
                             )}
 
-                            <div className="flex items-center gap-0.5 ml-0.5">
+                            <div className="flex items-center gap-0.5">
                                <span className={cn(
-                                "text-xs font-black",
+                                "text-sm font-black",
                                 shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
                               )}>
                                 {shiftData?.sinal || '+'}
