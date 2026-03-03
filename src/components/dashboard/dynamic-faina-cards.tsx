@@ -18,12 +18,17 @@ interface DynamicFainaCardsProps {
 
 type AlertStatus = 'critical' | 'warning' | 'normal';
 
-const SHIFTS = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
+// Ordem para o grid 2x2: 
+// Col 1: Manhã (0), Tarde (1) 
+// Col 2: Noite (2), Madrugada (3)
+// No grid padrão grid-cols-2: item 0 e 1 ficam na Row 1. Item 2 e 3 na Row 2.
+// Para ter Manhã/Tarde na Col 1 e Noite/Madruga na Col 2, a ordem deve ser:
+// Manhã, Noite, Tarde, Madrugada
+const SHIFT_ORDER = ['Manhã', 'Noite', 'Tarde', 'Madrugada'] as const;
 
 export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
 
-  // Buscar preferências do usuário
   const preferencesQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(collection(firestore, 'faina_preferences'), where('userId', '==', user.uid));
@@ -31,7 +36,6 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
   const { data: preferences, isLoading: isPrefsLoading } = useCollection(preferencesQuery);
 
-  // Buscar dados históricos do Firestore para comporar os 4 turnos
   const historyQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(
@@ -45,16 +49,12 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
   const getAlertStyle = (valueStr: string | undefined, targetStr: string) => {
     if (!valueStr || !targetStr) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
-    
     const value = parseInt(valueStr.replace(/\D/g, '')) || 0;
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
-    
     if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
-    
     const diff = Math.abs(value - target);
     if (diff <= 5) return { status: 'critical' as AlertStatus, iconColor: 'text-destructive', showIcon: true };
     else if (diff <= 15) return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500', showIcon: true };
-    
     return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
   };
 
@@ -78,8 +78,8 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     );
   }
 
-  // Estilo de Alto Contraste para Rótulos: Preto no Claro, Branco no Escuro, Fonte Grande e Negrito
-  const labelStyle = "text-[12px] font-black text-black dark:text-white uppercase tracking-tighter";
+  const labelStyle = "text-[11px] font-black text-black dark:text-white uppercase tracking-tighter";
+  const tinyLabelStyle = "text-[9px] font-black text-black dark:text-white uppercase opacity-70 tracking-tighter";
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -87,29 +87,29 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group min-h-[320px] flex flex-col">
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group flex flex-col min-h-[300px]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
             
-            <div className="p-4 space-y-4 flex-1 flex flex-col">
+            <div className="p-4 space-y-3 flex-1 flex flex-col">
               {/* Header do Card */}
-              <div className="flex justify-between items-end border-b border-border/40 pb-3">
+              <div className="flex justify-between items-end border-b border-border/40 pb-2">
                 <div className="flex flex-col flex-1 min-w-0">
                   <span className={labelStyle}>Faina</span>
-                  <h2 className="text-xl font-black text-black dark:text-white uppercase tracking-tight leading-none mt-1 break-words">
+                  <h2 className="text-lg font-black text-black dark:text-white uppercase tracking-tight leading-none mt-1 break-words">
                     {pref.faina}
                   </h2>
                 </div>
                 <div className="text-right ml-4 shrink-0">
                   <span className={labelStyle}>Chamada</span>
-                  <div className="text-3xl font-black text-accent tracking-tighter leading-none mt-1">
+                  <div className="text-2xl font-black text-accent tracking-tighter leading-none mt-1">
                     {pref.chamada}
                   </div>
                 </div>
               </div>
 
-              {/* Grid de Turnos */}
-              <div className="flex-1 flex flex-col gap-2.5 mt-1">
-                {SHIFTS.map((shiftName) => {
+              {/* Grid de Turnos 2x2 */}
+              <div className="flex-1 grid grid-cols-2 gap-2 mt-1">
+                {SHIFT_ORDER.map((shiftName) => {
                   const shiftData = historyData?.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
@@ -118,70 +118,59 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
                   const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
 
-                  const alertO = getAlertStyle(valO, pref.chamada);
                   const alertT = getAlertStyle(valT, pref.chamada);
 
                   const origNum = parseInt(valO?.replace(/\D/g, '') || '0') || 0;
                   const tempNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
                   
-                  const diffOrig = origNum - targetNum;
                   const diffTemp = tempNum - targetNum;
-
                   const hasData = !!shiftData;
                   const isDecreasing = shiftData?.sinal === '-';
                   const isIncreasing = !isDecreasing; 
-
-                  const showDiffO = hasData && (isDecreasing || (isIncreasing && origNum > targetNum)) && diffOrig !== 0;
                   const showDiffT = hasData && (isDecreasing || (isIncreasing && tempNum > targetNum)) && diffTemp !== 0;
 
                   return (
                     <div 
                       key={shiftName} 
                       className={cn(
-                        "rounded-xl p-2.5 border transition-all duration-300 grid grid-cols-12 items-center gap-2",
+                        "rounded-lg p-2.5 border transition-all duration-300 flex flex-col justify-between gap-1",
                         hasData 
                           ? "bg-muted/30 border-border/40" 
                           : "bg-muted/5 border-dashed border-border/20 opacity-40"
                       )}
                     >
-                      {/* Coluna Turno */}
-                      <div className="col-span-3 flex flex-col">
-                        <span className={cn(labelStyle, "text-[9px] opacity-60")}>Turno</span>
-                        <span className="text-[13px] font-black text-accent uppercase leading-tight">{shiftName}</span>
-                      </div>
-
-                      {/* Coluna Original (MENOR conforme solicitado) */}
-                      <div className="col-span-2 flex flex-col border-l border-border/20 pl-2">
-                        <span className={cn(labelStyle, "text-[8px] opacity-50")}>Orig {isGroup2 ? '2' : '1'}</span>
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm font-bold text-muted-foreground">{valO || '--'}</span>
-                          {/* Contagem Omitida em Orig conforme regra anterior, ou se preferir menor ainda */}
-                        </div>
-                      </div>
-
-                      {/* Coluna Temp (FOCO PRINCIPAL - MAIOR) */}
-                      <div className="col-span-5 flex flex-col border-l border-border/20 pl-3">
-                        <span className={cn(labelStyle, "text-[11px]")}>Temp {isGroup2 ? '2' : '1'}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl font-black text-foreground leading-none">{valT || '--'}</span>
-                          {showDiffT && (
-                            <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 shadow-sm">
-                              {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
-                            </span>
-                          )}
-                          {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
-                        </div>
-                      </div>
-
-                      {/* Coluna Sinal (AO LADO DO TEMP conforme solicitado) */}
-                      <div className="col-span-2 flex flex-col items-center border-l border-border/20">
-                        <span className={cn(labelStyle, "text-[9px] opacity-60")}>S</span>
+                      {/* Header do Turno no Card */}
+                      <div className="flex justify-between items-center border-b border-border/10 pb-1">
+                        <span className="text-[10px] font-black text-accent uppercase tracking-tighter">{shiftName}</span>
                         <span className={cn(
-                          "text-[18px] font-black",
+                          "text-sm font-black",
                           shiftData?.sinal === '-' ? "text-destructive" : "text-green-500"
                         )}>
                           {shiftData?.sinal || '+'}
                         </span>
+                      </div>
+
+                      {/* Valores */}
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1 opacity-60">
+                          <span className={tinyLabelStyle}>O:</span>
+                          <span className="text-[10px] font-bold text-foreground">{valO || '--'}</span>
+                        </div>
+                        
+                        <div className="flex flex-col">
+                          <span className={tinyLabelStyle}>Temp</span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-2xl font-black text-foreground leading-none tracking-tighter">
+                              {valT || '--'}
+                            </span>
+                            {showDiffT && (
+                              <span className="text-[11px] font-black text-accent bg-accent/10 px-1 rounded border border-accent/20 shadow-sm">
+                                {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
+                              </span>
+                            )}
+                            {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   );
