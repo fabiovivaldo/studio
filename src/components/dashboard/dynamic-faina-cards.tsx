@@ -50,11 +50,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     const target = parseInt(targetStr.replace(/\D/g, '')) || 0;
     
     if (target === 0 || value === 0) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
-    if (target > value) return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
-
+    
     const diff = Math.abs(value - target);
-    if (diff <= 10) return { status: 'critical' as AlertStatus, iconColor: 'text-destructive', showIcon: true };
-    else if (diff <= 20) return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500', showIcon: true };
+    if (diff <= 5) return { status: 'critical' as AlertStatus, iconColor: 'text-destructive', showIcon: true };
+    else if (diff <= 15) return { status: 'warning' as AlertStatus, iconColor: 'text-yellow-500', showIcon: true };
     
     return { status: 'normal' as AlertStatus, iconColor: '', showIcon: false };
   };
@@ -79,7 +78,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
     );
   }
 
-  // Estilo padrão para rótulos: Preto no tema claro, Branco no tema escuro, Fonte Grande e Negrito
+  // Estilo de Alto Contraste para Rótulos: Preto no Claro, Branco no Escuro, Fonte Grande e Negrito
   const labelStyle = "text-[12px] font-black text-black dark:text-white uppercase tracking-tighter";
 
   return (
@@ -129,6 +128,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   const diffTemp = tempNum - targetNum;
 
                   const hasData = !!shiftData;
+                  const isDecreasing = shiftData?.sinal === '-';
 
                   return (
                     <div 
@@ -162,9 +162,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                         <span className={cn(labelStyle, "text-[11px]")}>Orig {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-black text-foreground">{valO || '--'}</span>
-                          {hasData && diffOrig >= 0 && (
+                          {/* Mostrar diferença apenas se o sinal for '-' (diminuindo) */}
+                          {hasData && isDecreasing && diffOrig !== 0 && (
                             <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 shadow-sm">
-                              +{diffOrig}
+                              {diffOrig > 0 ? `-${diffOrig}` : `+${Math.abs(diffOrig)}`}
                             </span>
                           )}
                           {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertO.iconColor)} />}
@@ -176,9 +177,10 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                         <span className={cn(labelStyle, "text-[11px]")}>Temp {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-black text-foreground">{valT || '--'}</span>
-                          {hasData && diffTemp >= 0 && (
+                          {/* Mostrar diferença apenas se o sinal for '-' (diminuindo) */}
+                          {hasData && isDecreasing && diffTemp !== 0 && (
                             <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 shadow-sm">
-                              +{diffTemp}
+                              {diffTemp > 0 ? `-${diffTemp}` : `+${Math.abs(diffTemp)}`}
                             </span>
                           )}
                           {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
