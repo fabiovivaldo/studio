@@ -172,7 +172,10 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
           </button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[650px] bg-[#1a212b] border-none max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogContent 
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="sm:max-w-[650px] bg-[#1a212b] border-none max-h-[90vh] overflow-hidden flex flex-col p-0"
+      >
         <div className="p-8 pb-2">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-white">Preferências de Fainas</DialogTitle>
