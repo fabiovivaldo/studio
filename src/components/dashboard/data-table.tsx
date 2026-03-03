@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -36,12 +37,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, limit, where } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
+import { ViewMode } from './dashboard-content';
 
 interface DataTableProps {
   liveData: PonteiroData[];
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
 }
-
-type ViewMode = 'live' | 'Manhã' | 'Tarde' | 'Noite' | 'Madrugada';
 
 const CATEGORY_CONFIG = [
   { id: "TODOS", label: "Todos", icon: Filter, color: "text-accent" },
@@ -60,15 +62,13 @@ const SHIFT_CONFIG = [
   { id: 'Madrugada', label: 'Madrugada', icon: CloudMoon, color: 'text-indigo-400' },
 ] as const;
 
-export function PonteiroDataTable({ liveData }: DataTableProps) {
+export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTableProps) {
   const { firestore, user } = useFirebase();
-  const [viewMode, setViewMode] = useState<ViewMode>('live');
   const [sortConfig, setSortConfig] = useState<{ key: keyof PonteiroData; direction: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>("TODOS");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  // Buscar preferências do usuário para o filtro de favoritos
   const preferencesQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(collection(firestore, 'faina_preferences'), where('userId', '==', user.uid));
