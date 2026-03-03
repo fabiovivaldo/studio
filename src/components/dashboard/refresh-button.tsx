@@ -32,9 +32,6 @@ export function RefreshButton() {
         handleRefresh();
         lastHourRef.current = currentHour;
       }
-      
-      // Caso o sistema tenha pulado o minuto 00 por algum motivo (ex: aba em sleep), 
-      // o controle de 'lastHourRef' garante que ele tente sincronizar assim que possível.
     }, 30000);
 
     return () => clearInterval(interval);
@@ -43,12 +40,14 @@ export function RefreshButton() {
   return (
     <Button 
       variant="outline" 
-      className="border-accent/30 text-accent hover:bg-accent/10 min-w-[160px] shadow-lg shadow-accent/5"
+      size="icon"
+      className="border-accent/30 text-accent hover:bg-accent/10 shadow-lg shadow-accent/5 h-9 w-9 transition-all active:scale-95"
       onClick={handleRefresh}
       disabled={isPending}
+      title="Atualizar Dados"
     >
-      <RefreshCcw className={`h-4 w-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
-      {isPending ? 'Atualizando...' : 'Atualizar Dados'}
+      <RefreshCcw className={`h-5 w-5 ${isPending ? 'animate-spin' : ''}`} />
+      <span className="sr-only">Atualizar Dados</span>
     </Button>
   );
 }
