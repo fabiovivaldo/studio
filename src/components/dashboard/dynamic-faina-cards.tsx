@@ -87,19 +87,19 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
 
         return (
-          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group min-h-[280px] flex flex-col">
+          <Card key={pref.id} className="bg-card dark:bg-[#0f1419] border-border/50 shadow-xl relative overflow-hidden group min-h-[320px] flex flex-col">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent shadow-[0_0_15px_hsl(var(--accent)/0.5)] z-10"></div>
             
-            <div className="p-4 space-y-3 flex-1 flex flex-col">
+            <div className="p-4 space-y-4 flex-1 flex flex-col">
               {/* Header do Card */}
               <div className="flex justify-between items-end border-b border-border/40 pb-3">
-                <div className="flex flex-col flex-1">
+                <div className="flex flex-col flex-1 min-w-0">
                   <span className={labelStyle}>Faina</span>
-                  <h2 className="text-xl font-black text-black dark:text-white uppercase tracking-tight leading-none mt-1">
+                  <h2 className="text-xl font-black text-black dark:text-white uppercase tracking-tight leading-none mt-1 break-words">
                     {pref.faina}
                   </h2>
                 </div>
-                <div className="text-right ml-4">
+                <div className="text-right ml-4 shrink-0">
                   <span className={labelStyle}>Chamada</span>
                   <div className="text-3xl font-black text-accent tracking-tighter leading-none mt-1">
                     {pref.chamada}
@@ -108,7 +108,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               </div>
 
               {/* Grid de Turnos */}
-              <div className="flex-1 flex flex-col gap-2 mt-1">
+              <div className="flex-1 flex flex-col gap-2.5 mt-1">
                 {SHIFTS.map((shiftName) => {
                   const shiftData = historyData?.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
@@ -129,12 +129,19 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
 
                   const hasData = !!shiftData;
                   const isDecreasing = shiftData?.sinal === '-';
+                  const isIncreasing = !isDecreasing; // Considera + por padrão
+
+                  // Lógica solicitada: 
+                  // Mostrar se for sinal '-' (descendo) 
+                  // OU se for sinal '+' e o ponteiro for maior que a chamada
+                  const showDiffO = hasData && (isDecreasing || (isIncreasing && origNum > targetNum)) && diffOrig !== 0;
+                  const showDiffT = hasData && (isDecreasing || (isIncreasing && tempNum > targetNum)) && diffTemp !== 0;
 
                   return (
                     <div 
                       key={shiftName} 
                       className={cn(
-                        "rounded-xl p-2 border transition-all duration-300 grid grid-cols-12 items-center gap-3",
+                        "rounded-xl p-2.5 border transition-all duration-300 grid grid-cols-12 items-center gap-3",
                         hasData 
                           ? "bg-muted/30 border-border/40" 
                           : "bg-muted/5 border-dashed border-border/20 opacity-40"
@@ -162,10 +169,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                         <span className={cn(labelStyle, "text-[11px]")}>Orig {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-black text-foreground">{valO || '--'}</span>
-                          {/* Mostrar diferença apenas se o sinal for '-' (diminuindo) */}
-                          {hasData && isDecreasing && diffOrig !== 0 && (
+                          {showDiffO && (
                             <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 shadow-sm">
-                              {diffOrig > 0 ? `-${diffOrig}` : `+${Math.abs(diffOrig)}`}
+                              {diffOrig > 0 ? `+${diffOrig}` : diffOrig}
                             </span>
                           )}
                           {alertO.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertO.iconColor)} />}
@@ -177,10 +183,9 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                         <span className={cn(labelStyle, "text-[11px]")}>Temp {isGroup2 ? '2' : '1'}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-black text-foreground">{valT || '--'}</span>
-                          {/* Mostrar diferença apenas se o sinal for '-' (diminuindo) */}
-                          {hasData && isDecreasing && diffTemp !== 0 && (
+                          {showDiffT && (
                             <span className="text-[12px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 shadow-sm">
-                              {diffTemp > 0 ? `-${diffTemp}` : `+${Math.abs(diffTemp)}`}
+                              {diffTemp > 0 ? `+${diffTemp}` : diffTemp}
                             </span>
                           )}
                           {alertT.showIcon && <AlertTriangle className={cn("h-4 w-4 animate-pulse", alertT.iconColor)} />}
