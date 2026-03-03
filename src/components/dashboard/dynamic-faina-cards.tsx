@@ -121,21 +121,27 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               {fainaData ? (
                 <div className="bg-muted/30 dark:bg-[#161b22] rounded-lg p-3 grid grid-cols-2 gap-4 border border-border/10 mt-auto mb-1">
                   <div className="flex flex-col gap-0 relative">
-                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1.5">
-                      Original {isGroup2 ? '2' : '1'} {alertO.showIcon && <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 animate-pulse fill-yellow-500/10" />}
+                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
+                      Original {isGroup2 ? '2' : '1'}
                     </span>
-                    <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertO.color)}>
-                      {origVal}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertO.color)}>
+                        {origVal}
+                      </span>
+                      {alertO.showIcon && <AlertTriangle className="h-4 w-4 text-yellow-500 animate-pulse fill-yellow-500/10" />}
+                    </div>
                   </div>
                   
                   <div className="flex flex-col gap-0 border-l border-border/10 pl-4 relative">
-                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter flex items-center gap-1.5">
-                      Temp {isGroup2 ? '2' : '1'} {alertT.showIcon && <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 animate-pulse fill-yellow-500/10" />}
+                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">
+                      Temp {isGroup2 ? '2' : '1'}
                     </span>
-                    <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertT.color)}>
-                      {tempVal}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={cn("text-2xl tracking-tighter transition-colors duration-300", alertT.color)}>
+                        {tempVal}
+                      </span>
+                      {alertT.showIcon && <AlertTriangle className="h-4 w-4 text-yellow-500 animate-pulse fill-yellow-500/10" />}
+                    </div>
                   </div>
                 </div>
               ) : (
