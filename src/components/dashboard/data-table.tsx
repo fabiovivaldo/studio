@@ -242,7 +242,7 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                     {columns.map(({ key, label }) => (
                       <TableHead 
                         key={key} 
-                        className="cursor-pointer hover:text-accent transition-colors py-2 font-headline uppercase tracking-wider text-[10px]"
+                        className="cursor-pointer hover:text-accent transition-colors py-2 font-bold uppercase tracking-tight text-[11px]"
                         onClick={() => handleSort(key as keyof PonteiroData)}
                       >
                         <div className="flex items-center gap-2">
