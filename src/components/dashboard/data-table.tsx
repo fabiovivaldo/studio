@@ -279,16 +279,16 @@ export function PonteiroDataTable({ liveData }: DataTableProps) {
                             {row.Sinal}
                           </span>
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent/60 font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
                           {row.Original_1}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-bold font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
                           {row.Temporario_1}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent/60 font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
                           {row.Original_2}
                         </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-bold font-mono")}>
+                        <TableCell className={cn(cellTextStyle, "text-accent font-mono")}>
                           {row.Temporario_2}
                         </TableCell>
                       </TableRow>
