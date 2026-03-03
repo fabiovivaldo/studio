@@ -92,7 +92,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
               <div className="flex justify-between items-end border-b border-border/40 pb-2">
                 <div className="flex flex-col flex-1 min-w-0">
                   <span className={labelStyle}>Faina</span>
-                  <h2 className="text-lg font-black text-black dark:text-white uppercase tracking-tight leading-none mt-1 break-words">
+                  <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-tight leading-none mt-1 break-words">
                     {pref.faina}
                   </h2>
                 </div>
@@ -124,6 +124,7 @@ export function DynamicFainaCards({ scrapedData }: DynamicFainaCardsProps) {
                   const isIncreasing = !isDecreasing; 
                   
                   // Lógica inteligente de exibição da diferença (balão azul)
+                  // ORIG 2 não precisa de contagem (pref.tipo === '2' esconde no Orig se necessário, mas aqui controlamos o Temp)
                   const showDiffT = hasData && (isDecreasing || (isIncreasing && tempNum > targetNum)) && diffTemp !== 0;
 
                   return (
