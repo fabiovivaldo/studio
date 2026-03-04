@@ -66,7 +66,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
   const { firestore, user } = useFirebase();
   const [sortConfig, setSortConfig] = useState<{ key: keyof PonteiroData; direction: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string | null>("TODOS");
+  const [activeCategory, setActiveCategory] = useState<string>("TODOS");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const preferencesQuery = useMemoFirebase(() => {
@@ -115,15 +115,12 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
   };
 
   const filteredData = useMemo(() => {
-    if (!activeCategory) return [];
-
     return currentData.filter(item => {
       const matchesFilter = Object.values(item).some(val => 
         String(val).toLowerCase().includes(filter.toLowerCase())
       );
       
       const functionUpper = item.Funcao.toUpperCase();
-      // O filtro agora é conforme a primeira palavra (prefixo)
       const matchesCategory = activeCategory === "TODOS" || functionUpper.startsWith(activeCategory);
       
       const isFavorite = favoriteFainas.has(functionUpper);
@@ -156,196 +153,196 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
   const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5 px-1.5";
 
   return (
-    <div className="space-y-8">
-      {/* Seletor de Turno Principal */}
-      <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
-        <Button 
-          variant={viewMode === 'live' ? 'secondary' : 'ghost'} 
-          size="sm" 
-          onClick={() => setViewMode('live')}
-          className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4"
-        >
-          <Zap className="h-4 w-4 mr-2 text-yellow-500" />
-          Tempo Real
-        </Button>
-        
-        <div className="w-px h-6 bg-border/50 mx-1 self-center hidden sm:block"></div>
-
-        {SHIFT_CONFIG.map((shift) => (
-          <Button 
-            key={shift.id}
-            variant={viewMode === shift.id ? 'secondary' : 'ghost'} 
-            size="sm" 
-            onClick={() => setViewMode(shift.id as any)}
-            className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4"
-          >
-            <shift.icon className={`h-4 w-4 mr-2 ${shift.color}`} />
-            {shift.label}
-          </Button>
-        ))}
-      </div>
-
-      {/* Categorias */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-        {CATEGORY_CONFIG.map((cat) => {
-          const Icon = cat.icon;
-          const isActive = activeCategory === cat.id;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(isActive ? null : cat.id)}
-              className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all duration-300 group
-                ${isActive 
-                  ? 'bg-primary/20 border-primary shadow-lg shadow-primary/10' 
-                  : 'bg-card/50 border-border hover:border-accent/50 hover:bg-accent/5'}
-              `}
+    <div className="space-y-6">
+      <div className="flex flex-col gap-6">
+        {/* Filtro de Turno Principal */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 px-1">
+            <Zap className="h-3 w-3 text-muted-foreground" />
+            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Período de Referência</h4>
+          </div>
+          <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
+            <Button 
+              variant={viewMode === 'live' ? 'secondary' : 'ghost'} 
+              size="sm" 
+              onClick={() => setViewMode('live')}
+              className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4"
             >
-              <Icon className={`h-6 w-6 mb-2 transition-transform group-hover:scale-110 ${isActive ? 'text-primary' : cat.color}`} />
-              <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
-                {cat.label}
-              </span>
-              {isActive && (
-                <div className="mt-2 h-1 w-4 bg-primary rounded-full"></div>
-              )}
-            </button>
-          );
-        })}
+              <Zap className="h-4 w-4 mr-2 text-yellow-500" />
+              Tempo Real
+            </Button>
+            
+            <div className="w-px h-6 bg-border/50 mx-1 self-center hidden sm:block"></div>
+
+            {SHIFT_CONFIG.map((shift) => (
+              <Button 
+                key={shift.id}
+                variant={viewMode === shift.id ? 'secondary' : 'ghost'} 
+                size="sm" 
+                onClick={() => setViewMode(shift.id as any)}
+                className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4"
+              >
+                <shift.icon className={`h-4 w-4 mr-2 ${shift.color}`} />
+                {shift.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Filtro de Categorias - MESMO MODELO DO TURNO */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 px-1">
+            <Filter className="h-3 w-3 text-muted-foreground" />
+            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Categorias de Fainas</h4>
+          </div>
+          <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
+            {CATEGORY_CONFIG.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = activeCategory === cat.id;
+              return (
+                <Button
+                  key={cat.id}
+                  variant={isActive ? 'secondary' : 'ghost'} 
+                  size="sm" 
+                  onClick={() => setActiveCategory(cat.id)}
+                  className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4 transition-all"
+                >
+                  <Icon className={cn("h-4 w-4 mr-2", cat.color)} />
+                  {cat.label}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {!activeCategory ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-card/20 border border-dashed border-border rounded-2xl">
-          <Filter className="h-12 w-12 text-muted-foreground opacity-20 mb-4" />
-          <p className="text-muted-foreground font-medium">Selecione uma categoria acima.</p>
-        </div>
-      ) : (
-        <Card className="border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <CardContent className="p-6 space-y-6">
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  {viewMode === 'live' ? <Zap className="h-5 w-5 text-yellow-500" /> : <Calendar className="h-5 w-5 text-accent" />}
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold">
-                    {viewMode === 'live' ? 'Dados Recentes' : `Histórico: Turno ${viewMode}`}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros para {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}</p>
-                </div>
+      <Card className="border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <CardContent className="p-6 space-y-6">
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-lg">
+                {viewMode === 'live' ? <Zap className="h-5 w-5 text-yellow-500" /> : <Calendar className="h-5 w-5 text-accent" />}
               </div>
-
-              <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
-                <Button 
-                  variant={showFavoritesOnly ? "secondary" : "outline"} 
-                  size="sm" 
-                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                  className={cn(
-                    "h-9 px-4 border-accent/30 transition-all",
-                    showFavoritesOnly ? "bg-accent/20 text-accent border-accent" : "text-muted-foreground"
-                  )}
-                  title="Mostrar apenas minhas fainas favoritas"
-                >
-                  <Star className={cn("h-4 w-4 mr-2", showFavoritesOnly ? "fill-accent text-accent" : "")} />
-                  <span className="text-[10px] font-bold uppercase">Favoritos</span>
-                </Button>
-
-                <div className="relative w-full md:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input 
-                    placeholder="Filtrar nesta lista..." 
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                    className="pl-9 h-9 text-xs bg-background/50 border-border"
-                  />
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="h-9 border-accent/30 text-accent hover:bg-accent/10"
-                  onClick={() => exportToCSV(sortedData)}
-                  disabled={sortedData.length === 0}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportar CSV
-                </Button>
+              <div>
+                <h3 className="text-lg font-bold">
+                  {viewMode === 'live' ? 'Dados Recentes' : `Histórico: Turno ${viewMode}`}
+                </h3>
+                <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros para {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}</p>
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-background/50 overflow-hidden shadow-sm">
-              <Table>
-                <TableHeader className="bg-muted/50">
+            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
+              <Button 
+                variant={showFavoritesOnly ? "secondary" : "outline"} 
+                size="sm" 
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className={cn(
+                  "h-9 px-4 border-accent/30 transition-all",
+                  showFavoritesOnly ? "bg-accent/20 text-accent border-accent" : "text-muted-foreground"
+                )}
+                title="Mostrar apenas minhas fainas favoritas"
+              >
+                <Star className={cn("h-4 w-4 mr-2", showFavoritesOnly ? "fill-accent text-accent" : "")} />
+                <span className="text-[10px] font-bold uppercase">Favoritos</span>
+              </Button>
+
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input 
+                  placeholder="Filtrar nesta lista..." 
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  className="pl-9 h-9 text-xs bg-background/50 border-border"
+                />
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-9 border-accent/30 text-accent hover:bg-accent/10"
+                onClick={() => exportToCSV(sortedData)}
+                disabled={sortedData.length === 0}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Exportar CSV
+              </Button>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-background/50 overflow-hidden shadow-sm">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  {columns.map(({ key, label }) => (
+                    <TableHead 
+                      key={key} 
+                      className={cn(
+                        "cursor-pointer hover:text-accent transition-colors py-2 px-1.5 font-bold uppercase tracking-tight text-[11px]",
+                        key === 'Funcao' ? "pl-4" : ""
+                      )}
+                      onClick={() => handleSort(key as keyof PonteiroData)}
+                    >
+                      <div className="flex items-center gap-1">
+                        {label}
+                        <ArrowUpDown className="h-3 w-3 opacity-30" />
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {viewMode !== 'live' && isHistoryLoading ? (
                   <TableRow>
-                    {columns.map(({ key, label }) => (
-                      <TableHead 
-                        key={key} 
-                        className={cn(
-                          "cursor-pointer hover:text-accent transition-colors py-2 px-1.5 font-bold uppercase tracking-tight text-[11px]",
-                          key === 'Funcao' ? "pl-4" : ""
-                        )}
-                        onClick={() => handleSort(key as keyof PonteiroData)}
-                      >
-                        <div className="flex items-center gap-1">
-                          {label}
-                          <ArrowUpDown className="h-3 w-3 opacity-30" />
-                        </div>
-                      </TableHead>
-                    ))}
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground animate-pulse">
+                      Buscando registros no banco de dados...
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {viewMode !== 'live' && isHistoryLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="h-32 text-center text-muted-foreground animate-pulse">
-                        Buscando registros no banco de dados...
+                ) : sortedData.length > 0 ? (
+                  sortedData.map((row, idx) => (
+                    <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200 border-border/50">
+                      <TableCell className={cn(cellTextStyle, "pl-4")}>
+                        {row.Funcao}
+                      </TableCell>
+                      <TableCell className="py-1.5 px-1.5">
+                        <span className={cn(
+                          "font-black text-[18px] inline-block min-w-[12px] text-center",
+                          row.Sinal === '-' 
+                            ? "text-destructive" 
+                            : "text-green-500"
+                        )}>
+                          {row.Sinal}
+                        </span>
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-accent font-mono opacity-50")}>
+                        {row.Original_1}
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>
+                        {row.Temporario_1}
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-accent font-mono opacity-50")}>
+                        {row.Original_2}
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>
+                        {row.Temporario_2}
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground pr-4")}>
+                        {row.Data_Turno}
                       </TableCell>
                     </TableRow>
-                  ) : sortedData.length > 0 ? (
-                    sortedData.map((row, idx) => (
-                      <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200 border-border/50">
-                        <TableCell className={cn(cellTextStyle, "pl-4")}>
-                          {row.Funcao}
-                        </TableCell>
-                        <TableCell className="py-1.5 px-1.5">
-                          <span className={cn(
-                            "font-black text-[18px] inline-block min-w-[12px] text-center",
-                            row.Sinal === '-' 
-                              ? "text-destructive" 
-                              : "text-green-500"
-                          )}>
-                            {row.Sinal}
-                          </span>
-                        </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-mono opacity-50")}>
-                          {row.Original_1}
-                        </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>
-                          {row.Temporario_1}
-                        </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-accent font-mono opacity-50")}>
-                          {row.Original_2}
-                        </TableCell>
-                        <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>
-                          {row.Temporario_2}
-                        </TableCell>
-                        <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground pr-4")}>
-                          {row.Data_Turno}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                        {viewMode === 'live' 
-                          ? 'Nenhum registro encontrado nos dados atuais.' 
-                          : `Nenhum registro arquivado encontrado para o turno ${viewMode}.`}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                      {viewMode === 'live' 
+                        ? 'Nenhum registro encontrado nos dados atuais.' 
+                        : `Nenhum registro arquivado encontrado para o turno ${viewMode}.`}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
