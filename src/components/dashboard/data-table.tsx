@@ -290,7 +290,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 disabled={sortedData.length === 0}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Exportar CSV
+                Baixar Lista
               </Button>
             </div>
           </div>
