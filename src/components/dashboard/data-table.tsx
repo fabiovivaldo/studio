@@ -249,8 +249,8 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
               <div className="bg-primary/10 p-2 rounded-lg">
                 {viewMode === 'live' ? <Zap className="h-5 w-5 text-yellow-500" /> : <Calendar className="h-5 w-5 text-accent" />}
               </div>
-              <div>
-                <h3 className="text-lg font-bold">
+              <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
+                <h3 className="text-lg font-bold whitespace-nowrap">
                   {viewMode === 'live' ? 'Dados Recentes' : `Histórico: Turno ${viewMode}`}
                 </h3>
                 <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros para {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}</p>
