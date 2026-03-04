@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
@@ -115,7 +114,10 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const handleAdd = () => {
     if (!user || !newFaina.faina || !newFaina.chamada || !firestore || isSubmitting) return;
     
-    const isDuplicate = preferences?.some(p => p.faina === newFaina.faina);
+    // Normalização para comparação exata (sem espaços e tudo em maiúsculo)
+    const normalizedNewFaina = newFaina.faina.trim().toUpperCase();
+    const isDuplicate = preferences?.some(p => p.faina.trim().toUpperCase() === normalizedNewFaina);
+    
     if (isDuplicate) {
       toast({
         variant: "destructive",
@@ -130,8 +132,8 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     
     setDocumentNonBlocking(prefRef, {
       id: prefRef.id,
-      faina: newFaina.faina.toUpperCase(),
-      chamada: newFaina.chamada.toUpperCase(),
+      faina: normalizedNewFaina,
+      chamada: newFaina.chamada.toUpperCase().trim(),
       tipo: newFaina.tipo,
       modo: newFaina.modo,
       userId: user.uid
@@ -149,8 +151,8 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     const prefRef = doc(firestore, 'faina_preferences', id);
     setDocumentNonBlocking(prefRef, {
       ...editFaina,
-      faina: editFaina.faina.toUpperCase(),
-      chamada: editFaina.chamada.toUpperCase(),
+      faina: editFaina.faina.trim().toUpperCase(),
+      chamada: editFaina.chamada.trim().toUpperCase(),
       userId: user.uid
     }, { merge: true });
     setEditingId(null);
