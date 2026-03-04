@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -47,6 +48,36 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
+  // Ordenação baseada na menor diferença absoluta no turno atual
+  const sortedPreferences = useMemo(() => {
+    if (!preferences || preferences.length === 0) return [];
+    if (!activeShiftFromData) return preferences;
+
+    return [...preferences].sort((a, b) => {
+      const getDiff = (pref: any) => {
+        const shiftData = historyData?.find(d => 
+          d.funcao === pref.faina && d.dataTurno.includes(activeShiftFromData)
+        );
+        
+        if (!shiftData) return Infinity; // Se não houver dados, vai para o final
+
+        const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+        const modoAtivo = pref.modo || 'temporario';
+        const isGroup2 = pref.tipo === '2';
+        
+        const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
+        const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
+
+        const monitorValue = modoAtivo === 'original' ? valO : valT;
+        const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
+        
+        return Math.abs(monitorNum - targetNum);
+      };
+
+      return getDiff(a) - getDiff(b);
+    });
+  }, [preferences, historyData, activeShiftFromData]);
+
   if (isPrefsLoading || isHistoryLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
@@ -72,7 +103,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {preferences.map((pref) => {
+      {sortedPreferences.map((pref) => {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
         const modoAtivo = pref.modo || 'temporario';
 
