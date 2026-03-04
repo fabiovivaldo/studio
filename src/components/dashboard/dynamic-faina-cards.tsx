@@ -125,9 +125,13 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       "rounded-lg p-2 border transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
                       !shiftData && "opacity-30 bg-muted/5 border-dashed",
                       shiftData && "bg-muted/10 border-border/40",
-                      isHighlighted && "border-blue-600 ring-1 ring-blue-600/30 bg-blue-600/5",
-                      isCritical && "border-destructive/50 bg-destructive/5",
-                      isWarning && "border-orange-500/50 bg-orange-500/5"
+                      // Destaque do Turno Atual (Moldura Azul Externa)
+                      isHighlighted && "ring-2 ring-blue-600 z-10 bg-blue-600/5",
+                      // Alertas (Moldura Interna)
+                      isCritical && "border-destructive/80 bg-destructive/5",
+                      isWarning && "border-orange-500/80 bg-orange-500/5",
+                      // Se for destaque mas não tiver alerta, a borda base vira azul
+                      isHighlighted && !isCritical && !isWarning && "border-blue-600"
                     )}
                   >
                     <div className="flex items-center gap-1 min-w-0 overflow-hidden">
