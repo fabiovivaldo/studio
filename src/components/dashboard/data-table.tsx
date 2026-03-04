@@ -152,14 +152,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
 
   const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5 px-1.5";
 
-  // Estilo base para os botões de filtro para garantir visibilidade
-  const getFilterBtnClass = (isActive: boolean) => cn(
-    "h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4 border transition-all",
-    isActive 
-      ? "bg-accent/10 text-accent border-accent shadow-sm" 
-      : "bg-background/50 text-muted-foreground border-border hover:border-accent/50 hover:bg-accent/5"
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-6">
@@ -169,15 +161,24 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
             <Zap className="h-3 w-3 text-muted-foreground" />
             <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Período de Referência</h4>
           </div>
-          <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
+          <div className="flex flex-wrap gap-3 p-1 w-fit">
             <Button 
               variant="outline"
               size="sm" 
               onClick={() => setViewMode('live')}
-              className={getFilterBtnClass(viewMode === 'live')}
+              className={cn(
+                "h-10 transition-all duration-300 flex items-center justify-center border",
+                viewMode === 'live' 
+                  ? "px-6 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
+                  : "w-10 rounded-xl bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+              )}
             >
-              <Zap className={cn("h-4 w-4 mr-2", viewMode === 'live' ? "text-accent" : "text-yellow-500")} />
-              Tempo Real
+              <Zap className={cn("h-5 w-5 shrink-0", viewMode === 'live' ? "text-accent mr-2" : "text-yellow-500")} />
+              {viewMode === 'live' && (
+                <span className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2">
+                  Tempo Real
+                </span>
+              )}
             </Button>
             
             <div className="w-px h-6 bg-border/50 mx-1 self-center hidden sm:block"></div>
@@ -188,10 +189,19 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 variant="outline"
                 size="sm" 
                 onClick={() => setViewMode(shift.id as any)}
-                className={getFilterBtnClass(viewMode === shift.id)}
+                className={cn(
+                  "h-10 transition-all duration-300 flex items-center justify-center border",
+                  viewMode === shift.id 
+                    ? "px-6 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
+                    : "w-10 rounded-xl bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+                )}
               >
-                <shift.icon className={cn("h-4 w-4 mr-2", viewMode === shift.id ? "text-accent" : shift.color)} />
-                {shift.label}
+                <shift.icon className={cn("h-5 w-5 shrink-0", viewMode === shift.id ? "text-accent mr-2" : shift.color)} />
+                {viewMode === shift.id && (
+                  <span className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2">
+                    {shift.label}
+                  </span>
+                )}
               </Button>
             ))}
           </div>
@@ -203,7 +213,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
             <Filter className="h-3 w-3 text-muted-foreground" />
             <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Categorias de Fainas</h4>
           </div>
-          <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
+          <div className="flex flex-wrap gap-3 p-1 w-fit">
             {CATEGORY_CONFIG.map((cat) => {
               const Icon = cat.icon;
               const isActive = activeCategory === cat.id;
@@ -213,10 +223,19 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                   variant="outline"
                   size="sm" 
                   onClick={() => setActiveCategory(cat.id)}
-                  className={getFilterBtnClass(isActive)}
+                  className={cn(
+                    "h-10 transition-all duration-300 flex items-center justify-center border",
+                    isActive 
+                      ? "px-6 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
+                      : "w-10 rounded-xl bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+                  )}
                 >
-                  <Icon className={cn("h-4 w-4 mr-2", isActive ? "text-accent" : cat.color)} />
-                  {cat.label}
+                  <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-accent mr-2" : cat.color)} />
+                  {isActive && (
+                    <span className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2">
+                      {cat.label}
+                    </span>
+                  )}
                 </Button>
               );
             })}
@@ -312,7 +331,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                       </TableCell>
                       <TableCell className="py-1.5 px-1.5">
                         <span className={cn(
-                          "font-black text-[18px] inline-block min-w-[12px] text-center",
+                          "font-black text-[15px] inline-block min-w-[12px] text-center",
                           row.Sinal === '-' 
                             ? "text-destructive" 
                             : "text-green-500"
