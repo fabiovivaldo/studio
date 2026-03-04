@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -95,7 +96,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
             </div>
 
-            <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full mt-1">
+            <div className="px-4 pb-4 grid grid-cols-4 gap-3 w-full mt-1">
               {SHIFT_ORDER.map((shiftName) => {
                 const shiftData = historyData?.find(d => 
                   d.funcao === pref.faina && d.dataTurno.includes(shiftName)
@@ -122,16 +123,19 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   <div 
                     key={shiftName} 
                     className={cn(
-                      "rounded-lg p-2 border transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
-                      !shiftData && "opacity-30 bg-muted/5 border-dashed",
-                      shiftData && "bg-muted/10 border-border/40",
-                      // Destaque do Turno Atual (Moldura Azul Externa)
-                      isHighlighted && "ring-2 ring-blue-600 z-10 bg-blue-600/5",
-                      // Alertas (Moldura Interna)
-                      isCritical && "border-destructive/80 bg-destructive/5",
-                      isWarning && "border-orange-500/80 bg-orange-500/5",
-                      // Se for destaque mas não tiver alerta, a borda base vira azul
-                      isHighlighted && !isCritical && !isWarning && "border-blue-600"
+                      "rounded-lg p-2 border-[3px] transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
+                      !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
+                      shiftData && "bg-muted/10",
+                      
+                      // Moldura EXTERNA (Alertas via Ring)
+                      isCritical && "ring-2 ring-destructive bg-destructive/5",
+                      isWarning && "ring-2 ring-orange-500 bg-orange-500/5",
+                      
+                      // Moldura INTERNA (Turno Atual via Border)
+                      isHighlighted ? "border-blue-600 z-10 bg-blue-600/5" : "border-transparent",
+                      
+                      // Borda padrão se não houver destaque nem alerta
+                      !isHighlighted && !isCritical && !isWarning && "border-border/40"
                     )}
                   >
                     <div className="flex items-center gap-1 min-w-0 overflow-hidden">
