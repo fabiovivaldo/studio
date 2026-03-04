@@ -146,7 +146,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       </span>
                       {shiftData?.sinal && (
                         <span className={cn(
-                          "text-[12px] font-black leading-none",
+                          "text-[15px] font-black leading-none",
                           shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
                         )}>
                           {shiftData.sinal}
