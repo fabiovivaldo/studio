@@ -152,6 +152,14 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
 
   const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5 px-1.5";
 
+  // Estilo base para os botões de filtro para garantir visibilidade
+  const getFilterBtnClass = (isActive: boolean) => cn(
+    "h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4 border transition-all",
+    isActive 
+      ? "bg-accent/10 text-accent border-accent shadow-sm" 
+      : "bg-background/50 text-muted-foreground border-border hover:border-accent/50 hover:bg-accent/5"
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-6">
@@ -163,12 +171,12 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
           </div>
           <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl w-fit">
             <Button 
-              variant={viewMode === 'live' ? 'secondary' : 'ghost'} 
+              variant="outline"
               size="sm" 
               onClick={() => setViewMode('live')}
-              className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4"
+              className={getFilterBtnClass(viewMode === 'live')}
             >
-              <Zap className="h-4 w-4 mr-2 text-yellow-500" />
+              <Zap className={cn("h-4 w-4 mr-2", viewMode === 'live' ? "text-accent" : "text-yellow-500")} />
               Tempo Real
             </Button>
             
@@ -177,12 +185,12 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
             {SHIFT_CONFIG.map((shift) => (
               <Button 
                 key={shift.id}
-                variant={viewMode === shift.id ? 'secondary' : 'ghost'} 
+                variant="outline"
                 size="sm" 
                 onClick={() => setViewMode(shift.id as any)}
-                className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4"
+                className={getFilterBtnClass(viewMode === shift.id)}
               >
-                <shift.icon className={`h-4 w-4 mr-2 ${shift.color}`} />
+                <shift.icon className={cn("h-4 w-4 mr-2", viewMode === shift.id ? "text-accent" : shift.color)} />
                 {shift.label}
               </Button>
             ))}
@@ -202,12 +210,12 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
               return (
                 <Button
                   key={cat.id}
-                  variant={isActive ? 'secondary' : 'ghost'} 
+                  variant="outline"
                   size="sm" 
                   onClick={() => setActiveCategory(cat.id)}
-                  className="h-9 text-[10px] font-bold uppercase tracking-wider rounded-lg px-4 transition-all"
+                  className={getFilterBtnClass(isActive)}
                 >
-                  <Icon className={cn("h-4 w-4 mr-2", cat.color)} />
+                  <Icon className={cn("h-4 w-4 mr-2", isActive ? "text-accent" : cat.color)} />
                   {cat.label}
                 </Button>
               );
