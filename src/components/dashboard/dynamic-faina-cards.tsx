@@ -10,9 +10,10 @@ import {
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { HardHat } from 'lucide-react';
+import { HardHat, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewMode } from './dashboard-content';
+import { Badge } from '@/components/ui/badge';
 
 interface DynamicFainaCardsProps {
   scrapedData: PonteiroData[];
@@ -23,6 +24,11 @@ const SHIFT_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
 
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
+
+  // Conjunto de nomes de fainas presentes no scraping atual para checagem de status
+  const currentScrapedFainas = useMemo(() => {
+    return new Set(scrapedData.map(d => d.Funcao.toUpperCase()));
+  }, [scrapedData]);
 
   const activeShiftFromData = useMemo(() => {
     if (!scrapedData.length) return null;
@@ -59,7 +65,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
           d.funcao === pref.faina && d.dataTurno.includes(activeShiftFromData)
         );
         
-        if (!shiftData) return Infinity; // Se não houver dados, vai para o final
+        if (!shiftData) return Infinity;
 
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
         const modoAtivo = pref.modo || 'temporario';
@@ -106,24 +112,43 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       {sortedPreferences.map((pref) => {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
         const modoAtivo = pref.modo || 'temporario';
+        const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
         return (
-          <Card key={pref.id} className="bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col group h-full">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600 z-10"></div>
+          <Card key={pref.id} className={cn(
+            "bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col group h-full transition-opacity duration-500",
+            isOffline && "opacity-60"
+          )}>
+            <div className={cn(
+              "absolute top-0 left-0 w-1.5 h-full z-10 transition-colors",
+              isOffline ? "bg-muted" : "bg-blue-600"
+            )}></div>
             
-            <div className="p-4 pb-2 flex items-start gap-6">
-              <div className="space-y-0.5">
-                <span className={labelStyle}>Chamada</span>
-                <div className="text-xl font-black text-blue-600 leading-none">
-                  {pref.chamada}
+            <div className="p-4 pb-2 flex items-start justify-between">
+              <div className="flex items-start gap-6">
+                <div className="space-y-0.5">
+                  <span className={labelStyle}>Chamada</span>
+                  <div className={cn(
+                    "text-xl font-black leading-none",
+                    isOffline ? "text-muted-foreground" : "text-blue-600"
+                  )}>
+                    {pref.chamada}
+                  </div>
+                </div>
+                <div className="space-y-0.5 min-w-0">
+                  <span className={labelStyle}>Faina</span>
+                  <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words truncate max-w-[150px] sm:max-w-[250px]">
+                    {pref.faina}
+                  </h2>
                 </div>
               </div>
-              <div className="space-y-0.5 min-w-0">
-                <span className={labelStyle}>Faina</span>
-                <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words truncate">
-                  {pref.faina}
-                </h2>
-              </div>
+
+              {isOffline && (
+                <Badge variant="outline" className="h-5 text-[8px] font-black uppercase tracking-tighter border-muted-foreground/20 text-muted-foreground bg-muted/5">
+                  <WifiOff className="h-2.5 w-2.5 mr-1" />
+                  Inativo no Site
+                </Badge>
+              )}
             </div>
 
             <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full mt-1">
