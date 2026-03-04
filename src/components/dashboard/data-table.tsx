@@ -47,12 +47,12 @@ interface DataTableProps {
 
 const CATEGORY_CONFIG = [
   { id: "TODOS", label: "Todos", icon: Filter, color: "text-accent" },
-  { id: "ARRUMADOR", label: "Arrumador", icon: Users, color: "text-blue-400" },
-  { id: "BLOCO", label: "Bloco", icon: LayoutGrid, color: "text-purple-400" },
-  { id: "CONFERENTE", label: "Conferente", icon: ClipboardList, color: "text-orange-400" },
-  { id: "CONSERTADOR", label: "Consertador", icon: Wrench, color: "text-green-400" },
   { id: "ESTIVA", label: "Estiva", icon: HardHat, color: "text-yellow-400" },
+  { id: "ARRUMADOR", label: "Arrumador", icon: Users, color: "text-blue-400" },
+  { id: "CONFERENTE", label: "Conferente", icon: ClipboardList, color: "text-orange-400" },
   { id: "VIGIA", label: "Vigia", icon: Eye, color: "text-red-400" },
+  { id: "BLOCO", label: "Bloco", icon: LayoutGrid, color: "text-purple-400" },
+  { id: "CONSERTADOR", label: "Consertador", icon: Wrench, color: "text-green-400" },
 ];
 
 const SHIFT_CONFIG = [
@@ -189,7 +189,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
           </div>
         </div>
 
-        {/* Filtro de Categorias - MESMO MODELO DO TURNO */}
+        {/* Filtro de Categorias */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Filter className="h-3 w-3 text-muted-foreground" />
