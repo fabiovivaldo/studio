@@ -259,19 +259,32 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
             </div>
 
             <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
-              <Button 
-                variant={showFavoritesOnly ? "secondary" : "outline"} 
-                size="sm" 
-                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                className={cn(
-                  "h-9 px-4 border-accent/30 transition-all",
-                  showFavoritesOnly ? "bg-accent/20 text-accent border-accent" : "text-muted-foreground"
-                )}
-                title="Mostrar apenas minhas fainas favoritas"
-              >
-                <Star className={cn("h-4 w-4 mr-2", showFavoritesOnly ? "fill-accent text-accent" : "")} />
-                <span className="text-[10px] font-bold uppercase">Favoritos</span>
-              </Button>
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <Button 
+                  variant={showFavoritesOnly ? "secondary" : "outline"} 
+                  size="sm" 
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  className={cn(
+                    "h-9 px-4 border-accent/30 transition-all",
+                    showFavoritesOnly ? "bg-accent/20 text-accent border-accent" : "text-muted-foreground"
+                  )}
+                  title="Mostrar apenas minhas fainas favoritas"
+                >
+                  <Star className={cn("h-4 w-4 mr-2", showFavoritesOnly ? "fill-accent text-accent" : "")} />
+                  <span className="text-[10px] font-bold uppercase">Favoritos</span>
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-9 border-accent/30 text-accent hover:bg-accent/10"
+                  onClick={() => exportToCSV(sortedData)}
+                  disabled={sortedData.length === 0}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Baixar Lista
+                </Button>
+              </div>
 
               <div className="relative w-full md:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -282,16 +295,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                   className="pl-9 h-9 text-xs bg-background/50 border-border"
                 />
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-9 border-accent/30 text-accent hover:bg-accent/10"
-                onClick={() => exportToCSV(sortedData)}
-                disabled={sortedData.length === 0}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Baixar Lista
-              </Button>
             </div>
           </div>
 
