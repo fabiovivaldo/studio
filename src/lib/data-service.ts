@@ -57,7 +57,25 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
     const datePattern = /<h3>(.*?)<\/h3>/i;
     const dateMatch = datePattern.exec(html);
     const headerDataRaw = dateMatch ? dateMatch[1].trim() : "Sem Data";
-    const headerData = decodeHtmlEntities(headerDataRaw);
+    let headerData = decodeHtmlEntities(headerDataRaw);
+
+    // Lógica para Madrugada: Se o turno for Madrugada, soma +1 dia na exibição
+    if (headerData.toLowerCase().includes('madrugada')) {
+      const dateParts = headerData.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (dateParts) {
+        const [fullMatch, day, month, year] = dateParts;
+        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        // Adiciona 1 dia
+        date.setDate(date.getDate() + 1);
+        
+        const nextDay = String(date.getDate()).padStart(2, '0');
+        const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
+        const nextYear = date.getFullYear();
+        
+        const newDateStr = `${nextDay}/${nextMonth}/${nextYear}`;
+        headerData = headerData.replace(fullMatch, newDateStr);
+      }
+    }
 
     const pattern = /<tr>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/gi;
     
@@ -89,9 +107,9 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
   } catch (error) {
     console.error("Scraping error:", error);
     return Array.from({ length: 15 }, (_, i) => ({
-      Data_Turno: "02/03/2026 Manhã",
+      Data_Turno: "05/03/2026 Madrugada", // Mock atualizado para refletir a lógica
       Funcao: `MOCK_FUNC_${i + 1}`,
-      Sinal: i % 2 === 0 ? "A" : "B",
+      Sinal: i % 2 === 0 ? "+" : "-",
       Original_1: (Math.random() * 100).toFixed(0),
       Temporario_1: (Math.random() * 100).toFixed(0),
       Original_2: (Math.random() * 100).toFixed(0),
