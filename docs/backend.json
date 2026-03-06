@@ -59,7 +59,7 @@
     "FainaPreference": {
       "title": "FainaPreference",
       "type": "object",
-      "description": "User defined faina preferences with custom call names.",
+      "description": "User defined faina preferences with custom call names and ceilings.",
       "properties": {
         "id": {
           "type": "string"
@@ -71,6 +71,10 @@
         "chamada": {
           "type": "string",
           "description": "The custom call name for this faina."
+        },
+        "teto": {
+          "type": "string",
+          "description": "O valor do teto da faina (ex: 400)."
         },
         "tipo": {
           "type": "string",
@@ -87,7 +91,7 @@
           "description": "The ID of the user who owns this preference."
         }
       },
-      "required": ["id", "faina", "chamada", "tipo", "modo", "userId"]
+      "required": ["id", "faina", "chamada", "teto", "tipo", "modo", "userId"]
     }
   },
   "auth": {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
@@ -63,11 +64,11 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  const [newFaina, setNewFaina] = useState({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
+  const [newFaina, setNewFaina] = useState({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
   const [isListVisible, setIsListVisible] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const [editFaina, setEditFaina] = useState({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
+  const [editFaina, setEditFaina] = useState({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
   const [isEditListVisible, setIsEditListVisible] = useState(false);
   const editListRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +115,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const handleAdd = () => {
     if (!user || !newFaina.faina || !newFaina.chamada || !firestore || isSubmitting) return;
     
-    // Normalização para comparação exata (sem espaços e tudo em maiúsculo)
     const normalizedNewFaina = newFaina.faina.trim().toUpperCase();
     const isDuplicate = preferences?.some(p => p.faina.trim().toUpperCase() === normalizedNewFaina);
     
@@ -134,12 +134,13 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       id: prefRef.id,
       faina: normalizedNewFaina,
       chamada: newFaina.chamada.toUpperCase().trim(),
+      teto: newFaina.teto || '400',
       tipo: newFaina.tipo,
       modo: newFaina.modo,
       userId: user.uid
     }, { merge: true });
 
-    setNewFaina({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
+    setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
     setIsSubmitting(false);
     setIsListVisible(false);
   };
@@ -153,6 +154,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       ...editFaina,
       faina: editFaina.faina.trim().toUpperCase(),
       chamada: editFaina.chamada.trim().toUpperCase(),
+      teto: editFaina.teto || '400',
       userId: user.uid
     }, { merge: true });
     setEditingId(null);
@@ -178,13 +180,13 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       </DialogTrigger>
       <DialogContent 
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-[650px] bg-background border-border max-h-[90vh] overflow-hidden flex flex-col p-0"
+        className="sm:max-w-[750px] bg-background border-border max-h-[90vh] overflow-hidden flex flex-col p-0"
       >
         <div className="p-8 pb-2">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-foreground">Preferências de Fainas</DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground mt-1">
-              Personalize os nomes das fainas e escolha o grupo de ponteiros (1 ou 2).
+              Personalize as fainas, números de chamada e valores de teto para os cálculos.
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -202,7 +204,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 <div className="relative">
                   <Input
                     id="faina-input"
-                    placeholder="BUSQUE..."
+                    placeholder="BUSQUE A FAINA..."
                     value={newFaina.faina}
                     onChange={(e) => {
                       setNewFaina(prev => ({ ...prev, faina: e.target.value }));
@@ -248,14 +250,25 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="chamada" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Nº RODÍZIO</Label>
+                  <Label htmlFor="chamada" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Chamada</Label>
                   <Input 
                     id="chamada" 
-                    placeholder="0000" 
+                    placeholder="000" 
                     value={newFaina.chamada}
                     onChange={(e) => setNewFaina(prev => ({ ...prev, chamada: e.target.value }))}
+                    className="h-12 text-sm font-bold uppercase bg-background border-border focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="teto" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Teto</Label>
+                  <Input 
+                    id="teto" 
+                    placeholder="400" 
+                    value={newFaina.teto}
+                    onChange={(e) => setNewFaina(prev => ({ ...prev, teto: e.target.value }))}
                     className="h-12 text-sm font-bold uppercase bg-background border-border focus:ring-1 focus:ring-primary"
                   />
                 </div>
@@ -274,14 +287,14 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Modo de Monitoramento</Label>
+                  <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Modo</Label>
                   <Select value={newFaina.modo} onValueChange={(v) => setNewFaina(prev => ({ ...prev, modo: v }))}>
                     <SelectTrigger className="h-12 text-sm font-bold bg-background border-border focus:ring-1 focus:ring-primary">
                       <SelectValue placeholder="Modo" />
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border">
                       <SelectItem value="original" className="text-xs font-bold uppercase">Original</SelectItem>
-                      <SelectItem value="temporario" className="text-xs font-bold uppercase">Temporário (Ponteiro)</SelectItem>
+                      <SelectItem value="temporario" className="text-xs font-bold uppercase">Ponteiro</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -314,7 +327,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     
                     <div className="flex items-center justify-between gap-4">
                       {editingId === pref.id ? (
-                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-3 relative" ref={editListRef}>
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-5 gap-3 relative" ref={editListRef}>
                           <div className="relative">
                             <Input
                               className="h-10 text-xs font-bold bg-background border-border uppercase focus:ring-1 focus:ring-primary"
@@ -349,8 +362,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           </div>
                           <Input 
                             className="h-10 text-xs font-bold bg-background border-border uppercase focus:ring-1 focus:ring-primary"
+                            placeholder="CH"
                             value={editFaina.chamada} 
                             onChange={(e) => setEditFaina(prev => ({ ...prev, chamada: e.target.value }))}
+                          />
+                          <Input 
+                            className="h-10 text-xs font-bold bg-background border-border uppercase focus:ring-1 focus:ring-primary"
+                            placeholder="TETO"
+                            value={editFaina.teto} 
+                            onChange={(e) => setEditFaina(prev => ({ ...prev, teto: e.target.value }))}
                           />
                           <Select value={editFaina.tipo} onValueChange={(v) => setEditFaina(prev => ({ ...prev, tipo: v }))}>
                             <SelectTrigger className="h-10 text-xs font-bold bg-background border-border focus:ring-1 focus:ring-primary">
@@ -367,7 +387,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                             </SelectTrigger>
                             <SelectContent className="bg-popover border-border">
                               <SelectItem value="original" className="text-[10px] font-bold">ORIG</SelectItem>
-                              <SelectItem value="temporario" className="text-[10px] font-bold">TEMP</SelectItem>
+                              <SelectItem value="temporario" className="text-[10px] font-bold">PONT</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -376,11 +396,12 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           <div className="flex items-center gap-3">
                             <p className="text-sm font-bold uppercase truncate text-foreground tracking-tight">{pref.faina}</p>
                             <div className="flex gap-1">
-                              <span className="text-[9px] px-2 py-0.5 rounded bg-primary/10 text-primary font-black uppercase border border-primary/20">Grupo {pref.tipo}</span>
-                              <span className="text-[9px] px-2 py-0.5 rounded bg-accent/10 text-accent font-black uppercase border border-accent/20">{pref.modo === 'original' ? 'ORIG' : 'TEMP'}</span>
+                              <span className="text-[9px] px-2 py-0.5 rounded bg-primary/10 text-primary font-black uppercase border border-primary/20">G{pref.tipo}</span>
+                              <span className="text-[9px] px-2 py-0.5 rounded bg-accent/10 text-accent font-black uppercase border border-accent/20">{pref.modo === 'original' ? 'ORIG' : 'PONT'}</span>
+                              <span className="text-[9px] px-2 py-0.5 rounded bg-orange-500/10 text-orange-500 font-black uppercase border border-orange-500/20">TETO: {pref.teto}</span>
                             </div>
                           </div>
-                          <p className="text-[11px] font-bold text-muted-foreground uppercase mt-1.5 opacity-70">Nº Rodízio: <span className="text-primary font-mono">{pref.chamada}</span></p>
+                          <p className="text-[11px] font-bold text-muted-foreground uppercase mt-1.5 opacity-70">Chamada: <span className="text-primary font-mono">{pref.chamada}</span></p>
                         </div>
                       )}
 
@@ -405,7 +426,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                               className="h-8 w-8 text-primary hover:bg-primary/10" 
                               onClick={() => {
                                 setEditingId(pref.id);
-                                setEditFaina({ faina: pref.faina, chamada: pref.chamada, tipo: pref.tipo || '1', modo: pref.modo || 'temporario' });
+                                setEditFaina({ faina: pref.faina, chamada: pref.chamada, teto: pref.teto || '400', tipo: pref.tipo || '1', modo: pref.modo || 'temporario' });
                               }}
                             >
                               <Edit2 className="h-4 w-4" />
@@ -419,15 +440,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                               </AlertDialogTrigger>
                               <AlertDialogContent className="bg-background border-border rounded-2xl">
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle className="uppercase font-black text-sm text-foreground tracking-widest">Excluir Preferência?</AlertDialogTitle>
+                                  <AlertDialogTitle className="uppercase font-black text-sm text-foreground tracking-widest">Excluir?</AlertDialogTitle>
                                   <AlertDialogDescription className="text-xs font-medium text-muted-foreground">
-                                    Esta ação removerá permanentemente a faina "{pref.faina}" das suas prioridades.
+                                    Remover "{pref.faina}" das prioridades?
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter className="mt-6">
-                                  <AlertDialogCancel className="text-[10px] font-black uppercase tracking-widest rounded-xl border-border h-10 bg-transparent text-foreground hover:bg-muted">Cancelar</AlertDialogCancel>
+                                  <AlertDialogCancel className="text-[10px] font-black uppercase tracking-widest rounded-xl border-border h-10 bg-transparent text-foreground hover:bg-muted">Não</AlertDialogCancel>
                                   <AlertDialogAction className="bg-destructive hover:bg-destructive/80 text-[10px] font-black uppercase tracking-widest rounded-xl h-10" onClick={() => handleDelete(pref.id)}>
-                                    Excluir
+                                    Sim
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -440,7 +461,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 bg-muted/20 rounded-2xl border border-dashed border-border">
-                  <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">Sua lista está vazia</p>
+                  <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">Lista vazia</p>
                 </div>
               )}
             </div>

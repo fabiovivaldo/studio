@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -72,19 +73,25 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         if (!shiftData) return Infinity;
 
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+        const tetoNum = parseInt(pref.teto || '400') || 400;
         const modoAtivo = pref.modo || 'temporario';
         const isGroup2 = pref.tipo === '2';
         
         const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
         const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
+        const valONum = parseInt(valO?.replace(/\D/g, '') || '0') || 0;
+        const valTNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
 
         const monitorValue = modoAtivo === 'original' ? valO : valT;
         const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
         
         const isNegativeSignal = shiftData.sinal === '-';
+        
         if (isNegativeSignal) {
-          return monitorNum + targetNum;
+          // Lógica do Teto: (Teto - Original) + Temporário - Chamada
+          return Math.abs(((tetoNum - valONum) + valTNum) - targetNum);
         }
+        // Lógica Normal: |Ponteiro - Chamada|
         return Math.abs(monitorNum - targetNum);
       };
 
@@ -119,6 +126,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {sortedPreferences.map((pref) => {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+        const tetoNum = parseInt(pref.teto || '400') || 400;
         const modoAtivo = pref.modo || 'temporario';
         const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
@@ -154,7 +162,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               {isOffline && (
                 <Badge variant="outline" className="h-5 text-[8px] font-black uppercase tracking-tighter border-muted-foreground/20 text-muted-foreground bg-muted/5">
                   <WifiOff className="h-2.5 w-2.5 mr-1" />
-                  Inativo no Site
+                  Inativo
                 </Badge>
               )}
             </div>
@@ -168,19 +176,21 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 const isGroup2 = pref.tipo === '2';
                 const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
                 const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
+                const valONum = parseInt(valO?.replace(/\D/g, '') || '0') || 0;
+                const valTNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
 
                 const monitorValue = modoAtivo === 'original' ? valO : valT;
                 const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
                 
-                // Nova Lógica de Cálculo:
-                // Se o sinal for negativo (-), somamos o ponteiro com a chamada (regra do OGMO).
-                // Caso contrário, usamos a diferença absoluta para evitar números negativos.
                 const isNegativeSignal = shiftData?.sinal === '-';
+                
+                // Cálculo de diferença
+                // Se negativo: |((Teto - Original) + Temporário) - Chamada|
+                // Se positivo: |Ponteiro - Chamada|
                 const displayDiff = isNegativeSignal 
-                  ? (monitorNum + targetNum) 
+                  ? Math.abs(((tetoNum - valONum) + valTNum) - targetNum)
                   : Math.abs(monitorNum - targetNum);
                 
-                // Lógica de alertas
                 const isCritical = displayDiff <= 10 && !!shiftData;
                 const isWarning = displayDiff > 10 && displayDiff <= 20 && !!shiftData;
 
@@ -231,9 +241,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         )}>
                           {valO || '--'}
                         </span>
-                        {modoAtivo === 'original' && (isCritical || isWarning) && (
-                          <HardHat className={cn("h-3 w-3", isCritical ? "text-destructive" : "text-orange-500")} />
-                        )}
                       </div>
 
                       <div className="flex items-center gap-1">
@@ -248,7 +255,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         )}>
                           {valT || '--'}
                         </span>
-                        {modoAtivo === 'temporario' && (isCritical || isWarning) && (
+                        {(isCritical || isWarning) && (
                           <HardHat className={cn("h-3 w-3", isCritical ? "text-destructive" : "text-orange-500")} />
                         )}
                       </div>
