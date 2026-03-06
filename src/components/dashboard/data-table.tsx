@@ -166,18 +166,19 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
               size="sm" 
               onClick={() => setViewMode('live')}
               className={cn(
-                "h-10 transition-all duration-300 flex items-center justify-center border",
+                "h-10 transition-all duration-300 flex items-center justify-center border group",
                 viewMode === 'live' 
                   ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
-                  : "w-10 rounded-xl bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+                  : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
               )}
             >
               <Zap className={cn("h-5 w-5 shrink-0", viewMode === 'live' ? "text-accent mr-1" : "text-yellow-500")} />
-              {viewMode === 'live' && (
-                <span className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2">
-                  Tempo Real
-                </span>
-              )}
+              <span className={cn(
+                "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
+                viewMode === 'live' ? "inline-block" : "hidden group-hover:inline-block ml-1"
+              )}>
+                Tempo Real
+              </span>
             </Button>
             
             <div className="w-px h-6 bg-border/50 mx-1 self-center hidden sm:block"></div>
@@ -189,18 +190,19 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 size="sm" 
                 onClick={() => setViewMode(shift.id as any)}
                 className={cn(
-                  "h-10 transition-all duration-300 flex items-center justify-center border",
+                  "h-10 transition-all duration-300 flex items-center justify-center border group",
                   viewMode === shift.id 
                     ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
-                    : "w-10 rounded-xl bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+                    : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
                 )}
               >
                 <shift.icon className={cn("h-5 w-5 shrink-0", viewMode === shift.id ? "text-accent mr-1" : shift.color)} />
-                {viewMode === shift.id && (
-                  <span className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2">
-                    {shift.label}
-                  </span>
-                )}
+                <span className={cn(
+                  "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
+                  viewMode === shift.id ? "inline-block" : "hidden group-hover:inline-block ml-1"
+                )}>
+                  {shift.label}
+                </span>
               </Button>
             ))}
           </div>
@@ -223,18 +225,19 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                   size="sm" 
                   onClick={() => setActiveCategory(cat.id)}
                   className={cn(
-                    "h-10 transition-all duration-300 flex items-center justify-center border",
+                    "h-10 transition-all duration-300 flex items-center justify-center border group",
                     isActive 
                       ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
-                      : "w-10 rounded-xl bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+                      : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
                   )}
                 >
                   <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-accent mr-1" : cat.color)} />
-                  {isActive && (
-                    <span className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2">
-                      {cat.label}
-                    </span>
-                  )}
+                  <span className={cn(
+                    "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
+                    isActive ? "inline-block" : "hidden group-hover:inline-block ml-1"
+                  )}>
+                    {cat.label}
+                  </span>
                 </Button>
               );
             })}
