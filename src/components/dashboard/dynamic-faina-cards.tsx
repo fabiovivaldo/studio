@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -21,6 +20,13 @@ interface DynamicFainaCardsProps {
 }
 
 const SHIFT_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
+
+const SHIFT_LABELS: Record<string, string> = {
+  'Manhã': '07x13',
+  'Tarde': '13x19',
+  'Noite': '19x01',
+  'Madrugada': '01x07'
+};
 
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
@@ -198,7 +204,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         "text-[9px] font-black uppercase tracking-widest truncate",
                         isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
                       )}>
-                        {shiftName}
+                        {SHIFT_LABELS[shiftName]}
                       </span>
                       {shiftData?.sinal && (
                         <span className={cn(

@@ -55,10 +55,10 @@ const CATEGORY_CONFIG = [
 ];
 
 const SHIFT_CONFIG = [
-  { id: 'Manhã', label: 'Manhã', icon: Sunrise, color: 'text-orange-400' },
-  { id: 'Tarde', label: 'Tarde', icon: Sun, color: 'text-yellow-400' },
-  { id: 'Noite', label: 'Noite', icon: Moon, color: 'text-blue-400' },
-  { id: 'Madrugada', label: 'Madrugada', icon: CloudMoon, color: 'text-indigo-400' },
+  { id: 'Manhã', label: '07x13', icon: Sunrise, color: 'text-orange-400' },
+  { id: 'Tarde', label: '13x19', icon: Sun, color: 'text-yellow-400' },
+  { id: 'Noite', label: '19x01', icon: Moon, color: 'text-blue-400' },
+  { id: 'Madrugada', label: '01x07', icon: CloudMoon, color: 'text-indigo-400' },
 ] as const;
 
 export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTableProps) {
@@ -251,7 +251,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
               </div>
               <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
                 <h3 className="text-lg font-bold whitespace-nowrap">
-                  {viewMode === 'live' ? 'Dados Recentes' : `Histórico: Turno ${viewMode}`}
+                  {viewMode === 'live' ? 'Dados Recentes' : `Histórico: Turno ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
                 </h3>
                 <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros para {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}</p>
               </div>
@@ -363,7 +363,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                     <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                       {viewMode === 'live' 
                         ? 'Nenhum registro encontrado nos dados atuais.' 
-                        : `Nenhum registro arquivado encontrado para o turno ${viewMode}.`}
+                        : `Nenhum registro arquivado encontrado para o turno ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}.`}
                     </TableCell>
                   </TableRow>
                 )}
