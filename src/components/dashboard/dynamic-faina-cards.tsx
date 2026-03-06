@@ -184,7 +184,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 
                 const isNegativeSignal = shiftData?.sinal === '-';
                 
-                // Cálculo de diferença
+                // Cálculo de diferença seguindo a regra do Teto
                 // Se negativo: |((Teto - Original) + Temporário) - Chamada|
                 // Se positivo: |Ponteiro - Chamada|
                 const displayDiff = isNegativeSignal 
