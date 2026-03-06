@@ -22,10 +22,10 @@ interface DynamicFainaCardsProps {
 const SHIFT_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
 
 const SHIFT_LABELS: Record<string, string> = {
-  'Manhã': '07x13',
-  'Tarde': '13x19',
-  'Noite': '19x01',
-  'Madrugada': '01x07'
+  'Manhã': '07X13',
+  'Tarde': '13X19',
+  'Noite': '19X01',
+  'Madrugada': '01X07'
 };
 
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
@@ -170,9 +170,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 const monitorValue = modoAtivo === 'original' ? valO : valT;
                 const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
                 const diff = monitorNum - targetNum;
-                const absDiff = Math.abs(diff);
                 
                 // Lógica de alertas
+                const absDiff = Math.abs(diff);
                 const isCritical = absDiff <= 10 && !!shiftData;
                 const isWarning = absDiff > 10 && absDiff <= 20 && !!shiftData;
 
@@ -188,20 +188,20 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
                       shiftData && "bg-muted/10",
                       
-                      // Moldura EXTERNA (Alertas via Ring - 3px)
+                      // Alertas via Ring
                       isCritical && "ring-[3px] ring-destructive bg-destructive/5",
                       isWarning && "ring-[3px] ring-orange-500 bg-orange-500/5",
                       
-                      // Moldura INTERNA (Turno Atual via Border - 2px)
+                      // Turno Atual via Border
                       isHighlighted ? "border-2 border-blue-600 z-10 bg-blue-600/5" : "border-2 border-transparent",
                       
-                      // Borda padrão se não houver destaque nem alerta
+                      // Borda padrão
                       !isHighlighted && !isCritical && !isWarning && "border-2 border-border/40"
                     )}
                   >
                     <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                       <span className={cn(
-                        "text-[9px] font-black uppercase tracking-widest truncate",
+                        "text-[10px] font-black uppercase tracking-widest truncate",
                         isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
                       )}>
                         {SHIFT_LABELS[shiftName]}

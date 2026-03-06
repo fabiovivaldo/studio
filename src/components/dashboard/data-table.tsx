@@ -55,10 +55,10 @@ const CATEGORY_CONFIG = [
 ];
 
 const SHIFT_CONFIG = [
-  { id: 'Manhã', label: '07x13', icon: Sunrise, color: 'text-orange-400' },
-  { id: 'Tarde', label: '13x19', icon: Sun, color: 'text-yellow-400' },
-  { id: 'Noite', label: '19x01', icon: Moon, color: 'text-blue-400' },
-  { id: 'Madrugada', label: '01x07', icon: CloudMoon, color: 'text-indigo-400' },
+  { id: 'Manhã', label: '07X13', icon: Sunrise, color: 'text-orange-400' },
+  { id: 'Tarde', label: '13X19', icon: Sun, color: 'text-yellow-400' },
+  { id: 'Noite', label: '19X01', icon: Moon, color: 'text-blue-400' },
+  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-400' },
 ] as const;
 
 export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTableProps) {
