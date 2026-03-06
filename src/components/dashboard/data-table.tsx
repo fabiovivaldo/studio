@@ -15,20 +15,14 @@ import {
   ArrowUpDown, 
   Download, 
   Search,
-  LayoutGrid,
-  Users,
-  HardHat,
-  ClipboardList,
-  Wrench,
-  Eye,
-  Filter,
   Zap,
   Sun,
   Sunrise,
   Moon,
   CloudMoon,
   Calendar,
-  Star
+  Star,
+  Filter
 } from "lucide-react";
 import { PonteiroData, exportToCSV } from "@/lib/data-service";
 import { Badge } from "@/components/ui/badge";
@@ -45,13 +39,13 @@ interface DataTableProps {
 }
 
 const CATEGORY_CONFIG = [
-  { id: "TODOS", label: "Todos", icon: Filter, color: "text-accent" },
-  { id: "ESTIVA", label: "Estiva", icon: HardHat, color: "text-yellow-400" },
-  { id: "ARRUMADOR", label: "Arrumador", icon: Users, color: "text-blue-400" },
-  { id: "CONFERENTE", label: "Conferente", icon: ClipboardList, color: "text-orange-400" },
-  { id: "VIGIA", label: "Vigia", icon: Eye, color: "text-red-400" },
-  { id: "BLOCO", label: "Bloco", icon: LayoutGrid, color: "text-purple-400" },
-  { id: "CONSERTADOR", label: "Consertador", icon: Wrench, color: "text-green-400" },
+  { id: "TODOS", label: "Todos", initial: "T", color: "text-accent" },
+  { id: "ESTIVA", label: "Estiva", initial: "E", color: "text-yellow-400" },
+  { id: "ARRUMADOR", label: "Arrumador", initial: "A", color: "text-blue-400" },
+  { id: "CONFERENTE", label: "Conferente", initial: "C", color: "text-orange-400" },
+  { id: "VIGIA", label: "Vigia", initial: "V", color: "text-red-400" },
+  { id: "BLOCO", label: "Bloco", initial: "B", color: "text-purple-400" },
+  { id: "CONSERTADOR", label: "Consertador", initial: "C", color: "text-green-400" },
 ];
 
 const SHIFT_CONFIG = [
@@ -168,14 +162,14 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
               className={cn(
                 "h-10 transition-all duration-300 flex items-center justify-center border group",
                 viewMode === 'live' 
-                  ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
+                  ? "px-3 rounded-full bg-accent text-accent-foreground border-accent shadow-sm" 
                   : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
               )}
             >
-              <Zap className={cn("h-5 w-5 shrink-0", viewMode === 'live' ? "text-accent mr-1" : "text-yellow-500")} />
+              <Zap className={cn("h-5 w-5 shrink-0", viewMode === 'live' ? "text-accent-foreground mr-1" : "text-yellow-500")} />
               <span className={cn(
                 "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                viewMode === 'live' ? "inline-block" : "hidden group-hover:inline-block ml-1 text-foreground"
+                viewMode === 'live' ? "inline-block" : "hidden group-hover:inline-block ml-1"
               )}>
                 Tempo Real
               </span>
@@ -192,14 +186,14 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 className={cn(
                   "h-10 transition-all duration-300 flex items-center justify-center border group",
                   viewMode === shift.id 
-                    ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
+                    ? "px-3 rounded-full bg-accent text-accent-foreground border-accent shadow-sm" 
                     : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
                 )}
               >
-                <shift.icon className={cn("h-5 w-5 shrink-0", viewMode === shift.id ? "text-accent mr-1" : shift.color)} />
+                <shift.icon className={cn("h-5 w-5 shrink-0", viewMode === shift.id ? "text-accent-foreground mr-1" : shift.color)} />
                 <span className={cn(
                   "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                  viewMode === shift.id ? "inline-block" : "hidden group-hover:inline-block ml-1 text-foreground"
+                  viewMode === shift.id ? "inline-block" : "hidden group-hover:inline-block ml-1"
                 )}>
                   {shift.label}
                 </span>
@@ -216,7 +210,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
           </div>
           <div className="flex flex-wrap gap-3 p-1 w-fit">
             {CATEGORY_CONFIG.map((cat) => {
-              const Icon = cat.icon;
               const isActive = activeCategory === cat.id;
               return (
                 <Button
@@ -227,14 +220,19 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                   className={cn(
                     "h-10 transition-all duration-300 flex items-center justify-center border group",
                     isActive 
-                      ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
+                      ? "px-3 rounded-full bg-accent text-accent-foreground border-accent shadow-sm" 
                       : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
                   )}
                 >
-                  <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-accent mr-1" : cat.color)} />
+                  <span className={cn(
+                    "text-sm font-black w-5 h-5 flex items-center justify-center shrink-0",
+                    isActive ? "text-accent-foreground mr-1" : cat.color
+                  )}>
+                    {cat.initial}
+                  </span>
                   <span className={cn(
                     "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                    isActive ? "inline-block" : "hidden group-hover:inline-block ml-1 text-foreground"
+                    isActive ? "inline-block" : "hidden group-hover:inline-block ml-1"
                   )}>
                     {cat.label}
                   </span>
