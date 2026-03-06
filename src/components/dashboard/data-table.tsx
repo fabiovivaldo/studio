@@ -202,11 +202,11 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
           </div>
         </div>
 
-        {/* Filtro de Categorias */}
+        {/* Filtro de Categorias - Apenas Iniciais */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Filter className="h-3 w-3 text-muted-foreground" />
-            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Categorias de Fainas</h4>
+            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Categorias</h4>
           </div>
           <div className="flex flex-wrap gap-3 p-1 w-fit">
             {CATEGORY_CONFIG.map((cat) => {
@@ -218,23 +218,17 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                   size="sm" 
                   onClick={() => setActiveCategory(cat.id)}
                   className={cn(
-                    "h-10 transition-all duration-300 flex items-center justify-center border group",
+                    "h-10 w-10 flex items-center justify-center border rounded-xl transition-all duration-300",
                     isActive 
-                      ? "px-3 rounded-full bg-accent text-accent-foreground border-accent shadow-sm" 
-                      : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
+                      ? "bg-accent text-accent-foreground border-accent shadow-lg" 
+                      : "bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
                   )}
                 >
                   <span className={cn(
-                    "text-sm font-black w-5 h-5 flex items-center justify-center shrink-0",
-                    isActive ? "text-accent-foreground mr-1" : cat.color
+                    "text-sm font-black flex items-center justify-center",
+                    isActive ? "text-accent-foreground" : cat.color
                   )}>
                     {cat.initial}
-                  </span>
-                  <span className={cn(
-                    "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                    isActive ? "inline-block" : "hidden group-hover:inline-block ml-1"
-                  )}>
-                    {cat.label}
                   </span>
                 </Button>
               );
