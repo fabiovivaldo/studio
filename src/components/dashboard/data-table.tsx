@@ -148,7 +148,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-6">
-        {/* Filtro de Turno Principal */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Zap className="h-3 w-3 text-muted-foreground" />
@@ -202,7 +201,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
           </div>
         </div>
 
-        {/* Filtro de Categorias - Apenas Iniciais */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Filter className="h-3 w-3 text-muted-foreground" />
@@ -248,7 +246,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 <h3 className="text-lg font-bold whitespace-nowrap">
                   {viewMode === 'live' ? 'Dados Recentes' : `Histórico: Turno ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
                 </h3>
-                <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros para {CATEGORY_CONFIG.find(c => c.id === activeCategory)?.label}</p>
+                <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros</p>
               </div>
             </div>
 
@@ -262,7 +260,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                     "h-9 px-4 border-accent/30 transition-all",
                     showFavoritesOnly ? "bg-accent/20 text-accent border-accent" : "text-muted-foreground"
                   )}
-                  title="Mostrar apenas minhas fainas favoritas"
                 >
                   <Star className={cn("h-4 w-4 mr-2", showFavoritesOnly ? "fill-accent text-accent" : "")} />
                   <span className="text-[10px] font-bold uppercase">Favoritos</span>

@@ -31,7 +31,6 @@ const SHIFT_LABELS: Record<string, string> = {
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
 
-  // Conjunto de nomes de fainas presentes no scraping atual para checagem de status
   const currentScrapedFainas = useMemo(() => {
     return new Set(scrapedData.map(d => d.Funcao.toUpperCase()));
   }, [scrapedData]);
@@ -60,7 +59,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
-  // Ordenação baseada na menor diferença absoluta no turno atual
   const sortedPreferences = useMemo(() => {
     if (!preferences || preferences.length === 0) return [];
     if (!activeShiftFromData) return preferences;
@@ -83,6 +81,10 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const monitorValue = modoAtivo === 'original' ? valO : valT;
         const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
         
+        const isNegativeSignal = shiftData.sinal === '-';
+        if (isNegativeSignal) {
+          return monitorNum + targetNum;
+        }
         return Math.abs(monitorNum - targetNum);
       };
 
@@ -169,12 +171,18 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
                 const monitorValue = modoAtivo === 'original' ? valO : valT;
                 const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
-                const diff = monitorNum - targetNum;
+                
+                // Nova Lógica de Cálculo:
+                // Se o sinal for negativo (-), somamos o ponteiro com a chamada (regra do OGMO).
+                // Caso contrário, usamos a diferença absoluta para evitar números negativos.
+                const isNegativeSignal = shiftData?.sinal === '-';
+                const displayDiff = isNegativeSignal 
+                  ? (monitorNum + targetNum) 
+                  : Math.abs(monitorNum - targetNum);
                 
                 // Lógica de alertas
-                const absDiff = Math.abs(diff);
-                const isCritical = absDiff <= 10 && !!shiftData;
-                const isWarning = absDiff > 10 && absDiff <= 20 && !!shiftData;
+                const isCritical = displayDiff <= 10 && !!shiftData;
+                const isWarning = displayDiff > 10 && displayDiff <= 20 && !!shiftData;
 
                 const isHighlighted = selectedShift === 'live' 
                   ? activeShiftFromData === shiftName 
@@ -187,21 +195,15 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       "rounded-lg p-2 transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
                       !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
                       shiftData && "bg-muted/10",
-                      
-                      // Alertas via Ring
                       isCritical && "ring-[3px] ring-destructive bg-destructive/5",
                       isWarning && "ring-[3px] ring-orange-500 bg-orange-500/5",
-                      
-                      // Turno Atual via Border
                       isHighlighted ? "border-2 border-blue-600 z-10 bg-blue-600/5" : "border-2 border-transparent",
-                      
-                      // Borda padrão
                       !isHighlighted && !isCritical && !isWarning && "border-2 border-border/40"
                     )}
                   >
                     <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                       <span className={cn(
-                        "text-[11px] font-black uppercase tracking-widest truncate",
+                        "text-[12px] font-black uppercase tracking-widest truncate",
                         isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
                       )}>
                         {SHIFT_LABELS[shiftName]}
@@ -254,7 +256,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
                     <div className="mt-auto">
                       <span className="text-[18px] font-black text-orange-600 tracking-tighter leading-none block">
-                        {shiftData ? (diff > 0 ? `+${diff}` : diff) : ''}
+                        {shiftData ? displayDiff : ''}
                       </span>
                     </div>
                   </div>
