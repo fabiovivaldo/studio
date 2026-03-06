@@ -201,7 +201,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   >
                     <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                       <span className={cn(
-                        "text-[10px] font-black uppercase tracking-widest truncate",
+                        "text-[11px] font-black uppercase tracking-widest truncate",
                         isHighlighted ? "text-blue-600" : "text-muted-foreground/60"
                       )}>
                         {SHIFT_LABELS[shiftName]}

@@ -169,13 +169,13 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 "h-10 transition-all duration-300 flex items-center justify-center border group",
                 viewMode === 'live' 
                   ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
-                  : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+                  : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
               )}
             >
               <Zap className={cn("h-5 w-5 shrink-0", viewMode === 'live' ? "text-accent mr-1" : "text-yellow-500")} />
               <span className={cn(
                 "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                viewMode === 'live' ? "inline-block" : "hidden group-hover:inline-block ml-1"
+                viewMode === 'live' ? "inline-block" : "hidden group-hover:inline-block ml-1 text-foreground"
               )}>
                 Tempo Real
               </span>
@@ -193,13 +193,13 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                   "h-10 transition-all duration-300 flex items-center justify-center border group",
                   viewMode === shift.id 
                     ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
-                    : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+                    : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
                 )}
               >
                 <shift.icon className={cn("h-5 w-5 shrink-0", viewMode === shift.id ? "text-accent mr-1" : shift.color)} />
                 <span className={cn(
                   "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                  viewMode === shift.id ? "inline-block" : "hidden group-hover:inline-block ml-1"
+                  viewMode === shift.id ? "inline-block" : "hidden group-hover:inline-block ml-1 text-foreground"
                 )}>
                   {shift.label}
                 </span>
@@ -228,13 +228,13 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                     "h-10 transition-all duration-300 flex items-center justify-center border group",
                     isActive 
                       ? "px-3 rounded-full bg-accent/10 border-accent text-accent shadow-sm" 
-                      : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
+                      : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
                   )}
                 >
                   <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-accent mr-1" : cat.color)} />
                   <span className={cn(
                     "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                    isActive ? "inline-block" : "hidden group-hover:inline-block ml-1"
+                    isActive ? "inline-block" : "hidden group-hover:inline-block ml-1 text-foreground"
                   )}>
                     {cat.label}
                   </span>
