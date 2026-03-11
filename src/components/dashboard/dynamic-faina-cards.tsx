@@ -82,9 +82,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const monitorValue = modoAtivo === 'original' ? valO : valT;
         const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
         
-        if (shiftData.sinal === '-') {
-            return (monitorNum + targetNum - 1);
-        }
+        // A diferença absoluta representa quantas pessoas faltam ou a distância até o alvo
         return Math.abs(monitorNum - targetNum);
       };
 
@@ -174,11 +172,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 
                 let displayDiff = null;
                 if (!!shiftData) {
-                    if (shiftData.sinal === '-') {
-                        displayDiff = monitorNum + targetNum - 1;
-                    } else {
-                        displayDiff = Math.abs(monitorNum - targetNum);
-                    }
+                    // Cálculo corrigido: Diferença absoluta entre o ponteiro e a chamada.
+                    // Para P: 148 e Chamada: 130, o resultado será 18.
+                    displayDiff = Math.abs(monitorNum - targetNum);
                 }
                 
                 const isCritical = displayDiff !== null && displayDiff <= 10;
