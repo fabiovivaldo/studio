@@ -82,6 +82,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const monitorValue = modoAtivo === 'original' ? valO : valT;
         const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
         
+        if (shiftData.sinal === '-') {
+            return (monitorNum + targetNum - 1);
+        }
         return Math.abs(monitorNum - targetNum);
       };
 
@@ -169,7 +172,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 const monitorValue = modoAtivo === 'original' ? valO : valT;
                 const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
                 
-                const displayDiff = !!shiftData ? Math.abs(monitorNum - targetNum) : null;
+                let displayDiff = null;
+                if (!!shiftData) {
+                    if (shiftData.sinal === '-') {
+                        displayDiff = monitorNum + targetNum - 1;
+                    } else {
+                        displayDiff = Math.abs(monitorNum - targetNum);
+                    }
+                }
                 
                 const isCritical = displayDiff !== null && displayDiff <= 10;
                 const isWarning = displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
