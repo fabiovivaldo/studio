@@ -73,25 +73,15 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         if (!shiftData) return Infinity;
 
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-        const tetoNum = parseInt(pref.teto || '400') || 400;
         const modoAtivo = pref.modo || 'temporario';
         const isGroup2 = pref.tipo === '2';
         
         const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
         const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
-        const valONum = parseInt(valO?.replace(/\D/g, '') || '0') || 0;
-        const valTNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
 
         const monitorValue = modoAtivo === 'original' ? valO : valT;
         const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
         
-        const isNegativeSignal = shiftData.sinal === '-';
-        
-        if (isNegativeSignal) {
-          // Lógica do Teto: (Teto - Original) + Temporário - Chamada
-          return Math.abs(((tetoNum - valONum) + valTNum) - targetNum);
-        }
-        // Lógica Normal: |Ponteiro - Chamada|
         return Math.abs(monitorNum - targetNum);
       };
 
@@ -126,7 +116,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {sortedPreferences.map((pref) => {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-        const tetoNum = parseInt(pref.teto || '400') || 400;
         const modoAtivo = pref.modo || 'temporario';
         const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
@@ -176,23 +165,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 const isGroup2 = pref.tipo === '2';
                 const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
                 const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
-                const valONum = parseInt(valO?.replace(/\D/g, '') || '0') || 0;
-                const valTNum = parseInt(valT?.replace(/\D/g, '') || '0') || 0;
 
                 const monitorValue = modoAtivo === 'original' ? valO : valT;
                 const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
                 
-                const isNegativeSignal = shiftData?.sinal === '-';
+                const displayDiff = !!shiftData ? Math.abs(monitorNum - targetNum) : null;
                 
-                // Cálculo de diferença seguindo a regra do Teto
-                // Se negativo: |((Teto - Original) + Temporário) - Chamada|
-                // Se positivo: |Ponteiro - Chamada|
-                const displayDiff = isNegativeSignal 
-                  ? Math.abs(((tetoNum - valONum) + valTNum) - targetNum)
-                  : Math.abs(monitorNum - targetNum);
-                
-                const isCritical = displayDiff <= 10 && !!shiftData;
-                const isWarning = displayDiff > 10 && displayDiff <= 20 && !!shiftData;
+                const isCritical = displayDiff !== null && displayDiff <= 10;
+                const isWarning = displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
                 const isHighlighted = selectedShift === 'live' 
                   ? activeShiftFromData === shiftName 
