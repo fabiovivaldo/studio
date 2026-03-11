@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -39,13 +40,13 @@ interface DataTableProps {
 }
 
 const CATEGORY_CONFIG = [
-  { id: "TODOS", label: "Todos", initial: "T", color: "text-accent" },
-  { id: "ESTIVA", label: "Estiva", initial: "E", color: "text-yellow-400" },
-  { id: "ARRUMADOR", label: "Arrumador", initial: "A", color: "text-blue-400" },
-  { id: "CONFERENTE", label: "Conferente", initial: "C", color: "text-orange-400" },
-  { id: "VIGIA", label: "Vigia", initial: "V", color: "text-red-400" },
-  { id: "BLOCO", label: "Bloco", initial: "B", color: "text-purple-400" },
-  { id: "CONSERTADOR", label: "Consertador", initial: "C", color: "text-green-400" },
+  { id: "TODOS", label: "T", color: "text-primary" },
+  { id: "ESTIVA", label: "E", color: "text-yellow-400" },
+  { id: "ARRUMADOR", label: "A", color: "text-blue-400" },
+  { id: "CONFERENTE", label: "C", color: "text-orange-400" },
+  { id: "VIGIA", label: "V", color: "text-red-400" },
+  { id: "BLOCO", label: "B", color: "text-purple-400" },
+  { id: "CONSERTADOR", label: "C", color: "text-green-400" },
 ];
 
 const SHIFT_CONFIG = [
@@ -143,7 +144,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
     { key: 'Data_Turno', label: 'Data / Turno' },
   ] as const;
 
-  const cellTextStyle = "text-[13px] font-bold tracking-tight py-1.5 px-1.5";
+  const cellTextStyle = "text-[12px] font-bold tracking-tight py-1.5 px-1.5";
 
   return (
     <div className="space-y-6">
@@ -151,31 +152,24 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Zap className="h-3 w-3 text-muted-foreground" />
-            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Período de Referência</h4>
+            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Período</h4>
           </div>
-          <div className="flex flex-wrap gap-3 p-1 w-fit">
+          <div className="flex flex-wrap gap-2">
             <Button 
               variant="outline"
               size="sm" 
               onClick={() => setViewMode('live')}
               className={cn(
-                "h-10 transition-all duration-300 flex items-center justify-center border group",
+                "h-9 px-3 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
                 viewMode === 'live' 
-                  ? "px-3 rounded-full bg-accent text-accent-foreground border-accent shadow-sm" 
-                  : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
+                  ? "bg-primary text-primary-foreground border-primary" 
+                  : "bg-background text-muted-foreground border-border hover:bg-muted/50"
               )}
             >
-              <Zap className={cn("h-5 w-5 shrink-0", viewMode === 'live' ? "text-accent-foreground mr-1" : "text-yellow-500")} />
-              <span className={cn(
-                "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                viewMode === 'live' ? "inline-block" : "hidden group-hover:inline-block ml-1"
-              )}>
-                Tempo Real
-              </span>
+              <Zap className="h-3.5 w-3.5 mr-1" />
+              Real
             </Button>
             
-            <div className="w-px h-6 bg-border/50 mx-1 self-center hidden sm:block"></div>
-
             {SHIFT_CONFIG.map((shift) => (
               <Button 
                 key={shift.id}
@@ -183,19 +177,14 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 size="sm" 
                 onClick={() => setViewMode(shift.id as any)}
                 className={cn(
-                  "h-10 transition-all duration-300 flex items-center justify-center border group",
+                  "h-9 px-3 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
                   viewMode === shift.id 
-                    ? "px-3 rounded-full bg-accent text-accent-foreground border-accent shadow-sm" 
-                    : "w-10 hover:w-auto hover:px-3 rounded-xl hover:rounded-full bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5 hover:text-foreground"
+                    ? "bg-primary text-primary-foreground border-primary" 
+                    : "bg-background text-muted-foreground border-border hover:bg-muted/50"
                 )}
               >
-                <shift.icon className={cn("h-5 w-5 shrink-0", viewMode === shift.id ? "text-accent-foreground mr-1" : shift.color)} />
-                <span className={cn(
-                  "text-[11px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2",
-                  viewMode === shift.id ? "inline-block" : "hidden group-hover:inline-block ml-1"
-                )}>
-                  {shift.label}
-                </span>
+                <shift.icon className={cn("h-3.5 w-3.5 mr-1", viewMode === shift.id ? "text-primary-foreground" : shift.color)} />
+                {shift.label}
               </Button>
             ))}
           </div>
@@ -204,158 +193,108 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Filter className="h-3 w-3 text-muted-foreground" />
-            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Categorias</h4>
+            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Filtro</h4>
           </div>
-          <div className="flex flex-wrap gap-3 p-1 w-fit">
-            {CATEGORY_CONFIG.map((cat) => {
-              const isActive = activeCategory === cat.id;
-              return (
-                <Button
-                  key={cat.id}
-                  variant="outline"
-                  size="sm" 
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={cn(
-                    "h-10 w-10 flex items-center justify-center border rounded-xl transition-all duration-300",
-                    isActive 
-                      ? "bg-accent text-accent-foreground border-accent shadow-lg" 
-                      : "bg-background/50 border-border text-muted-foreground hover:border-accent/50 hover:bg-accent/5"
-                  )}
-                >
-                  <span className={cn(
-                    "text-sm font-black flex items-center justify-center",
-                    isActive ? "text-accent-foreground" : cat.color
-                  )}>
-                    {cat.initial}
-                  </span>
-                </Button>
-              );
-            })}
+          <div className="flex flex-wrap gap-2">
+            {CATEGORY_CONFIG.map((cat) => (
+              <Button
+                key={cat.id}
+                variant="outline"
+                size="sm" 
+                onClick={() => setActiveCategory(cat.id)}
+                className={cn(
+                  "h-9 w-9 flex items-center justify-center border rounded-xl transition-all font-black text-xs",
+                  activeCategory === cat.id 
+                    ? "bg-primary text-primary-foreground border-primary" 
+                    : "bg-background border-border text-muted-foreground hover:bg-muted/50"
+                )}
+              >
+                <span className={cn(activeCategory === cat.id ? "text-primary-foreground" : cat.color)}>
+                  {cat.label}
+                </span>
+              </Button>
+            ))}
           </div>
         </div>
       </div>
 
-      <Card className="border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <CardContent className="p-6 space-y-6">
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+      <Card className="border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden">
+        <CardContent className="p-4 space-y-4">
+          <div className="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center">
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-lg">
-                {viewMode === 'live' ? <Zap className="h-5 w-5 text-yellow-500" /> : <Calendar className="h-5 w-5 text-accent" />}
+                {viewMode === 'live' ? <Zap className="h-4 w-4 text-yellow-500" /> : <Calendar className="h-4 w-4 text-primary" />}
               </div>
-              <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
-                <h3 className="text-lg font-bold whitespace-nowrap">
-                  {viewMode === 'live' ? 'Dados Recentes' : `Histórico: Turno ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
-                </h3>
-                <p className="text-xs text-muted-foreground">Exibindo {sortedData.length} registros</p>
-              </div>
+              <h3 className="text-sm font-bold">
+                {viewMode === 'live' ? 'Lista Atual' : `Histórico: ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
+              </h3>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
-              <div className="flex items-center gap-3 w-full md:w-auto">
-                <Button 
-                  variant={showFavoritesOnly ? "secondary" : "outline"} 
-                  size="sm" 
-                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                  className={cn(
-                    "h-9 px-4 border-accent/30 transition-all",
-                    showFavoritesOnly ? "bg-accent/20 text-accent border-accent" : "text-muted-foreground"
-                  )}
-                >
-                  <Star className={cn("h-4 w-4 mr-2", showFavoritesOnly ? "fill-accent text-accent" : "")} />
-                  <span className="text-[10px] font-bold uppercase">Favoritos</span>
-                </Button>
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className={cn(
+                  "h-8 px-3 rounded-lg border-primary/20 transition-all",
+                  showFavoritesOnly ? "bg-primary/10 text-primary" : "text-muted-foreground"
+                )}
+              >
+                <Star className={cn("h-3.5 w-3.5 mr-1.5", showFavoritesOnly ? "fill-primary" : "")} />
+                <span className="text-[10px] font-bold uppercase">Fav</span>
+              </Button>
 
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="h-9 border-accent/30 text-accent hover:bg-accent/10"
-                  onClick={() => exportToCSV(sortedData)}
-                  disabled={sortedData.length === 0}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Baixar Lista
-                </Button>
-              </div>
-
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <div className="relative flex-1 md:w-48">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
                 <Input 
-                  placeholder="Filtrar nesta lista..." 
+                  placeholder="Buscar..." 
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
-                  className="pl-9 h-9 text-xs bg-background/50 border-border"
+                  className="pl-8 h-8 text-[11px] bg-background/50 border-border"
                 />
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-background/50 overflow-hidden shadow-sm">
+          <div className="rounded-xl border border-border bg-background/50 overflow-hidden">
             <Table>
-              <TableHeader className="bg-muted/50">
+              <TableHeader className="bg-muted/30">
                 <TableRow>
                   {columns.map(({ key, label }) => (
                     <TableHead 
                       key={key} 
-                      className={cn(
-                        "cursor-pointer hover:text-accent transition-colors py-2 px-1.5 font-bold uppercase tracking-tight text-[11px]",
-                        key === 'Funcao' ? "pl-4" : ""
-                      )}
+                      className="cursor-pointer py-2 px-1.5 font-black uppercase tracking-tight text-[10px]"
                       onClick={() => handleSort(key as keyof PonteiroData)}
                     >
-                      <div className="flex items-center gap-1">
-                        {label}
-                        <ArrowUpDown className="h-3 w-3 opacity-30" />
-                      </div>
+                      {label}
                     </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {viewMode !== 'live' && isHistoryLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground animate-pulse">
-                      Buscando registros no banco de dados...
-                    </TableCell>
-                  </TableRow>
-                ) : sortedData.length > 0 ? (
+                {sortedData.length > 0 ? (
                   sortedData.map((row, idx) => (
-                    <TableRow key={idx} className="group hover:bg-accent/5 transition-all duration-200 border-border/50">
-                      <TableCell className={cn(cellTextStyle, "pl-4")}>
-                        {row.Funcao}
-                      </TableCell>
+                    <TableRow key={idx} className="hover:bg-primary/5 border-border/50">
+                      <TableCell className={cn(cellTextStyle, "font-black")}>{row.Funcao}</TableCell>
                       <TableCell className="py-1.5 px-1.5">
                         <span className={cn(
-                          "font-black text-[15px] inline-block min-w-[12px] text-center",
-                          row.Sinal === '-' 
-                            ? "text-destructive" 
-                            : "text-green-500"
+                          "font-black text-[13px]",
+                          row.Sinal === '-' ? "text-destructive" : "text-green-500"
                         )}>
                           {row.Sinal}
                         </span>
                       </TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-accent font-mono opacity-50")}>
-                        {row.Original_1}
-                      </TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>
-                        {row.Temporario_1}
-                      </TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-accent font-mono opacity-50")}>
-                        {row.Original_2}
-                      </TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>
-                        {row.Temporario_2}
-                      </TableCell>
-                      <TableCell className={cn(cellTextStyle, "whitespace-nowrap text-muted-foreground pr-4")}>
-                        {row.Data_Turno}
-                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-primary/60 font-mono")}>{row.Original_1}</TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>{row.Temporario_1}</TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-primary/60 font-mono")}>{row.Original_2}</TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>{row.Temporario_2}</TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-muted-foreground text-[10px]")}>{row.Data_Turno}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                      {viewMode === 'live' 
-                        ? 'Nenhum registro encontrado nos dados atuais.' 
-                        : `Nenhum registro arquivado encontrado para o turno ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}.`}
+                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground text-xs uppercase font-bold">
+                      Nenhum registro.
                     </TableCell>
                   </TableRow>
                 )}
