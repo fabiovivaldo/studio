@@ -149,15 +149,16 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 if (shiftData) {
                   const sinal = shiftData.sinal;
                   if (sinal === '-') {
-                    // Lógica para sinal negativo (descendente)
+                    // Lógica para sinal negativo (descendente) conforme solicitado:
+                    // Se o ponteiro está em 148 e chamada 130 -> faltam 18 (148-130)
+                    // Se o ponteiro baixou para 119 e chamada 130 -> 119 + 130 = 249 (ciclo novo)
                     if (monitorNum >= targetNum) {
                       displayDiff = monitorNum - targetNum;
                     } else {
-                      // Já passou da vez no ciclo atual: vai a 0 e sobe novamente
                       displayDiff = monitorNum + targetNum;
                     }
                   } else {
-                    // Lógica padrão para sinal positivo ou neutro
+                    // Lógica padrão para sinal positivo
                     displayDiff = Math.abs(monitorNum - targetNum);
                   }
                 }
@@ -185,17 +186,17 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     <div className="flex items-center justify-between min-w-0">
                       <div className="flex items-center gap-1 overflow-hidden">
                         <span className={cn(
-                          "text-[10px] font-black uppercase tracking-widest truncate",
+                          "text-[11px] font-black uppercase tracking-widest truncate",
                           isHighlighted ? "text-primary" : "text-muted-foreground/60"
                         )}>
                           {SHIFT_LABELS[shiftName]}
                         </span>
                         {shiftData?.sinal && (
                           <span className={cn(
-                            "text-[12px] font-black leading-none",
+                            "text-[13px] font-black leading-none",
                             shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
                           )}>
-                            {shiftData.sinal}
+                            ({shiftData.sinal})
                           </span>
                         )}
                       </div>
