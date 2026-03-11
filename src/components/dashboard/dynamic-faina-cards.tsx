@@ -10,7 +10,7 @@ import {
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { HardHat, WifiOff } from 'lucide-react';
+import { WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewMode } from './dashboard-content';
 import { Badge } from '@/components/ui/badge';
@@ -153,7 +153,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     if (monitorNum >= targetNum) {
                       displayDiff = monitorNum - targetNum;
                     } else {
-                      // Já passou, então conta até 0 e soma a chamada do novo ciclo
+                      // Já passou da vez no ciclo atual: vai a 0 e sobe novamente
                       displayDiff = monitorNum + targetNum;
                     }
                   } else {
@@ -183,20 +183,22 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     )}
                   >
                     <div className="flex items-center justify-between min-w-0">
-                      <span className={cn(
-                        "text-[10px] font-black uppercase tracking-widest truncate",
-                        isHighlighted ? "text-primary" : "text-muted-foreground/60"
-                      )}>
-                        {SHIFT_LABELS[shiftName]}
-                      </span>
-                      {shiftData?.sinal && (
+                      <div className="flex items-center gap-1 overflow-hidden">
                         <span className={cn(
-                          "text-[12px] font-black leading-none",
-                          shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
+                          "text-[10px] font-black uppercase tracking-widest truncate",
+                          isHighlighted ? "text-primary" : "text-muted-foreground/60"
                         )}>
-                          {shiftData.sinal}
+                          {SHIFT_LABELS[shiftName]}
                         </span>
-                      )}
+                        {shiftData?.sinal && (
+                          <span className={cn(
+                            "text-[12px] font-black leading-none",
+                            shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
+                          )}>
+                            {shiftData.sinal}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="space-y-0.5">

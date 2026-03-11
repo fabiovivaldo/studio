@@ -11,17 +11,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -37,8 +26,6 @@ import {
   Plus, 
   Trash2, 
   Edit2, 
-  Check, 
-  X, 
   Loader2, 
   Search
 } from "lucide-react";
@@ -51,7 +38,6 @@ import {
 } from '@/firebase';
 import { collection, query, where, doc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 
 interface FainaPreferencesModalProps {
   availableFainas: string[];
@@ -62,15 +48,10 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
   
   const [newFaina, setNewFaina] = useState({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
   const [isListVisible, setIsListVisible] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
-
-  const [editFaina, setEditFaina] = useState({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
-  const [isEditListVisible, setIsEditListVisible] = useState(false);
-  const editListRef = useRef<HTMLDivElement>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -85,27 +66,17 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     );
   }, [filteredAvailableFainas, newFaina.faina]);
 
-  const editSearchResults = useMemo(() => {
-    if (!editFaina.faina) return filteredAvailableFainas;
-    return filteredAvailableFainas.filter(f => 
-      f.toLowerCase().includes(editFaina.faina.toLowerCase())
-    );
-  }, [filteredAvailableFainas, editFaina.faina]);
-
   const preferencesQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(collection(firestore, 'faina_preferences'), where('userId', '==', user.uid));
   }, [firestore, user]);
 
-  const { data: preferences, isLoading } = useCollection(preferencesQuery);
+  const { data: preferences } = useCollection(preferencesQuery);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (listRef.current && !listRef.current.contains(event.target as Node)) {
         setIsListVisible(false);
-      }
-      if (editListRef.current && !editListRef.current.contains(event.target as Node)) {
-        setIsEditListVisible(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -144,22 +115,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     setIsListVisible(false);
   };
 
-  const handleUpdate = (id: string) => {
-    if (!user || !firestore || isSubmitting) return;
-
-    setIsSubmitting(true);
-    const prefRef = doc(firestore, 'faina_preferences', id);
-    setDocumentNonBlocking(prefRef, {
-      ...editFaina,
-      faina: editFaina.faina.trim().toUpperCase(),
-      chamada: editFaina.chamada.trim().toUpperCase(),
-      userId: user.uid
-    }, { merge: true });
-    setEditingId(null);
-    setIsSubmitting(false);
-    setIsEditListVisible(false);
-  };
-
   const handleDelete = (id: string) => {
     if (!firestore) return;
     const prefRef = doc(firestore, 'faina_preferences', id);
@@ -182,7 +137,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       >
         <div className="p-6 pb-2">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black uppercase tracking-tight">Fainas Prioritárias</DialogTitle>
+            <DialogTitle className="text-xl font-black uppercase tracking-tight">Minhas Fainas</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground mt-1 uppercase font-bold opacity-70">
               Configure as fainas para o cálculo de rodízio.
             </DialogDescription>
@@ -193,7 +148,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
           <div className="space-y-4 p-5 rounded-xl bg-muted/20 border border-border">
             <h4 className="text-[10px] font-black flex items-center gap-2 uppercase tracking-widest text-primary">
               <Plus className="h-3.5 w-3.5" />
-              Adicionar
+              Adicionar Faina
             </h4>
             
             <div className="space-y-3">
@@ -238,9 +193,9 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Chamada</Label>
+                  <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Nº Chamada</Label>
                   <Input 
-                    placeholder="000" 
+                    placeholder="130" 
                     value={newFaina.chamada}
                     onChange={(e) => setNewFaina(prev => ({ ...prev, chamada: e.target.value }))}
                     className="h-10 text-xs font-bold uppercase bg-background"
@@ -261,7 +216,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Modo</Label>
+                  <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Monitorar</Label>
                   <Select value={newFaina.modo} onValueChange={(v) => setNewFaina(prev => ({ ...prev, modo: v }))}>
                     <SelectTrigger className="h-10 text-xs font-bold uppercase bg-background">
                       <SelectValue />
@@ -280,36 +235,25 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
               onClick={handleAdd}
               disabled={!newFaina.faina || !newFaina.chamada || isSubmitting}
             >
-              {isSubmitting ? <Loader2 className="h-3 w-3 animate-spin" /> : "Salvar"}
+              {isSubmitting ? <Loader2 className="h-3 w-3 animate-spin" /> : "Salvar Configuração"}
             </Button>
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Minha Lista</h4>
+            <h4 className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Minha Lista Prioritária</h4>
             <div className="space-y-3">
               {preferences?.map((pref) => (
                 <div key={pref.id} className="bg-card border border-border rounded-lg p-3 flex items-center justify-between">
                   <div className="min-w-0">
                     <p className="text-[11px] font-black uppercase truncate">{pref.faina}</p>
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-3 mt-1">
                       <span className="text-[9px] font-bold uppercase text-primary">CH: {pref.chamada}</span>
                       <span className="text-[9px] font-bold uppercase text-muted-foreground/60">G{pref.tipo} - {pref.modo === 'original' ? 'ORIG' : 'PONT'}</span>
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7 text-primary hover:bg-primary/10" 
-                      onClick={() => {
-                        setEditingId(pref.id);
-                        setEditFaina({ faina: pref.faina, chamada: pref.chamada, tipo: pref.tipo || '1', modo: pref.modo || 'temporario' });
-                      }}
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </Button>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(pref.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

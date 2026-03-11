@@ -13,8 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
-  ArrowUpDown, 
-  Download, 
   Search,
   Zap,
   Sun,
@@ -25,8 +23,7 @@ import {
   Star,
   Filter
 } from "lucide-react";
-import { PonteiroData, exportToCSV } from "@/lib/data-service";
-import { Badge } from "@/components/ui/badge";
+import { PonteiroData } from "@/lib/data-service";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, limit, where } from 'firebase/firestore';
@@ -245,7 +242,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
               </Button>
 
               <div className="relative flex-1 md:w-48">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input 
                   placeholder="Buscar..." 
                   value={filter}
