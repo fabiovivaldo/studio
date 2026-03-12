@@ -28,6 +28,35 @@ const SHIFT_LABELS: Record<string, string> = {
   'Madrugada': '01X07'
 };
 
+/**
+ * Função utilitária para calcular a distância real até a chamada,
+ * considerando o sinal da fila e o teto do ciclo.
+ */
+function calculateDistance(
+  monitorNum: number,
+  targetNum: number,
+  tetoNum: number,
+  sinal: string
+): number {
+  if (sinal === '-') {
+    // Fila descendente (Teto -> 0)
+    if (monitorNum >= targetNum) {
+      return monitorNum - targetNum;
+    } else {
+      // Já passou do número, precisa completar o ciclo (ir até 0 e descer do teto até a chamada)
+      return monitorNum + (tetoNum - targetNum);
+    }
+  } else {
+    // Fila ascendente (0 -> Teto)
+    if (targetNum >= monitorNum) {
+      return targetNum - monitorNum;
+    } else {
+      // Já passou do número, precisa completar o ciclo (ir até teto e subir do 0 até a chamada)
+      return (tetoNum - monitorNum) + targetNum;
+    }
+  }
+}
+
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
   const { firestore, user } = useFirebase();
 
@@ -59,12 +88,43 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
+  /**
+   * Ordena as preferências para que a faina com o turno mais próximo apareça primeiro.
+   */
   const sortedPreferences = useMemo(() => {
-    if (!preferences || preferences.length === 0) return [];
-    return [...preferences];
-  }, [preferences]);
+    if (!preferences || !historyData) return preferences || [];
 
-  // Lógica para encontrar a faina/período mais próximo
+    return [...preferences].sort((a, b) => {
+      const getMinDist = (pref: any) => {
+        let min = Infinity;
+        const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+        const tetoNum = parseInt(pref.teto || '400') || 400;
+        const isGroup2 = pref.tipo === '2';
+        const modoAtivo = pref.modo || 'temporario';
+
+        for (const shiftName of SHIFT_ORDER) {
+          const shiftData = historyData.find(d => 
+            d.funcao === pref.faina && d.dataTurno.includes(shiftName)
+          );
+          if (shiftData) {
+            const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
+            const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
+            const monitorValue = modoAtivo === 'original' ? valO : valT;
+            const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
+            const dist = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
+            if (dist < min) min = dist;
+          }
+        }
+        return min;
+      };
+
+      return getMinDist(a) - getMinDist(b);
+    });
+  }, [preferences, historyData]);
+
+  /**
+   * Identifica qual faina/período é o vencedor absoluto de proximidade.
+   */
   const closestPrediction = useMemo(() => {
     if (!preferences || !historyData) return null;
     
@@ -87,22 +147,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
           const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
           const monitorValue = modoAtivo === 'original' ? valO : valT;
           const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
-          const sinal = shiftData.sinal;
-
-          let diff = Infinity;
-          if (sinal === '-') {
-            if (monitorNum >= targetNum) {
-              diff = monitorNum - targetNum;
-            } else {
-              diff = monitorNum + (tetoNum - targetNum);
-            }
-          } else {
-            if (targetNum >= monitorNum) {
-              diff = targetNum - monitorNum;
-            } else {
-              diff = (tetoNum - monitorNum) + targetNum;
-            }
-          }
+          
+          const diff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
 
           if (diff < minDiff) {
             minDiff = diff;
@@ -157,8 +203,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedPreferences.map((pref) => {
-          const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-          const tetoNum = parseInt(pref.teto || '400') || 400;
           const modoAtivo = pref.modo || 'temporario';
           const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
@@ -211,23 +255,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
                   const monitorValue = modoAtivo === 'original' ? valO : valT;
                   const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
+                  const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+                  const tetoNum = parseInt(pref.teto || '400') || 400;
                   
                   let displayDiff = null;
                   if (shiftData) {
-                    const sinal = shiftData.sinal;
-                    if (sinal === '-') {
-                      if (monitorNum >= targetNum) {
-                        displayDiff = monitorNum - targetNum;
-                      } else {
-                        displayDiff = monitorNum + (tetoNum - targetNum);
-                      }
-                    } else {
-                      if (targetNum >= monitorNum) {
-                        displayDiff = targetNum - monitorNum;
-                      } else {
-                        displayDiff = (tetoNum - monitorNum) + targetNum;
-                      }
-                    }
+                    displayDiff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
                   }
                   
                   const isCritical = displayDiff !== null && displayDiff <= 10;
