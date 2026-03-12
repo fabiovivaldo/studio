@@ -25,7 +25,6 @@ import {
   Settings, 
   Plus, 
   Trash2, 
-  Edit2, 
   Loader2, 
   Search
 } from "lucide-react";
@@ -49,7 +48,13 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   
-  const [newFaina, setNewFaina] = useState({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
+  const [newFaina, setNewFaina] = useState({ 
+    faina: '', 
+    chamada: '', 
+    teto: '400',
+    tipo: '1', 
+    modo: 'temporario' 
+  });
   const [isListVisible, setIsListVisible] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -105,12 +110,13 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       id: prefRef.id,
       faina: normalizedNewFaina,
       chamada: newFaina.chamada.toUpperCase().trim(),
+      teto: newFaina.teto.trim() || '400',
       tipo: newFaina.tipo,
       modo: newFaina.modo,
       userId: user.uid
     }, { merge: true });
 
-    setNewFaina({ faina: '', chamada: '', tipo: '1', modo: 'temporario' });
+    setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
     setIsSubmitting(false);
     setIsListVisible(false);
   };
@@ -133,7 +139,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       </DialogTrigger>
       <DialogContent 
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col p-0"
+        className="sm:max-w-[650px] max-h-[90vh] overflow-hidden flex flex-col p-0"
       >
         <div className="p-6 pb-2">
           <DialogHeader>
@@ -191,7 +197,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-4 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Nº Chamada</Label>
                   <Input 
@@ -213,6 +219,16 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                       <SelectItem value="2" className="text-[10px] font-bold uppercase">G 2</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Teto</Label>
+                  <Input 
+                    placeholder="400" 
+                    value={newFaina.teto}
+                    onChange={(e) => setNewFaina(prev => ({ ...prev, teto: e.target.value }))}
+                    className="h-10 text-xs font-bold uppercase bg-background"
+                  />
                 </div>
 
                 <div className="space-y-1.5">
@@ -248,7 +264,9 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     <p className="text-[11px] font-black uppercase truncate">{pref.faina}</p>
                     <div className="flex gap-3 mt-1">
                       <span className="text-[9px] font-bold uppercase text-primary">CH: {pref.chamada}</span>
-                      <span className="text-[9px] font-bold uppercase text-muted-foreground/60">G{pref.tipo} - {pref.modo === 'original' ? 'ORIG' : 'PONT'}</span>
+                      <span className="text-[9px] font-bold uppercase text-muted-foreground/60">
+                        G{pref.tipo} - {pref.modo === 'original' ? 'ORIG' : 'PONT'} (Teto: {pref.teto || '400'})
+                      </span>
                     </div>
                   </div>
                   <div className="flex gap-1">

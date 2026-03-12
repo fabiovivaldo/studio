@@ -92,6 +92,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {sortedPreferences.map((pref) => {
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+        const tetoNum = parseInt(pref.teto || '400') || 400;
         const modoAtivo = pref.modo || 'temporario';
         const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
@@ -149,17 +150,21 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 if (shiftData) {
                   const sinal = shiftData.sinal;
                   if (sinal === '-') {
-                    // Lógica para sinal negativo (descendente) conforme solicitado:
-                    // Se o ponteiro está em 148 e chamada 130 -> faltam 18 (148-130)
-                    // Se o ponteiro baixou para 119 e chamada 130 -> 119 + 130 = 249 (ciclo novo)
+                    // Lógica para sinal negativo (descendente):
                     if (monitorNum >= targetNum) {
                       displayDiff = monitorNum - targetNum;
                     } else {
-                      displayDiff = monitorNum + targetNum;
+                      // Se o ponteiro baixou de 130 para 119, ele tem que ir a 0 e depois vir do teto ate 130
+                      displayDiff = monitorNum + (tetoNum - targetNum);
                     }
                   } else {
-                    // Lógica padrão para sinal positivo
-                    displayDiff = Math.abs(monitorNum - targetNum);
+                    // Lógica para sinal positivo (ascendente):
+                    if (targetNum >= monitorNum) {
+                      displayDiff = targetNum - monitorNum;
+                    } else {
+                      // Se o ponteiro subiu além da chamada, espera dar a volta pelo teto
+                      displayDiff = (tetoNum - monitorNum) + targetNum;
+                    }
                   }
                 }
                 

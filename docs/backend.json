@@ -72,6 +72,10 @@
           "type": "string",
           "description": "The custom call name for this faina."
         },
+        "teto": {
+          "type": "string",
+          "description": "O valor máximo do ponteiro antes de reiniciar o ciclo."
+        },
         "tipo": {
           "type": "string",
           "enum": ["1", "2"],
@@ -87,7 +91,7 @@
           "description": "The ID of the user who owns this preference."
         }
       },
-      "required": ["id", "faina", "chamada", "tipo", "modo", "userId"]
+      "required": ["id", "faina", "chamada", "teto", "tipo", "modo", "userId"]
     }
   },
   "auth": {
