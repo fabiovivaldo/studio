@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
@@ -192,11 +191,16 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
 
         <div className="flex-1 overflow-y-auto px-6 space-y-6 pb-6 mt-4">
           <div className={cn(
-            "space-y-4 p-5 rounded-xl border transition-colors",
-            editingId ? "bg-accent/5 border-accent/30 shadow-inner" : "bg-muted/20 border-border"
+            "space-y-4 p-5 rounded-xl border transition-all duration-300",
+            editingId 
+              ? "bg-yellow-400/5 border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.2)] ring-1 ring-yellow-400/50" 
+              : "bg-muted/20 border-border"
           )}>
             <div className="flex items-center justify-between">
-              <h4 className="text-[10px] font-black flex items-center gap-2 uppercase tracking-widest text-primary">
+              <h4 className={cn(
+                "text-[10px] font-black flex items-center gap-2 uppercase tracking-widest",
+                editingId ? "text-yellow-500" : "text-primary"
+              )}>
                 {editingId ? <Edit2 className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                 {editingId ? "Atualizar Faina" : "Adicionar Faina"}
               </h4>
@@ -308,7 +312,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
             <Button 
               className={cn(
                 "w-full font-black h-10 uppercase tracking-widest text-[10px]",
-                editingId && "bg-accent hover:bg-accent/90"
+                editingId ? "bg-accent hover:bg-accent/90" : "bg-primary hover:bg-primary/90"
               )} 
               onClick={handleAdd}
               disabled={!newFaina.faina || !newFaina.chamada || isSubmitting}
@@ -329,14 +333,20 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                   key={pref.id} 
                   className={cn(
                     "bg-card border rounded-lg p-3 flex items-center justify-between cursor-pointer transition-all hover:border-primary/50 group",
-                    editingId === pref.id ? "border-primary ring-1 ring-primary" : "border-border"
+                    editingId === pref.id ? "border-yellow-400 ring-1 ring-yellow-400" : "border-border"
                   )}
                   onClick={() => handleEdit(pref)}
                 >
                   <div className="min-w-0">
-                    <p className="text-[11px] font-black uppercase truncate group-hover:text-primary transition-colors">{pref.faina}</p>
+                    <p className={cn(
+                      "text-[11px] font-black uppercase truncate transition-colors",
+                      editingId === pref.id ? "text-yellow-500" : "group-hover:text-primary"
+                    )}>{pref.faina}</p>
                     <div className="flex gap-3 mt-1">
-                      <span className="text-[9px] font-bold uppercase text-primary">CH: {pref.chamada}</span>
+                      <span className={cn(
+                        "text-[9px] font-bold uppercase",
+                        editingId === pref.id ? "text-yellow-600" : "text-primary"
+                      )}>CH: {pref.chamada}</span>
                       <span className="text-[9px] font-bold uppercase text-muted-foreground/60">
                         G{pref.tipo} - {pref.modo === 'original' ? 'ORIG' : 'PONT'} (Teto: {pref.teto || '400'})
                       </span>
