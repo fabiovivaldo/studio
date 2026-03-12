@@ -205,15 +205,15 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
               </h4>
               {editingId && (
                 <Button 
-                    variant="ghost" 
+                    variant="destructive" 
                     size="sm" 
-                    className="h-6 text-[9px] uppercase font-bold text-muted-foreground hover:text-foreground"
+                    className="h-7 text-[9px] uppercase font-black bg-red-500 hover:bg-red-600 text-white border-none shadow-sm"
                     onClick={() => {
                         setEditingId(null);
                         setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
                     }}
                 >
-                    <XCircle className="h-3 w-3 mr-1" />
+                    <XCircle className="h-3.5 w-3.5 mr-1" />
                     Cancelar
                 </Button>
               )}
