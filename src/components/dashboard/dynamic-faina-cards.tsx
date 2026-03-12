@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -152,17 +151,21 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   if (sinal === '-') {
                     // Lógica para sinal negativo (descendente):
                     if (monitorNum >= targetNum) {
+                      // Se o ponteiro ainda está acima da chamada (ex: 148 contra 130), faltam 18
                       displayDiff = monitorNum - targetNum;
                     } else {
-                      // Se o ponteiro baixou de 130 para 119, ele tem que ir a 0 e depois vir do teto ate 130
+                      // Se o ponteiro baixou de sua chamada (ex: 119 contra 130), 
+                      // ele tem que ir a 0 e depois vir do teto ate sua chamada
                       displayDiff = monitorNum + (tetoNum - targetNum);
                     }
                   } else {
                     // Lógica para sinal positivo (ascendente):
                     if (targetNum >= monitorNum) {
+                      // Se sua chamada ainda está à frente (ex: 130 contra 119), faltam 11
                       displayDiff = targetNum - monitorNum;
                     } else {
-                      // Se o ponteiro subiu além da chamada, espera dar a volta pelo teto
+                      // Se o ponteiro subiu além da chamada (ex: 148 contra 130), 
+                      // espera chegar no teto e dar a volta
                       displayDiff = (tetoNum - monitorNum) + targetNum;
                     }
                   }
