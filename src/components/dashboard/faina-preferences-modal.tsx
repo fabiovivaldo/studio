@@ -96,7 +96,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     
     const normalizedNewFaina = newFaina.faina.trim().toUpperCase();
     
-    // Check for duplicates only when creating NEW
     if (!editingId) {
       const isDuplicate = preferences?.some(p => p.faina.trim().toUpperCase() === normalizedNewFaina);
       if (isDuplicate) {
@@ -332,12 +331,11 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 <div 
                   key={pref.id} 
                   className={cn(
-                    "bg-card border rounded-lg p-3 flex items-center justify-between cursor-pointer transition-all hover:border-primary/50 group",
+                    "bg-card border rounded-lg p-3 flex items-center justify-between transition-all hover:border-primary/50 group",
                     editingId === pref.id ? "border-yellow-400 ring-1 ring-yellow-400" : "border-border"
                   )}
-                  onClick={() => handleEdit(pref)}
                 >
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className={cn(
                       "text-[11px] font-black uppercase truncate transition-colors",
                       editingId === pref.id ? "text-yellow-500" : "group-hover:text-primary"
@@ -353,6 +351,17 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     </div>
                   </div>
                   <div className="flex gap-1">
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className={cn(
+                          "h-7 w-7 transition-colors",
+                          editingId === pref.id ? "text-yellow-500 hover:bg-yellow-400/10" : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                        )} 
+                        onClick={() => handleEdit(pref)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
                     <Button 
                         variant="ghost" 
                         size="icon" 
