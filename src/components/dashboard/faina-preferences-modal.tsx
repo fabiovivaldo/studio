@@ -157,6 +157,12 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     }
   };
 
+  // Função para permitir apenas números nos campos Nº Chamada e Teto
+  const handleNumericInput = (value: string, field: 'chamada' | 'teto') => {
+    const cleanValue = value.replace(/\D/g, '');
+    setNewFaina(prev => ({ ...prev, [field]: cleanValue }));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
         setIsOpen(open);
@@ -265,7 +271,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                   <Input 
                     placeholder="130" 
                     value={newFaina.chamada}
-                    onChange={(e) => setNewFaina(prev => ({ ...prev, chamada: e.target.value }))}
+                    onChange={(e) => handleNumericInput(e.target.value, 'chamada')}
                     className="h-10 text-xs font-bold uppercase bg-background"
                   />
                 </div>
@@ -275,7 +281,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                   <Input 
                     placeholder="400" 
                     value={newFaina.teto}
-                    onChange={(e) => setNewFaina(prev => ({ ...prev, teto: e.target.value }))}
+                    onChange={(e) => handleNumericInput(e.target.value, 'teto')}
                     className="h-10 text-xs font-bold uppercase bg-background"
                   />
                 </div>
