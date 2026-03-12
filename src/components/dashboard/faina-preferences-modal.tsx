@@ -26,7 +26,9 @@ import {
   Plus, 
   Trash2, 
   Loader2, 
-  Search
+  Search,
+  Edit2,
+  XCircle
 } from "lucide-react";
 import { 
   useFirebase,
@@ -37,6 +39,7 @@ import {
 } from '@/firebase';
 import { collection, query, where, doc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface FainaPreferencesModalProps {
   availableFainas: string[];
@@ -47,6 +50,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   
   const [newFaina, setNewFaina] = useState({ 
     faina: '', 
@@ -92,19 +96,24 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     if (!user || !newFaina.faina || !newFaina.chamada || !firestore || isSubmitting) return;
     
     const normalizedNewFaina = newFaina.faina.trim().toUpperCase();
-    const isDuplicate = preferences?.some(p => p.faina.trim().toUpperCase() === normalizedNewFaina);
     
-    if (isDuplicate) {
-      toast({
-        variant: "destructive",
-        title: "Já cadastrada",
-        description: "Esta faina já está na sua lista."
-      });
-      return;
+    // Check for duplicates only when creating NEW
+    if (!editingId) {
+      const isDuplicate = preferences?.some(p => p.faina.trim().toUpperCase() === normalizedNewFaina);
+      if (isDuplicate) {
+        toast({
+          variant: "destructive",
+          title: "Já cadastrada",
+          description: "Esta faina já está na sua lista."
+        });
+        return;
+      }
     }
 
     setIsSubmitting(true);
-    const prefRef = doc(collection(firestore, 'faina_preferences'));
+    const prefRef = editingId 
+      ? doc(firestore, 'faina_preferences', editingId)
+      : doc(collection(firestore, 'faina_preferences'));
     
     setDocumentNonBlocking(prefRef, {
       id: prefRef.id,
@@ -117,18 +126,47 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     }, { merge: true });
 
     setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
+    setEditingId(null);
     setIsSubmitting(false);
+    setIsListVisible(false);
+
+    toast({
+      title: editingId ? "Configuração Atualizada" : "Configuração Salva",
+      description: `A faina ${normalizedNewFaina} foi processada com sucesso.`,
+    });
+  };
+
+  const handleEdit = (pref: any) => {
+    setEditingId(pref.id);
+    setNewFaina({
+      faina: pref.faina,
+      chamada: pref.chamada,
+      teto: pref.teto || '400',
+      tipo: pref.tipo,
+      modo: pref.modo
+    });
     setIsListVisible(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     if (!firestore) return;
     const prefRef = doc(firestore, 'faina_preferences', id);
     deleteDocumentNonBlocking(prefRef);
+    if (editingId === id) {
+      setEditingId(null);
+      setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setEditingId(null);
+          setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
+        }
+    }}>
       <DialogTrigger asChild>
         {trigger || (
           <button className="flex items-center w-full px-4 py-3 rounded-xl text-sm font-medium transition-all group text-muted-foreground hover:bg-muted/50 hover:text-foreground">
@@ -143,7 +181,9 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
       >
         <div className="p-6 pb-2">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black uppercase tracking-tight">Minhas Fainas</DialogTitle>
+            <DialogTitle className="text-xl font-black uppercase tracking-tight">
+              {editingId ? "Editar Configuração" : "Minhas Fainas"}
+            </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground mt-1 uppercase font-bold opacity-70">
               Configure as fainas para o cálculo de rodízio.
             </DialogDescription>
@@ -151,11 +191,30 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 space-y-6 pb-6 mt-4">
-          <div className="space-y-4 p-5 rounded-xl bg-muted/20 border border-border">
-            <h4 className="text-[10px] font-black flex items-center gap-2 uppercase tracking-widest text-primary">
-              <Plus className="h-3.5 w-3.5" />
-              Adicionar Faina
-            </h4>
+          <div className={cn(
+            "space-y-4 p-5 rounded-xl border transition-colors",
+            editingId ? "bg-accent/5 border-accent/30 shadow-inner" : "bg-muted/20 border-border"
+          )}>
+            <div className="flex items-center justify-between">
+              <h4 className="text-[10px] font-black flex items-center gap-2 uppercase tracking-widest text-primary">
+                {editingId ? <Edit2 className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                {editingId ? "Atualizar Faina" : "Adicionar Faina"}
+              </h4>
+              {editingId && (
+                <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 text-[9px] uppercase font-bold text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                        setEditingId(null);
+                        setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
+                    }}
+                >
+                    <XCircle className="h-3 w-3 mr-1" />
+                    Cancelar
+                </Button>
+              )}
+            </div>
             
             <div className="space-y-3">
               <div className="space-y-1.5 relative" ref={listRef}>
@@ -247,11 +306,18 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
             </div>
 
             <Button 
-              className="w-full font-black h-10 uppercase tracking-widest text-[10px]" 
+              className={cn(
+                "w-full font-black h-10 uppercase tracking-widest text-[10px]",
+                editingId && "bg-accent hover:bg-accent/90"
+              )} 
               onClick={handleAdd}
               disabled={!newFaina.faina || !newFaina.chamada || isSubmitting}
             >
-              {isSubmitting ? <Loader2 className="h-3 w-3 animate-spin" /> : "Salvar Configuração"}
+              {isSubmitting ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                editingId ? "Atualizar Configuração" : "Salvar Configuração"
+              )}
             </Button>
           </div>
 
@@ -259,9 +325,16 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
             <h4 className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Minha Lista Prioritária</h4>
             <div className="space-y-3">
               {preferences?.map((pref) => (
-                <div key={pref.id} className="bg-card border border-border rounded-lg p-3 flex items-center justify-between">
+                <div 
+                  key={pref.id} 
+                  className={cn(
+                    "bg-card border rounded-lg p-3 flex items-center justify-between cursor-pointer transition-all hover:border-primary/50 group",
+                    editingId === pref.id ? "border-primary ring-1 ring-primary" : "border-border"
+                  )}
+                  onClick={() => handleEdit(pref)}
+                >
                   <div className="min-w-0">
-                    <p className="text-[11px] font-black uppercase truncate">{pref.faina}</p>
+                    <p className="text-[11px] font-black uppercase truncate group-hover:text-primary transition-colors">{pref.faina}</p>
                     <div className="flex gap-3 mt-1">
                       <span className="text-[9px] font-bold uppercase text-primary">CH: {pref.chamada}</span>
                       <span className="text-[9px] font-bold uppercase text-muted-foreground/60">
@@ -270,7 +343,12 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(pref.id)}>
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7 text-destructive hover:bg-destructive/10" 
+                        onClick={(e) => handleDelete(e, pref.id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
