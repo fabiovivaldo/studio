@@ -157,7 +157,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     }
   };
 
-  // Função para permitir apenas números nos campos Nº Chamada e Teto
   const handleNumericInput = (value: string, field: 'chamada' | 'teto') => {
     const cleanValue = value.replace(/\D/g, '');
     setNewFaina(prev => ({ ...prev, [field]: cleanValue }));
@@ -293,8 +292,8 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1" className="text-[10px] font-bold uppercase">G 1</SelectItem>
-                      <SelectItem value="2" className="text-[10px] font-bold uppercase">G 2</SelectItem>
+                      <SelectItem value="1" className="text-[10px] font-bold uppercase">Cad</SelectItem>
+                      <SelectItem value="2" className="text-[10px] font-bold uppercase">Reg</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -352,7 +351,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         editingId === pref.id ? "text-yellow-600" : "text-primary"
                       )}>CH: {pref.chamada}</span>
                       <span className="text-[9px] font-bold uppercase text-muted-foreground/60">
-                        G{pref.tipo} - {pref.modo === 'original' ? 'ORIG' : 'PONT'} (Teto: {pref.teto || '400'})
+                        {pref.tipo === '1' ? 'CAD' : 'REG'} - {pref.modo === 'original' ? 'ORIG' : 'PONT'} (Teto: {pref.teto || '400'})
                       </span>
                     </div>
                   </div>
