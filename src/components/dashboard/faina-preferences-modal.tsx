@@ -209,6 +209,16 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 </div>
 
                 <div className="space-y-1.5">
+                  <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Teto</Label>
+                  <Input 
+                    placeholder="400" 
+                    value={newFaina.teto}
+                    onChange={(e) => setNewFaina(prev => ({ ...prev, teto: e.target.value }))}
+                    className="h-10 text-xs font-bold uppercase bg-background"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
                   <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Grupo</Label>
                   <Select value={newFaina.tipo} onValueChange={(v) => setNewFaina(prev => ({ ...prev, tipo: v }))}>
                     <SelectTrigger className="h-10 text-xs font-bold uppercase bg-background">
@@ -219,16 +229,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                       <SelectItem value="2" className="text-[10px] font-bold uppercase">G 2</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Teto</Label>
-                  <Input 
-                    placeholder="400" 
-                    value={newFaina.teto}
-                    onChange={(e) => setNewFaina(prev => ({ ...prev, teto: e.target.value }))}
-                    className="h-10 text-xs font-bold uppercase bg-background"
-                  />
                 </div>
 
                 <div className="space-y-1.5">
