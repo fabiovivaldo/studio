@@ -9,7 +9,7 @@ import {
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { WifiOff } from 'lucide-react';
+import { WifiOff, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewMode } from './dashboard-content';
 import { Badge } from '@/components/ui/badge';
@@ -64,6 +64,60 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return [...preferences];
   }, [preferences]);
 
+  // Lógica para encontrar a faina/período mais próximo
+  const closestPrediction = useMemo(() => {
+    if (!preferences || !historyData) return null;
+    
+    let minDiff = Infinity;
+    let result = null;
+
+    for (const pref of preferences) {
+      const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+      const tetoNum = parseInt(pref.teto || '400') || 400;
+      const isGroup2 = pref.tipo === '2';
+      const modoAtivo = pref.modo || 'temporario';
+
+      for (const shiftName of SHIFT_ORDER) {
+        const shiftData = historyData.find(d => 
+          d.funcao === pref.faina && d.dataTurno.includes(shiftName)
+        );
+
+        if (shiftData) {
+          const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
+          const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
+          const monitorValue = modoAtivo === 'original' ? valO : valT;
+          const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
+          const sinal = shiftData.sinal;
+
+          let diff = Infinity;
+          if (sinal === '-') {
+            if (monitorNum >= targetNum) {
+              diff = monitorNum - targetNum;
+            } else {
+              diff = monitorNum + (tetoNum - targetNum);
+            }
+          } else {
+            if (targetNum >= monitorNum) {
+              diff = targetNum - monitorNum;
+            } else {
+              diff = (tetoNum - monitorNum) + targetNum;
+            }
+          }
+
+          if (diff < minDiff) {
+            minDiff = diff;
+            result = {
+              faina: pref.faina,
+              shift: shiftName,
+              diff: diff
+            };
+          }
+        }
+      }
+    }
+    return result;
+  }, [preferences, historyData]);
+
   if (isPrefsLoading || isHistoryLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
@@ -88,166 +142,172 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   const tinyLabelStyle = "text-[9px] font-bold text-muted-foreground/40 uppercase";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {sortedPreferences.map((pref) => {
-        const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-        const tetoNum = parseInt(pref.teto || '400') || 400;
-        const modoAtivo = pref.modo || 'temporario';
-        const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
+    <div className="space-y-6">
+      {/* Predição da Faina mais próxima */}
+      {closestPrediction && (
+        <div className="px-1 animate-in fade-in slide-in-from-left-4 duration-700">
+          <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-2 rounded-xl">
+            <Sparkles className="h-4 w-4 text-accent animate-pulse" />
+            <span className="text-xs font-black uppercase tracking-widest text-foreground">
+              vai dar boa em <span className="text-accent">{closestPrediction.faina}</span> ({SHIFT_LABELS[closestPrediction.shift]})
+            </span>
+          </div>
+        </div>
+      )}
 
-        return (
-          <Card key={pref.id} className={cn(
-            "bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col group h-full transition-opacity duration-500",
-            isOffline && "opacity-60"
-          )}>
-            <div className={cn(
-              "absolute top-0 left-0 w-1.5 h-full z-10 transition-colors",
-              isOffline ? "bg-muted" : "bg-primary"
-            )}></div>
-            
-            <div className="p-4 pb-2 flex items-start justify-between">
-              <div className="flex items-start gap-6">
-                <div className="space-y-0.5">
-                  <span className={labelStyle}>Chamada</span>
-                  <div className={cn(
-                    "text-xl font-black leading-none",
-                    isOffline ? "text-muted-foreground" : "text-primary"
-                  )}>
-                    {pref.chamada}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {sortedPreferences.map((pref) => {
+          const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
+          const tetoNum = parseInt(pref.teto || '400') || 400;
+          const modoAtivo = pref.modo || 'temporario';
+          const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
+
+          return (
+            <Card key={pref.id} className={cn(
+              "bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col group h-full transition-opacity duration-500",
+              isOffline && "opacity-60"
+            )}>
+              <div className={cn(
+                "absolute top-0 left-0 w-1.5 h-full z-10 transition-colors",
+                isOffline ? "bg-muted" : "bg-primary"
+              )}></div>
+              
+              <div className="p-4 pb-2 flex items-start justify-between">
+                <div className="flex items-start gap-6">
+                  <div className="space-y-0.5">
+                    <span className={labelStyle}>Chamada</span>
+                    <div className={cn(
+                      "text-xl font-black leading-none",
+                      isOffline ? "text-muted-foreground" : "text-primary"
+                    )}>
+                      {pref.chamada}
+                    </div>
+                  </div>
+                  <div className="space-y-0.5 min-w-0">
+                    <span className={labelStyle}>Faina</span>
+                    <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words truncate max-w-[150px] sm:max-w-[250px]">
+                      {pref.faina}
+                    </h2>
                   </div>
                 </div>
-                <div className="space-y-0.5 min-w-0">
-                  <span className={labelStyle}>Faina</span>
-                  <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words truncate max-w-[150px] sm:max-w-[250px]">
-                    {pref.faina}
-                  </h2>
-                </div>
+
+                {isOffline && (
+                  <Badge variant="outline" className="h-5 text-[8px] font-black uppercase tracking-tighter border-muted-foreground/20 text-muted-foreground bg-muted/5">
+                    <WifiOff className="h-2.5 w-2.5 mr-1" />
+                    Inativo
+                  </Badge>
+                )}
               </div>
 
-              {isOffline && (
-                <Badge variant="outline" className="h-5 text-[8px] font-black uppercase tracking-tighter border-muted-foreground/20 text-muted-foreground bg-muted/5">
-                  <WifiOff className="h-2.5 w-2.5 mr-1" />
-                  Inativo
-                </Badge>
-              )}
-            </div>
+              <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full mt-1">
+                {SHIFT_ORDER.map((shiftName) => {
+                  const shiftData = historyData?.find(d => 
+                    d.funcao === pref.faina && d.dataTurno.includes(shiftName)
+                  );
 
-            <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full mt-1">
-              {SHIFT_ORDER.map((shiftName) => {
-                const shiftData = historyData?.find(d => 
-                  d.funcao === pref.faina && d.dataTurno.includes(shiftName)
-                );
+                  const isGroup2 = pref.tipo === '2';
+                  const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
+                  const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
 
-                const isGroup2 = pref.tipo === '2';
-                const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
-                const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
-
-                const monitorValue = modoAtivo === 'original' ? valO : valT;
-                const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
-                
-                let displayDiff = null;
-                if (shiftData) {
-                  const sinal = shiftData.sinal;
-                  if (sinal === '-') {
-                    // Lógica para sinal negativo (descendente):
-                    if (monitorNum >= targetNum) {
-                      // Se o ponteiro ainda está acima da chamada (ex: 148 contra 130), faltam 18
-                      displayDiff = monitorNum - targetNum;
+                  const monitorValue = modoAtivo === 'original' ? valO : valT;
+                  const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
+                  
+                  let displayDiff = null;
+                  if (shiftData) {
+                    const sinal = shiftData.sinal;
+                    if (sinal === '-') {
+                      if (monitorNum >= targetNum) {
+                        displayDiff = monitorNum - targetNum;
+                      } else {
+                        displayDiff = monitorNum + (tetoNum - targetNum);
+                      }
                     } else {
-                      // Se o ponteiro baixou de sua chamada (ex: 119 contra 130), 
-                      // ele tem que ir a 0 e depois vir do teto ate sua chamada
-                      displayDiff = monitorNum + (tetoNum - targetNum);
-                    }
-                  } else {
-                    // Lógica para sinal positivo (ascendente):
-                    if (targetNum >= monitorNum) {
-                      // Se sua chamada ainda está à frente (ex: 130 contra 119), faltam 11
-                      displayDiff = targetNum - monitorNum;
-                    } else {
-                      // Se o ponteiro subiu além da chamada (ex: 148 contra 130), 
-                      // espera chegar no teto e dar a volta
-                      displayDiff = (tetoNum - monitorNum) + targetNum;
+                      if (targetNum >= monitorNum) {
+                        displayDiff = targetNum - monitorNum;
+                      } else {
+                        displayDiff = (tetoNum - monitorNum) + targetNum;
+                      }
                     }
                   }
-                }
-                
-                const isCritical = displayDiff !== null && displayDiff <= 10;
-                const isWarning = displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
+                  
+                  const isCritical = displayDiff !== null && displayDiff <= 10;
+                  const isWarning = displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
-                const isHighlighted = selectedShift === 'live' 
-                  ? activeShiftFromData === shiftName 
-                  : selectedShift === shiftName;
+                  const isHighlighted = selectedShift === 'live' 
+                    ? activeShiftFromData === shiftName 
+                    : selectedShift === shiftName;
 
-                return (
-                  <div 
-                    key={shiftName} 
-                    className={cn(
-                      "rounded-lg p-2 transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
-                      !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
-                      shiftData && "bg-muted/10",
-                      isCritical && "ring-[3px] ring-destructive bg-destructive/5",
-                      isWarning && "ring-[3px] ring-orange-500 bg-orange-500/5",
-                      isHighlighted ? "border-2 border-primary z-10 bg-primary/5" : "border-2 border-transparent",
-                      !isHighlighted && !isCritical && !isWarning && "border-2 border-border/40"
-                    )}
-                  >
-                    <div className="flex items-center justify-between min-w-0">
-                      <div className="flex items-center gap-1 overflow-hidden">
-                        <span className={cn(
-                          "text-[11px] font-black uppercase tracking-widest truncate",
-                          isHighlighted ? "text-primary" : "text-muted-foreground/60"
-                        )}>
-                          {SHIFT_LABELS[shiftName]}
-                        </span>
-                        {shiftData?.sinal && (
+                  return (
+                    <div 
+                      key={shiftName} 
+                      className={cn(
+                        "rounded-lg p-2 transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
+                        !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
+                        shiftData && "bg-muted/10",
+                        isCritical && "ring-[3px] ring-destructive bg-destructive/5",
+                        isWarning && "ring-[3px] ring-orange-500 bg-orange-500/5",
+                        isHighlighted ? "border-2 border-primary z-10 bg-primary/5" : "border-2 border-transparent",
+                        !isHighlighted && !isCritical && !isWarning && "border-2 border-border/40"
+                      )}
+                    >
+                      <div className="flex items-center justify-between min-w-0">
+                        <div className="flex items-center gap-1 overflow-hidden">
                           <span className={cn(
-                            "text-[13px] font-black leading-none",
-                            shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
+                            "text-[11px] font-black uppercase tracking-widest truncate",
+                            isHighlighted ? "text-primary" : "text-muted-foreground/60"
                           )}>
-                            ({shiftData.sinal})
+                            {SHIFT_LABELS[shiftName]}
                           </span>
-                        )}
+                          {shiftData?.sinal && (
+                            <span className={cn(
+                              "text-[13px] font-black leading-none",
+                              shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
+                            )}>
+                              ({shiftData.sinal})
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-1">
-                        <span className={tinyLabelStyle}>O:</span>
-                        <span className={cn(
-                          "transition-all duration-200",
-                          modoAtivo === 'original' 
-                            ? "text-sm font-black text-foreground leading-none" 
-                            : "text-[9px] font-bold text-muted-foreground/40"
-                        )}>
-                          {valO || '--'}
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-1">
+                          <span className={tinyLabelStyle}>O:</span>
+                          <span className={cn(
+                            "transition-all duration-200",
+                            modoAtivo === 'original' 
+                              ? "text-sm font-black text-foreground leading-none" 
+                              : "text-[9px] font-bold text-muted-foreground/40"
+                          )}>
+                            {valO || '--'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <span className={tinyLabelStyle}>P:</span>
+                          <span className={cn(
+                            "transition-all duration-200",
+                            modoAtivo === 'temporario' 
+                              ? "text-sm font-black text-foreground leading-none" 
+                              : "text-[9px] font-bold text-muted-foreground/40"
+                          )}>
+                            {valT || '--'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-auto pt-1">
+                        <span className="text-[16px] font-black text-orange-600 tracking-tighter leading-none block">
+                          {shiftData ? displayDiff : ''}
                         </span>
                       </div>
-
-                      <div className="flex items-center gap-1">
-                        <span className={tinyLabelStyle}>P:</span>
-                        <span className={cn(
-                          "transition-all duration-200",
-                          modoAtivo === 'temporario' 
-                            ? "text-sm font-black text-foreground leading-none" 
-                            : "text-[9px] font-bold text-muted-foreground/40"
-                        )}>
-                          {valT || '--'}
-                        </span>
-                      </div>
                     </div>
-
-                    <div className="mt-auto pt-1">
-                      <span className="text-[16px] font-black text-orange-600 tracking-tighter leading-none block">
-                        {shiftData ? displayDiff : ''}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        );
-      })}
+                  );
+                })}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }
