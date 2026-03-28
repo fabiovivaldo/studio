@@ -18,6 +18,7 @@ export function DataArchiver({ data }: DataArchiverProps) {
     if (!data.length) return;
 
     const currentTurno = data[0].Data_Turno;
+    // Chave única baseada na data e turno para evitar duplicatas na mesma sessão
     const sessionKey = `archived_${currentTurno.replace(/\s+/g, '_')}`;
     const alreadyArchivedInSession = sessionStorage.getItem(sessionKey);
 
@@ -32,7 +33,7 @@ export function DataArchiver({ data }: DataArchiverProps) {
     const savedHistory = localStorage.getItem('ponteiro_history');
     let history = savedHistory ? JSON.parse(savedHistory) : [];
 
-    // Adiciona os novos dados
+    // Formata os novos registros para armazenamento
     const newRecords = data.map((row) => {
       const turnoName = row.Data_Turno.includes(' ') 
         ? row.Data_Turno.split(' ').slice(1).join('_') 
@@ -55,15 +56,15 @@ export function DataArchiver({ data }: DataArchiverProps) {
       };
     });
 
-    // Mescla e limita a 1000 registros para não estourar o LocalStorage
-    // Remove duplicatas baseadas no ID (Funcao + Turno)
+    // Mescla e limita a 1000 registros para otimizar o LocalStorage
+    // Remove duplicatas baseadas no ID único (Faina + DataTurno)
     const mergedHistory = [...newRecords, ...history];
     const uniqueHistory = Array.from(new Map(mergedHistory.map(item => [item.id, item])).values())
       .slice(0, 1000);
 
     localStorage.setItem('ponteiro_history', JSON.stringify(uniqueHistory));
     
-    // Dispara evento para outros componentes saberem que o histórico mudou
+    // Dispara evento global para sincronizar outros componentes
     window.dispatchEvent(new Event('ponteiro_history_updated'));
   }, [data]);
 
