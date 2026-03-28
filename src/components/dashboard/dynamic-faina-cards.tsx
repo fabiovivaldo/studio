@@ -1,12 +1,7 @@
+
 'use client';
 
-import React, { useMemo } from 'react';
-import { 
-  useFirebase, 
-  useCollection, 
-  useMemoFirebase
-} from '@/firebase';
-import { collection, query, where, orderBy, limit } from 'firebase/firestore';
+import React, { useMemo, useState, useEffect } from 'react';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
 import { WifiOff, Sparkles } from 'lucide-react';
@@ -28,10 +23,6 @@ const SHIFT_LABELS: Record<string, string> = {
   'Madrugada': '01X07'
 };
 
-/**
- * Função utilitária para calcular a distância real até a chamada,
- * considerando o sinal da fila e o teto do ciclo.
- */
 function calculateDistance(
   monitorNum: number,
   targetNum: number,
@@ -39,26 +30,46 @@ function calculateDistance(
   sinal: string
 ): number {
   if (sinal === '-') {
-    // Fila descendente (Teto -> 0)
     if (monitorNum >= targetNum) {
       return monitorNum - targetNum;
     } else {
-      // Já passou do número, precisa completar o ciclo (ir até 0 e descer do teto até a chamada)
       return monitorNum + (tetoNum - targetNum);
     }
   } else {
-    // Fila ascendente (0 -> Teto)
     if (targetNum >= monitorNum) {
       return targetNum - monitorNum;
     } else {
-      // Já passou do número, precisa completar o ciclo (ir até teto e subir do 0 até a chamada)
       return (tetoNum - monitorNum) + targetNum;
     }
   }
 }
 
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
-  const { firestore, user } = useFirebase();
+  const [preferences, setPreferences] = useState<any[]>([]);
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Carregar dados do LocalStorage
+  useEffect(() => {
+    const loadLocalData = () => {
+      const savedPrefs = localStorage.getItem('faina_preferences');
+      const savedHistory = localStorage.getItem('ponteiro_history');
+      
+      if (savedPrefs) setPreferences(JSON.parse(savedPrefs));
+      if (savedHistory) setHistoryData(JSON.parse(savedHistory));
+      setIsLoading(false);
+    };
+
+    loadLocalData();
+
+    window.addEventListener('faina_preferences_updated', loadLocalData);
+    window.addEventListener('ponteiro_history_updated', loadLocalData);
+    
+    return () => {
+      window.removeEventListener('faina_preferences_updated', loadLocalData);
+      window.removeEventListener('ponteiro_history_updated', loadLocalData);
+    };
+  }, []);
 
   const currentScrapedFainas = useMemo(() => {
     return new Set(scrapedData.map(d => d.Funcao.toUpperCase()));
@@ -70,29 +81,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return SHIFT_ORDER.find(s => turnoStr.includes(s));
   }, [scrapedData]);
 
-  const preferencesQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, 'faina_preferences'), where('userId', '==', user.uid));
-  }, [firestore, user]);
-
-  const { data: preferences, isLoading: isPrefsLoading } = useCollection(preferencesQuery);
-
-  const historyQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(
-      collection(firestore, 'ponteiro_data'), 
-      orderBy('createdAt', 'desc'), 
-      limit(1000) 
-    );
-  }, [firestore]);
-
-  const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
-
-  /**
-   * Ordena as preferências para que a faina com o turno mais próximo apareça primeiro.
-   */
   const sortedPreferences = useMemo(() => {
-    if (!preferences || !historyData) return preferences || [];
+    if (!preferences.length) return [];
 
     return [...preferences].sort((a, b) => {
       const getMinDist = (pref: any) => {
@@ -122,11 +112,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     });
   }, [preferences, historyData]);
 
-  /**
-   * Identifica qual faina/período é o vencedor absoluto de proximidade.
-   */
   const closestPrediction = useMemo(() => {
-    if (!preferences || !historyData) return null;
+    if (!preferences.length || !historyData.length) return null;
     
     let minDiff = Infinity;
     let result = null;
@@ -164,7 +151,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return result;
   }, [preferences, historyData]);
 
-  if (isPrefsLoading || isHistoryLoading) {
+  if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
         {[1, 2].map((i) => (
@@ -174,11 +161,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  if (!preferences || preferences.length === 0) {
+  if (preferences.length === 0) {
     return (
       <div className="bg-accent/5 border border-dashed border-accent/20 rounded-xl p-8 text-center">
         <p className="text-sm text-muted-foreground font-bold italic">
-          Nenhuma faina prioritária configurada. Clique na engrenagem acima.
+          Nenhuma faina prioritária configurada localmente. Clique na engrenagem acima.
         </p>
       </div>
     );
@@ -189,7 +176,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   return (
     <div className="space-y-6">
-      {/* Predição da Faina mais próxima */}
       {closestPrediction && (
         <div className="px-1 animate-in fade-in slide-in-from-left-4 duration-700">
           <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-2 rounded-xl">
@@ -245,7 +231,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
               <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full mt-1">
                 {SHIFT_ORDER.map((shiftName) => {
-                  const shiftData = historyData?.find(d => 
+                  const shiftData = historyData.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
 

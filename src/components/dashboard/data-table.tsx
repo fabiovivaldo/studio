@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -25,8 +25,6 @@ import {
 } from "lucide-react";
 import { PonteiroData } from "@/lib/data-service";
 import { Card, CardContent } from "@/components/ui/card";
-import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, limit, where } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 import { ViewMode } from './dashboard-content';
 
@@ -54,33 +52,36 @@ const SHIFT_CONFIG = [
 ] as const;
 
 export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTableProps) {
-  const { firestore, user } = useFirebase();
+  const [preferences, setPreferences] = useState<any[]>([]);
+  const [historyData, setHistoryData] = useState<any[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: keyof PonteiroData; direction: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("TODOS");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  const preferencesQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, 'faina_preferences'), where('userId', '==', user.uid));
-  }, [firestore, user]);
+  // Carregar dados locais
+  useEffect(() => {
+    const loadLocal = () => {
+      const savedPrefs = localStorage.getItem('faina_preferences');
+      const savedHistory = localStorage.getItem('ponteiro_history');
+      if (savedPrefs) setPreferences(JSON.parse(savedPrefs));
+      if (savedHistory) setHistoryData(JSON.parse(savedHistory));
+    };
 
-  const { data: preferences } = useCollection(preferencesQuery);
+    loadLocal();
+    window.addEventListener('faina_preferences_updated', loadLocal);
+    window.addEventListener('ponteiro_history_updated', loadLocal);
+    return () => {
+      window.removeEventListener('faina_preferences_updated', loadLocal);
+      window.removeEventListener('ponteiro_history_updated', loadLocal);
+    };
+  }, []);
 
   const favoriteFainas = useMemo(() => {
-    if (!preferences) return new Set<string>();
     return new Set(preferences.map(p => p.faina.toUpperCase()));
   }, [preferences]);
 
-  const historyQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'ponteiro_data'), orderBy('createdAt', 'desc'), limit(1000));
-  }, [firestore]);
-
-  const { data: historyData, isLoading: isHistoryLoading } = useCollection(historyQuery);
-
   const mappedHistory = useMemo(() => {
-    if (!historyData) return [];
     return historyData.map(h => ({
       Data_Turno: h.dataTurno,
       Funcao: h.funcao,
@@ -223,7 +224,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 {viewMode === 'live' ? <Zap className="h-4 w-4 text-yellow-500" /> : <Calendar className="h-4 w-4 text-primary" />}
               </div>
               <h3 className="text-sm font-bold">
-                {viewMode === 'live' ? 'Lista Atual' : `Histórico: ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
+                {viewMode === 'live' ? 'Lista Atual' : `Histórico Local: ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
               </h3>
             </div>
 
@@ -291,7 +292,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 ) : (
                   <TableRow>
                     <TableCell colSpan={7} className="h-24 text-center text-muted-foreground text-xs uppercase font-bold">
-                      Nenhum registro.
+                      Nenhum registro no histórico local.
                     </TableCell>
                   </TableRow>
                 )}

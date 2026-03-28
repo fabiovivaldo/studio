@@ -2,9 +2,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useFirebase } from '@/firebase';
-import { doc, serverTimestamp } from 'firebase/firestore';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { PonteiroData } from '@/lib/data-service';
 
 interface DataArchiverProps {
@@ -12,21 +9,15 @@ interface DataArchiverProps {
 }
 
 /**
- * Componente que arquiva automaticamente os dados raspados.
- * Otimizado para evitar "Quota Exceeded" no Firestore.
+ * Componente que arquiva automaticamente os dados raspados no LocalStorage.
  */
 export function DataArchiver({ data }: DataArchiverProps) {
-  const { firestore, user } = useFirebase();
   const lastArchivedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!firestore || !user || !data.length) return;
+    if (!data.length) return;
 
-    // Pega o identificador do turno atual (ex: "03/03/2026 Manhã")
     const currentTurno = data[0].Data_Turno;
-
-    // Verifica se já arquivamos este turno específico nesta sessão do navegador
-    // ou se o turno é o mesmo que acabamos de processar
     const sessionKey = `archived_${currentTurno.replace(/\s+/g, '_')}`;
     const alreadyArchivedInSession = sessionStorage.getItem(sessionKey);
 
@@ -34,13 +25,15 @@ export function DataArchiver({ data }: DataArchiverProps) {
       return;
     }
 
-    // Marca como processado para evitar loops e excesso de escrita
     lastArchivedRef.current = currentTurno;
     sessionStorage.setItem(sessionKey, 'true');
 
-    // Executa o arquivamento de cada linha
-    data.forEach((row) => {
-      // Extrair apenas o nome do turno (ex: "Manhã") para o ID
+    // Carrega histórico atual do LocalStorage
+    const savedHistory = localStorage.getItem('ponteiro_history');
+    let history = savedHistory ? JSON.parse(savedHistory) : [];
+
+    // Adiciona os novos dados
+    const newRecords = data.map((row) => {
       const turnoName = row.Data_Turno.includes(' ') 
         ? row.Data_Turno.split(' ').slice(1).join('_') 
         : row.Data_Turno;
@@ -48,10 +41,8 @@ export function DataArchiver({ data }: DataArchiverProps) {
       const safeId = `${row.Funcao}_${turnoName}`
         .replace(/[/\\#?%*:.|"<>\s]/g, '_')
         .substring(0, 100);
-      
-      const docRef = doc(firestore, 'ponteiro_data', safeId);
-      
-      setDocumentNonBlocking(docRef, {
+
+      return {
         id: safeId,
         funcao: row.Funcao,
         sinal: row.Sinal,
@@ -60,10 +51,21 @@ export function DataArchiver({ data }: DataArchiverProps) {
         original2: row.Original_2,
         temporario2: row.Temporario_2,
         dataTurno: row.Data_Turno,
-        createdAt: serverTimestamp()
-      }, { merge: true });
+        createdAt: new Date().toISOString()
+      };
     });
-  }, [data, firestore, user]);
+
+    // Mescla e limita a 1000 registros para não estourar o LocalStorage
+    // Remove duplicatas baseadas no ID (Funcao + Turno)
+    const mergedHistory = [...newRecords, ...history];
+    const uniqueHistory = Array.from(new Map(mergedHistory.map(item => [item.id, item])).values())
+      .slice(0, 1000);
+
+    localStorage.setItem('ponteiro_history', JSON.stringify(uniqueHistory));
+    
+    // Dispara evento para outros componentes saberem que o histórico mudou
+    window.dispatchEvent(new Event('ponteiro_history_updated'));
+  }, [data]);
 
   return null;
 }
