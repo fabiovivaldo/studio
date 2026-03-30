@@ -25,7 +25,7 @@ import {
 import { PonteiroData } from "@/lib/data-service";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from '@/lib/utils';
-import { ViewMode } from './dashboard-content';
+import { ViewMode } from '@/app/page';
 
 interface DataTableProps {
   liveData: PonteiroData[];
@@ -35,19 +35,19 @@ interface DataTableProps {
 
 const CATEGORY_CONFIG = [
   { id: "TODOS", label: "T", color: "text-primary" },
-  { id: "ESTIVA", label: "E", color: "text-yellow-400" },
-  { id: "ARRUMADOR", label: "A", color: "text-blue-400" },
-  { id: "CONFERENTE", label: "C", color: "text-orange-400" },
-  { id: "VIGIA", label: "V", color: "text-red-400" },
-  { id: "BLOCO", label: "B", color: "text-purple-400" },
-  { id: "CONSERTADOR", label: "C", color: "text-green-400" },
+  { id: "ESTIVA", label: "E", color: "text-yellow-500" },
+  { id: "ARRUMADOR", label: "A", color: "text-blue-500" },
+  { id: "CONFERENTE", label: "C", color: "text-orange-500" },
+  { id: "VIGIA", label: "V", color: "text-red-500" },
+  { id: "BLOCO", label: "B", color: "text-purple-500" },
+  { id: "CONSERTADOR", label: "C", color: "text-green-500" },
 ];
 
 const SHIFT_CONFIG = [
-  { id: 'Manhã', label: '07X13', icon: Sunrise, color: 'text-orange-400' },
-  { id: 'Tarde', label: '13X19', icon: Sun, color: 'text-yellow-400' },
-  { id: 'Noite', label: '19X01', icon: Moon, color: 'text-blue-400' },
-  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-400' },
+  { id: 'Manhã', label: '07X13', icon: Sunrise, color: 'text-orange-500' },
+  { id: 'Tarde', label: '13X19', icon: Sun, color: 'text-yellow-500' },
+  { id: 'Noite', label: '19X01', icon: Moon, color: 'text-blue-500' },
+  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-500' },
 ] as const;
 
 export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTableProps) {
@@ -130,17 +130,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
     return sorted;
   }, [filteredData, sortConfig]);
 
-  const columns = [
-    { key: 'Funcao', label: 'Faina' },
-    { key: 'Sinal', label: 'S' },
-    { key: 'Original_1', label: 'REG: O' },
-    { key: 'Temporario_1', label: 'REG: P' },
-    { key: 'Original_2', label: 'CAD: O' },
-    { key: 'Temporario_2', label: 'CAD: P' },
-    { key: 'Data_Turno', label: 'Data / Turno' },
-  ] as const;
-
-  const cellTextStyle = "text-[12px] font-bold tracking-tight py-1.5 px-1.5";
+  const cellTextStyle = "text-[12px] font-bold tracking-tight py-2 px-3";
 
   return (
     <div className="space-y-6">
@@ -148,19 +138,14 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Zap className="h-3 w-3 text-muted-foreground" />
-            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Período</h4>
+            <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Período</h4>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button 
-              variant="outline"
+              variant={viewMode === 'live' ? 'default' : 'outline'}
               size="sm" 
               onClick={() => setViewMode('live')}
-              className={cn(
-                "h-9 px-3 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
-                viewMode === 'live' 
-                  ? "bg-primary text-primary-foreground border-primary" 
-                  : "bg-background text-muted-foreground border-border hover:bg-muted/50"
-              )}
+              className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9"
             >
               <Zap className="h-3.5 w-3.5 mr-1" />
               Real
@@ -169,17 +154,12 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
             {SHIFT_CONFIG.map((shift) => (
               <Button 
                 key={shift.id}
-                variant="outline"
+                variant={viewMode === shift.id ? 'default' : 'outline'}
                 size="sm" 
                 onClick={() => setViewMode(shift.id as any)}
-                className={cn(
-                  "h-9 px-3 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
-                  viewMode === shift.id 
-                    ? "bg-primary text-primary-foreground border-primary" 
-                    : "bg-background text-muted-foreground border-border hover:bg-muted/50"
-                )}
+                className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9"
               >
-                <shift.icon className={cn("h-3.5 w-3.5 mr-1", viewMode === shift.id ? "text-primary-foreground" : shift.color)} />
+                <shift.icon className={cn("h-3.5 w-3.5 mr-1", viewMode === shift.id ? "" : shift.color)} />
                 {shift.label}
               </Button>
             ))}
@@ -189,90 +169,80 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Filter className="h-3 w-3 text-muted-foreground" />
-            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Filtro</h4>
+            <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Filtro</h4>
           </div>
           <div className="flex flex-wrap gap-2">
             {CATEGORY_CONFIG.map((cat) => (
               <Button
                 key={cat.id}
-                variant="outline"
+                variant={activeCategory === cat.id ? 'default' : 'outline'}
                 size="sm" 
                 onClick={() => setActiveCategory(cat.id)}
                 className={cn(
-                  "h-9 w-9 flex items-center justify-center border rounded-xl transition-all font-black text-xs",
-                  activeCategory === cat.id 
-                    ? "bg-primary text-primary-foreground border-primary" 
-                    : "bg-background border-border text-muted-foreground hover:bg-muted/50"
+                  "h-9 w-9 p-0 flex items-center justify-center border rounded-xl font-black text-xs",
+                  activeCategory === cat.id ? "" : cat.color
                 )}
               >
-                <span className={cn(activeCategory === cat.id ? "text-primary-foreground" : cat.color)}>
-                  {cat.label}
-                </span>
+                {cat.label}
               </Button>
             ))}
           </div>
         </div>
       </div>
 
-      <Card className="border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden">
-        <CardContent className="p-4 space-y-4">
-          <div className="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center">
+      <Card className="border-border/50 bg-card overflow-hidden shadow-lg">
+        <CardContent className="p-0">
+          <div className="p-4 bg-muted/20 border-b border-border/50 flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg">
-                {viewMode === 'live' ? <Zap className="h-4 w-4 text-yellow-500" /> : <Calendar className="h-4 w-4 text-primary" />}
-              </div>
-              <h3 className="text-sm font-bold">
-                {viewMode === 'live' ? 'Lista Atual' : `Histórico Local: ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
+              <h3 className="text-sm font-black uppercase tracking-tight">
+                {viewMode === 'live' ? 'Lista em Tempo Real' : `Histórico: ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
               </h3>
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto">
               <Button 
-                variant="outline" 
+                variant={showFavoritesOnly ? 'default' : 'outline'}
                 size="sm" 
                 onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                className={cn(
-                  "h-8 px-3 rounded-lg border-primary/20 transition-all",
-                  showFavoritesOnly ? "bg-primary/10 text-primary" : "text-muted-foreground"
-                )}
+                className="h-9 px-3 rounded-lg"
               >
-                <Star className={cn("h-3.5 w-3.5 mr-1.5", showFavoritesOnly ? "fill-primary" : "")} />
-                <span className="text-[10px] font-bold uppercase">Fav</span>
+                <Star className={cn("h-4 w-4 mr-1.5", showFavoritesOnly ? "fill-current" : "")} />
+                <span className="text-[10px] font-black uppercase">Fav</span>
               </Button>
 
-              <div className="relative flex-1 md:w-48">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <div className="relative flex-1 md:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Buscar..." 
+                  placeholder="BUSCAR FAINA..." 
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
-                  className="pl-8 h-8 text-[11px] bg-background/50 border-border"
+                  className="pl-9 h-9 text-[11px] font-bold uppercase"
                 />
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-background/50 overflow-hidden">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow>
-                  {columns.map(({ key, label }) => (
-                    <TableHead 
-                      key={key} 
-                      className="cursor-pointer py-2 px-1.5 font-black uppercase tracking-tight text-[10px]"
-                      onClick={() => handleSort(key as keyof PonteiroData)}
-                    >
-                      {label}
-                    </TableHead>
-                  ))}
+                  <TableHead className="py-3 px-4 text-[10px] font-black uppercase">Faina</TableHead>
+                  <TableHead className="py-3 px-3 text-[10px] font-black uppercase text-center w-16">S</TableHead>
+                  <TableHead className="py-3 px-3 text-[10px] font-black uppercase">REG: O</TableHead>
+                  <TableHead className="py-3 px-3 text-[10px] font-black uppercase">REG: P</TableHead>
+                  <TableHead className="py-3 px-3 text-[10px] font-black uppercase">CAD: O</TableHead>
+                  <TableHead className="py-3 px-3 text-[10px] font-black uppercase">CAD: P</TableHead>
+                  <TableHead className="py-3 px-4 text-[10px] font-black uppercase">Data / Turno</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sortedData.length > 0 ? (
                   sortedData.map((row, idx) => (
-                    <TableRow key={idx} className="hover:bg-primary/5 border-border/50">
-                      <TableCell className={cn(cellTextStyle, "font-black")}>{row.Funcao}</TableCell>
-                      <TableCell className="py-1.5 px-1.5">
+                    <TableRow key={idx} className="hover:bg-accent/5 transition-colors border-border/40">
+                      <TableCell className={cn(cellTextStyle, "font-black text-foreground min-w-[200px]")}>
+                        {row.Funcao}
+                      </TableCell>
+                      <TableCell className="text-center">
                         <span className={cn(
                           "font-black text-[13px]",
                           row.Sinal === '-' ? "text-destructive" : "text-green-500"
@@ -280,17 +250,27 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                           {row.Sinal}
                         </span>
                       </TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-primary/60 font-mono")}>{row.Original_1}</TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>{row.Temporario_1}</TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-primary/60 font-mono")}>{row.Original_2}</TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-foreground font-mono")}>{row.Temporario_2}</TableCell>
-                      <TableCell className={cn(cellTextStyle, "text-muted-foreground text-[10px]")}>{row.Data_Turno}</TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-muted-foreground font-mono")}>
+                        {row.Original_1}
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-primary font-mono")}>
+                        {row.Temporario_1}
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-muted-foreground font-mono")}>
+                        {row.Original_2}
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-primary font-mono")}>
+                        {row.Temporario_2}
+                      </TableCell>
+                      <TableCell className={cn(cellTextStyle, "text-muted-foreground text-[10px] whitespace-nowrap")}>
+                        {row.Data_Turno}
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground text-xs uppercase font-bold">
-                      Nenhum registro no histórico local.
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground text-[10px] font-black uppercase tracking-widest">
+                      Nenhum registro encontrado.
                     </TableCell>
                   </TableRow>
                 )}

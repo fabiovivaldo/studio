@@ -3,9 +3,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { WifiOff, Sparkles, AlertCircle, Zap } from 'lucide-react';
+import { WifiOff, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ViewMode } from './dashboard-content';
+import { ViewMode } from '@/app/page';
 import { Badge } from '@/components/ui/badge';
 
 interface DynamicFainaCardsProps {
@@ -89,40 +89,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   const sortedPreferences = useMemo(() => {
     if (!preferences.length) return [];
-
-    return [...preferences].sort((a, b) => {
-      const getMinDist = (pref: any) => {
-        let min = Infinity;
-        const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-        const tetoNum = parseInt(pref.teto || '0') || 0;
-        const isGroupRegistro = pref.tipo === '1';
-        const modoAtivo = pref.modo || 'temporario';
-
-        for (const shiftName of SHIFT_ORDER) {
-          const shiftData = historyData.find(d => 
-            d.funcao === pref.faina && d.dataTurno.includes(shiftName)
-          );
-          if (shiftData) {
-            const valO = isGroupRegistro ? shiftData.original1 : shiftData.original2;
-            const valT = isGroupRegistro ? shiftData.temporario1 : shiftData.temporario2;
-            const monitorValue = modoAtivo === 'original' ? valO : valT;
-            const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
-            const dist = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
-            if (dist > 0 && dist < min) min = dist;
-          }
-        }
-        return min;
-      };
-
-      return getMinDist(a) - getMinDist(b);
-    });
-  }, [preferences, historyData]);
+    return [...preferences].sort((a, b) => a.faina.localeCompare(b.faina));
+  }, [preferences]);
 
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
         {[1, 2].map((i) => (
-          <div key={i} className="h-[120px] bg-muted/50 rounded-xl border border-border"></div>
+          <div key={i} className="h-[140px] bg-muted/50 rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -130,77 +104,75 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   if (preferences.length === 0) {
     return (
-      <div className="bg-accent/5 border border-dashed border-accent/20 rounded-xl p-8 text-center">
-        <p className="text-sm text-muted-foreground font-bold italic">
-          Nenhuma faina prioritária configurada localmente. Clique na engrenagem acima.
+      <div className="bg-muted/10 border border-dashed border-border rounded-xl p-10 text-center">
+        <p className="text-sm text-muted-foreground font-black uppercase tracking-widest opacity-50">
+          Nenhuma faina prioritária configurada.
         </p>
       </div>
     );
   }
 
-  const labelStyle = "text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider";
-  const tinyLabelStyle = "text-[9px] font-bold text-muted-foreground/40 uppercase";
+  const labelStyle = "text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest";
+  const tinyLabelStyle = "text-[9px] font-bold text-muted-foreground/50 uppercase";
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedPreferences.map((pref) => {
           const modoAtivo = pref.modo || 'temporario';
-          const isGroupRegistro = pref.tipo === '1';
+          const isRegistro = pref.tipo === '1';
           const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
           return (
             <Card key={pref.id} className={cn(
-              "bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col group h-full transition-opacity duration-500",
+              "bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col transition-opacity duration-300",
               isOffline && "opacity-60"
             )}>
               <div className={cn(
-                "absolute top-0 left-0 w-1.5 h-full z-10 transition-colors",
+                "absolute top-0 left-0 w-1.5 h-full z-10",
                 isOffline ? "bg-muted" : "bg-primary"
               )}></div>
               
-              <div className="p-4 pb-2 flex items-start justify-between">
-                <div className="flex items-start gap-6">
+              <div className="p-4 flex items-start justify-between">
+                <div className="flex gap-6">
                   <div className="space-y-0.5">
                     <span className={labelStyle}>Chamada</span>
                     <div className={cn(
-                      "text-xl font-black leading-none",
+                      "text-2xl font-black leading-none tracking-tighter",
                       isOffline ? "text-muted-foreground" : "text-primary"
                     )}>
                       {pref.chamada}
                     </div>
                   </div>
-                  <div className="space-y-0.5 min-w-0">
+                  <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className={labelStyle}>Faina</span>
-                      <Badge variant="outline" className={cn(
-                        "h-4 text-[7px] font-black px-1.5 uppercase border-primary/30 text-primary bg-primary/5"
-                      )}>
-                        {isGroupRegistro ? 'REGISTRO' : 'CADASTRO'}
+                      <Badge variant="outline" className="h-4 text-[7px] font-black px-1.5 uppercase border-primary/30 text-primary">
+                        {isRegistro ? 'REGISTRO' : 'CADASTRO'}
                       </Badge>
+                      <span className={labelStyle}>Faina</span>
                     </div>
-                    <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words truncate max-w-[150px] sm:max-w-[250px]">
+                    <h2 className="text-sm font-black text-foreground uppercase tracking-tight truncate max-w-[180px] sm:max-w-[300px]">
                       {pref.faina}
                     </h2>
                   </div>
                 </div>
 
                 {isOffline && (
-                  <Badge variant="outline" className="h-5 text-[8px] font-black uppercase tracking-tighter border-muted-foreground/20 text-muted-foreground bg-muted/5">
+                  <Badge variant="outline" className="h-5 text-[8px] font-black uppercase border-muted-foreground/20 text-muted-foreground">
                     <WifiOff className="h-2.5 w-2.5 mr-1" />
-                    Inativo
+                    Offline
                   </Badge>
                 )}
               </div>
 
-              <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full mt-1">
+              <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full">
                 {SHIFT_ORDER.map((shiftName) => {
                   const shiftData = historyData.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
 
-                  const valO = isGroupRegistro ? shiftData?.original1 : shiftData?.original2;
-                  const valT = isGroupRegistro ? shiftData?.temporario1 : shiftData?.temporario2;
+                  const valO = isRegistro ? shiftData?.original1 : shiftData?.original2;
+                  const valT = isRegistro ? shiftData?.temporario1 : shiftData?.temporario2;
 
                   const monitorValue = modoAtivo === 'original' ? valO : valT;
                   const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
@@ -216,7 +188,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
 
-                  // Alertas de proximidade aparecem apenas no turno ativo/selecionado
                   const isCritical = isHighlighted && displayDiff !== null && displayDiff > 0 && displayDiff <= 10;
                   const isWarning = isHighlighted && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
@@ -224,72 +195,62 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     <div 
                       key={shiftName} 
                       className={cn(
-                        "rounded-lg p-2 transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
-                        !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
-                        shiftData && "bg-muted/10",
-                        isHighlighted && !isCritical && !isWarning && "ring-2 ring-primary bg-primary/5",
-                        isCritical && "bg-destructive/10 border-2 border-destructive",
-                        isWarning && "bg-orange-500/10 border-2 border-orange-500",
-                        !isHighlighted && "border-2 border-border/40"
+                        "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-1.5 relative min-w-0 h-full",
+                        !shiftData && "opacity-20 bg-muted/5 border-dashed border-border/20",
+                        shiftData && "bg-muted/5 border-border/30",
+                        isHighlighted && !isCritical && !isWarning && "ring-2 ring-primary border-primary/50 bg-primary/5",
+                        isCritical && "bg-destructive/10 border-destructive shadow-[0_0_15px_rgba(239,68,68,0.2)]",
+                        isWarning && "bg-orange-500/10 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
                       )}
                     >
                       <div className="flex items-center justify-between min-w-0">
-                        <div className="flex items-center gap-1 overflow-hidden">
+                        <span className={cn(
+                          "text-[9px] font-black uppercase tracking-widest truncate",
+                          isHighlighted ? "text-primary" : "text-muted-foreground/60"
+                        )}>
+                          {SHIFT_LABELS[shiftName]}
+                        </span>
+                        {shiftData?.sinal && (
                           <span className={cn(
-                            "text-[10px] font-black uppercase tracking-widest truncate",
-                            isHighlighted ? "text-primary" : "text-muted-foreground/60"
+                            "text-[9px] font-black shrink-0",
+                            shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
                           )}>
-                            {SHIFT_LABELS[shiftName]}
+                            ({shiftData.sinal})
                           </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {shiftData?.sinal && (
-                            <span className={cn(
-                              "text-[9px] font-black",
-                              shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
-                            )}>
-                              ({shiftData.sinal})
-                            </span>
-                          )}
-                          {isCritical && <AlertCircle className="h-2.5 w-2.5 text-destructive shrink-0" />}
-                        </div>
+                        )}
                       </div>
 
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-1">
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
                           <span className={tinyLabelStyle}>O:</span>
                           <span className={cn(
-                            "transition-all duration-200",
-                            modoAtivo === 'original' 
-                              ? "text-xs font-black text-foreground leading-none" 
-                              : "text-[9px] font-bold text-muted-foreground/40"
+                            "text-[10px] font-black",
+                            modoAtivo === 'original' ? "text-foreground" : "text-muted-foreground/40"
                           )}>
                             {valO || '--'}
                           </span>
                         </div>
-
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-between">
                           <span className={tinyLabelStyle}>P:</span>
                           <span className={cn(
-                            "transition-all duration-200",
-                            modoAtivo === 'temporario' 
-                              ? "text-xs font-black text-foreground leading-none" 
-                              : "text-[9px] font-bold text-muted-foreground/40"
+                            "text-[10px] font-black",
+                            modoAtivo === 'temporario' ? "text-foreground" : "text-muted-foreground/40"
                           )}>
                             {valT || '--'}
                           </span>
                         </div>
                       </div>
 
-                      <div className="mt-auto pt-1 flex items-baseline gap-1">
+                      <div className="mt-auto pt-1.5 border-t border-border/30 flex items-center justify-between">
                         <span className={cn(
-                          "text-[14px] font-black tracking-tighter leading-none block",
+                          "text-base font-black tracking-tighter leading-none",
                           displayDiff !== null && displayDiff <= 0 
-                            ? "text-muted-foreground opacity-50" 
-                            : (isCritical ? "text-destructive" : isWarning ? "text-orange-600" : "text-primary/80")
+                            ? "text-muted-foreground/30" 
+                            : (isCritical ? "text-destructive" : isWarning ? "text-orange-600" : "text-primary")
                         )}>
                           {shiftData ? displayDiff : ''}
                         </span>
+                        {isCritical && <AlertCircle className="h-3 w-3 text-destructive shrink-0" />}
                       </div>
                     </div>
                   );
