@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -59,7 +58,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
   const [activeCategory, setActiveCategory] = useState<string>("TODOS");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  // Carregar dados locais
   useEffect(() => {
     const loadLocal = () => {
       const savedPrefs = localStorage.getItem('faina_preferences');
@@ -135,10 +133,10 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
   const columns = [
     { key: 'Funcao', label: 'Faina' },
     { key: 'Sinal', label: 'S' },
-    { key: 'Original_1', label: 'O: 1' },
-    { key: 'Temporario_1', label: 'P: 1' },
-    { key: 'Original_2', label: 'O: 2' },
-    { key: 'Temporario_2', label: 'P: 2' },
+    { key: 'Original_1', label: 'CAD: O' },
+    { key: 'Temporario_1', label: 'CAD: P' },
+    { key: 'Original_2', label: 'REG: O' },
+    { key: 'Temporario_2', label: 'REG: P' },
     { key: 'Data_Turno', label: 'Data / Turno' },
   ] as const;
 

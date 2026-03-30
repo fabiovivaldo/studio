@@ -28,7 +28,6 @@ function calculateDistance(
   tetoNum: number,
   sinal: string
 ): number {
-  // Lógica condicional: Se teto for 0, ignora a lógica circular
   if (tetoNum <= 0) {
     if (sinal === '-') {
       return monitorNum - targetNum;
@@ -37,7 +36,6 @@ function calculateDistance(
     }
   }
 
-  // Lógica circular (com Teto)
   if (sinal === '-') {
     if (monitorNum >= targetNum) {
       return monitorNum - targetNum;
@@ -145,7 +143,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
           
           const diff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
 
-          // Só considera positivo para predição de "vinda"
           if (diff > 0 && diff < minDiff) {
             minDiff = diff;
             result = {
@@ -199,6 +196,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedPreferences.map((pref) => {
           const modoAtivo = pref.modo || 'temporario';
+          const isGroup2 = pref.tipo === '2';
           const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
           return (
@@ -208,7 +206,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
             )}>
               <div className={cn(
                 "absolute top-0 left-0 w-1.5 h-full z-10 transition-colors",
-                isOffline ? "bg-muted" : "bg-primary"
+                isOffline ? "bg-muted" : (isGroup2 ? "bg-orange-500" : "bg-primary")
               )}></div>
               
               <div className="p-4 pb-2 flex items-start justify-between">
@@ -217,13 +215,21 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     <span className={labelStyle}>Chamada</span>
                     <div className={cn(
                       "text-xl font-black leading-none",
-                      isOffline ? "text-muted-foreground" : "text-primary"
+                      isOffline ? "text-muted-foreground" : (isGroup2 ? "text-orange-500" : "text-primary")
                     )}>
                       {pref.chamada}
                     </div>
                   </div>
                   <div className="space-y-0.5 min-w-0">
-                    <span className={labelStyle}>Faina</span>
+                    <div className="flex items-center gap-2">
+                      <span className={labelStyle}>Faina</span>
+                      <Badge variant="outline" className={cn(
+                        "h-4 text-[7px] font-black px-1.5 uppercase",
+                        isGroup2 ? "border-orange-500/30 text-orange-500 bg-orange-500/5" : "border-primary/30 text-primary bg-primary/5"
+                      )}>
+                        {isGroup2 ? 'REGISTRO' : 'CADASTRO'}
+                      </Badge>
+                    </div>
                     <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words truncate max-w-[150px] sm:max-w-[250px]">
                       {pref.faina}
                     </h2>
@@ -244,7 +250,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
 
-                  const isGroup2 = pref.tipo === '2';
                   const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
                   const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
 
@@ -274,7 +279,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         shiftData && "bg-muted/10",
                         isCritical && "ring-[3px] ring-destructive bg-destructive/5",
                         isWarning && "ring-[3px] ring-orange-500 bg-orange-500/5",
-                        isHighlighted ? "border-2 border-primary z-10 bg-primary/5" : "border-2 border-transparent",
+                        isHighlighted ? (isGroup2 ? "border-2 border-orange-500 z-10 bg-orange-500/5" : "border-2 border-primary z-10 bg-primary/5") : "border-2 border-transparent",
                         !isHighlighted && !isCritical && !isWarning && "border-2 border-border/40"
                       )}
                     >
@@ -282,7 +287,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         <div className="flex items-center gap-1 overflow-hidden">
                           <span className={cn(
                             "text-[11px] font-black uppercase tracking-widest truncate",
-                            isHighlighted ? "text-primary" : "text-muted-foreground/60"
+                            isHighlighted ? (isGroup2 ? "text-orange-500" : "text-primary") : "text-muted-foreground/60"
                           )}>
                             {SHIFT_LABELS[shiftName]}
                           </span>
@@ -326,7 +331,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <div className="mt-auto pt-1">
                         <span className={cn(
                           "text-[16px] font-black tracking-tighter leading-none block",
-                          displayDiff !== null && displayDiff <= 0 ? "text-muted-foreground opacity-50" : "text-orange-600"
+                          displayDiff !== null && displayDiff <= 0 ? "text-muted-foreground opacity-50" : (isGroup2 ? "text-orange-600" : "text-primary/80")
                         )}>
                           {shiftData ? displayDiff : ''}
                         </span>
