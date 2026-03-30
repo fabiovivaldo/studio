@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { WifiOff, Sparkles } from 'lucide-react';
+import { WifiOff, Sparkles, AlertCircle, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewMode } from './dashboard-content';
 import { Badge } from '@/components/ui/badge';
@@ -95,7 +95,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         let min = Infinity;
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
         const tetoNum = parseInt(pref.teto || '0') || 0;
-        const isGroup2 = pref.tipo === '2';
+        const isGroupRegistro = pref.tipo === '1';
         const modoAtivo = pref.modo || 'temporario';
 
         for (const shiftName of SHIFT_ORDER) {
@@ -103,12 +103,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
             d.funcao === pref.faina && d.dataTurno.includes(shiftName)
           );
           if (shiftData) {
-            const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
-            const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
+            const valO = isGroupRegistro ? shiftData.original1 : shiftData.original2;
+            const valT = isGroupRegistro ? shiftData.temporario1 : shiftData.temporario2;
             const monitorValue = modoAtivo === 'original' ? valO : valT;
             const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
             const dist = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
-            if (dist < min) min = dist;
+            if (dist > 0 && dist < min) min = dist;
           }
         }
         return min;
@@ -127,23 +127,21 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     for (const pref of preferences) {
       const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
       const tetoNum = parseInt(pref.teto || '0') || 0;
-      const isGroup2 = pref.tipo === '2';
+      const isGroupRegistro = pref.tipo === '1';
       const modoAtivo = pref.modo || 'temporario';
 
-      // Agora o 'Vai dar boa' olha apenas para o turno que está acontecendo agora (activeShiftFromData)
       const shiftData = historyData.find(d => 
         d.funcao === pref.faina && d.dataTurno.includes(activeShiftFromData)
       );
 
       if (shiftData) {
-        const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
-        const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
+        const valO = isGroupRegistro ? shiftData.original1 : shiftData.original2;
+        const valT = isGroupRegistro ? shiftData.temporario1 : shiftData.temporario2;
         const monitorValue = modoAtivo === 'original' ? valO : valT;
         const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
         
         const diff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
 
-        // Considera apenas fainas que ainda não chamaram (distância positiva)
         if (diff > 0 && diff < minDiff) {
           minDiff = diff;
           result = {
@@ -196,7 +194,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedPreferences.map((pref) => {
           const modoAtivo = pref.modo || 'temporario';
-          const isGroup2 = pref.tipo === '2';
+          const isGroupRegistro = pref.tipo === '1'; // P1 = REGISTRO
+          const isGroupCadastro = pref.tipo === '2'; // P2 = CADASTRO
           const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
           return (
@@ -206,7 +205,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
             )}>
               <div className={cn(
                 "absolute top-0 left-0 w-1.5 h-full z-10 transition-colors",
-                isOffline ? "bg-muted" : (isGroup2 ? "bg-orange-500" : "bg-primary")
+                isOffline ? "bg-muted" : (isGroupRegistro ? "bg-primary" : "bg-orange-500")
               )}></div>
               
               <div className="p-4 pb-2 flex items-start justify-between">
@@ -215,7 +214,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     <span className={labelStyle}>Chamada</span>
                     <div className={cn(
                       "text-xl font-black leading-none",
-                      isOffline ? "text-muted-foreground" : (isGroup2 ? "text-orange-500" : "text-primary")
+                      isOffline ? "text-muted-foreground" : (isGroupRegistro ? "text-primary" : "text-orange-500")
                     )}>
                       {pref.chamada}
                     </div>
@@ -225,9 +224,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <span className={labelStyle}>Faina</span>
                       <Badge variant="outline" className={cn(
                         "h-4 text-[7px] font-black px-1.5 uppercase",
-                        isGroup2 ? "border-orange-500/30 text-orange-500 bg-orange-500/5" : "border-primary/30 text-primary bg-primary/5"
+                        isGroupRegistro ? "border-primary/30 text-primary bg-primary/5" : "border-orange-500/30 text-orange-500 bg-orange-500/5"
                       )}>
-                        {isGroup2 ? 'CADASTRO' : 'REGISTRO'}
+                        {isGroupRegistro ? 'REGISTRO' : 'CADASTRO'}
                       </Badge>
                     </div>
                     <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words truncate max-w-[150px] sm:max-w-[250px]">
@@ -250,8 +249,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
 
-                  const valO = isGroup2 ? shiftData?.original2 : shiftData?.original1;
-                  const valT = isGroup2 ? shiftData?.temporario2 : shiftData?.temporario1;
+                  const valO = isGroupRegistro ? shiftData?.original1 : shiftData?.original2;
+                  const valT = isGroupRegistro ? shiftData?.temporario1 : shiftData?.temporario2;
 
                   const monitorValue = modoAtivo === 'original' ? valO : valT;
                   const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
@@ -277,29 +276,22 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         "rounded-lg p-2 transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
                         !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
                         shiftData && "bg-muted/10",
-                        isCritical && "ring-[3px] ring-destructive bg-destructive/5",
-                        isWarning && "ring-[3px] ring-orange-500 bg-orange-500/5",
-                        isHighlighted ? (isGroup2 ? "border-2 border-orange-500 z-10 bg-orange-500/5" : "border-2 border-primary z-10 bg-primary/5") : "border-2 border-transparent",
+                        isHighlighted ? (isGroupRegistro ? "ring-2 ring-primary bg-primary/5" : "ring-2 ring-orange-500 bg-orange-500/5") : "border-2 border-transparent",
+                        isCritical && "bg-destructive/10 border-2 border-destructive animate-pulse",
+                        isWarning && !isCritical && "bg-orange-500/10 border-2 border-orange-500",
                         !isHighlighted && !isCritical && !isWarning && "border-2 border-border/40"
                       )}
                     >
                       <div className="flex items-center justify-between min-w-0">
                         <div className="flex items-center gap-1 overflow-hidden">
                           <span className={cn(
-                            "text-[11px] font-black uppercase tracking-widest truncate",
-                            isHighlighted ? (isGroup2 ? "text-orange-500" : "text-primary") : "text-muted-foreground/60"
+                            "text-[10px] font-black uppercase tracking-widest truncate",
+                            isHighlighted ? (isGroupRegistro ? "text-primary" : "text-orange-500") : "text-muted-foreground/60"
                           )}>
                             {SHIFT_LABELS[shiftName]}
                           </span>
-                          {shiftData?.sinal && (
-                            <span className={cn(
-                              "text-[13px] font-black leading-none",
-                              shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
-                            )}>
-                              ({shiftData.sinal})
-                            </span>
-                          )}
                         </div>
+                        {isCritical && <AlertCircle className="h-3 w-3 text-destructive shrink-0" />}
                       </div>
 
                       <div className="space-y-0.5">
@@ -308,7 +300,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <span className={cn(
                             "transition-all duration-200",
                             modoAtivo === 'original' 
-                              ? "text-sm font-black text-foreground leading-none" 
+                              ? "text-xs font-black text-foreground leading-none" 
                               : "text-[9px] font-bold text-muted-foreground/40"
                           )}>
                             {valO || '--'}
@@ -320,7 +312,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <span className={cn(
                             "transition-all duration-200",
                             modoAtivo === 'temporario' 
-                              ? "text-sm font-black text-foreground leading-none" 
+                              ? "text-xs font-black text-foreground leading-none" 
                               : "text-[9px] font-bold text-muted-foreground/40"
                           )}>
                             {valT || '--'}
@@ -328,13 +320,21 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         </div>
                       </div>
 
-                      <div className="mt-auto pt-1">
+                      <div className="mt-auto pt-1 flex items-baseline gap-1">
                         <span className={cn(
-                          "text-[16px] font-black tracking-tighter leading-none block",
-                          displayDiff !== null && displayDiff <= 0 ? "text-muted-foreground opacity-50" : (isGroup2 ? "text-orange-600" : "text-primary/80")
+                          "text-[14px] font-black tracking-tighter leading-none block",
+                          displayDiff !== null && displayDiff <= 0 ? "text-muted-foreground opacity-50" : (isCritical ? "text-destructive" : isWarning ? "text-orange-600" : isGroupRegistro ? "text-primary/80" : "text-orange-600/80")
                         )}>
                           {shiftData ? displayDiff : ''}
                         </span>
+                        {shiftData?.sinal && (
+                            <span className={cn(
+                              "text-[10px] font-black",
+                              shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
+                            )}>
+                              ({shiftData.sinal})
+                            </span>
+                        )}
                       </div>
                     </div>
                   );
