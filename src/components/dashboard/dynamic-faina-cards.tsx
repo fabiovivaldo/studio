@@ -103,8 +103,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
             d.funcao === pref.faina && d.dataTurno.includes(shiftName)
           );
           if (shiftData) {
-            const valO = isGroupRegistro ? shiftData.original2 : shiftData.original1;
-            const valT = isGroupRegistro ? shiftData.temporario2 : shiftData.temporario1;
+            // FIX: TIPO 1 (REGISTRO) -> P1, TIPO 2 (CADASTRO) -> P2
+            const valO = isGroupRegistro ? shiftData.original1 : shiftData.original2;
+            const valT = isGroupRegistro ? shiftData.temporario1 : shiftData.temporario2;
             const monitorValue = modoAtivo === 'original' ? valO : valT;
             const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
             const dist = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
@@ -135,8 +136,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       );
 
       if (shiftData) {
-        const valO = isGroupRegistro ? shiftData.original2 : shiftData.original1;
-        const valT = isGroupRegistro ? shiftData.temporario2 : shiftData.temporario1;
+        // FIX: TIPO 1 (REGISTRO) -> P1, TIPO 2 (CADASTRO) -> P2
+        const valO = isGroupRegistro ? shiftData.original1 : shiftData.original2;
+        const valT = isGroupRegistro ? shiftData.temporario1 : shiftData.temporario2;
         const monitorValue = modoAtivo === 'original' ? valO : valT;
         const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
         
@@ -202,7 +204,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               "bg-card border-border/50 shadow-sm relative overflow-hidden flex flex-col group h-full transition-opacity duration-500",
               isOffline && "opacity-60"
             )}>
-              {/* Barra lateral unificada em Azul */}
               <div className={cn(
                 "absolute top-0 left-0 w-1.5 h-full z-10 transition-colors",
                 isOffline ? "bg-muted" : "bg-primary"
@@ -222,7 +223,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   <div className="space-y-0.5 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className={labelStyle}>Faina</span>
-                      {/* Badges unificados em Azul */}
                       <Badge variant="outline" className={cn(
                         "h-4 text-[7px] font-black px-1.5 uppercase border-primary/30 text-primary bg-primary/5"
                       )}>
@@ -249,8 +249,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
 
-                  const valO = isGroupRegistro ? shiftData?.original2 : shiftData?.original1;
-                  const valT = isGroupRegistro ? shiftData?.temporario2 : shiftData?.temporario1;
+                  // FIX: TIPO 1 (REGISTRO) -> P1, TIPO 2 (CADASTRO) -> P2
+                  const valO = isGroupRegistro ? shiftData?.original1 : shiftData?.original2;
+                  const valT = isGroupRegistro ? shiftData?.temporario1 : shiftData?.temporario2;
 
                   const monitorValue = modoAtivo === 'original' ? valO : valT;
                   const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
@@ -266,7 +267,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
 
-                  // Alertas visuais apenas no turno ativo/selecionado
                   const isCritical = isHighlighted && displayDiff !== null && displayDiff > 0 && displayDiff <= 10;
                   const isWarning = isHighlighted && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
@@ -277,9 +277,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         "rounded-lg p-2 transition-all duration-200 flex flex-col gap-1 relative flex-1 min-w-0 h-full",
                         !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
                         shiftData && "bg-muted/10",
-                        // Base Identity is always Blue for current shift
                         isHighlighted && !isCritical && !isWarning && "ring-2 ring-primary bg-primary/5",
-                        // Alertas de urgência sobrescrevem a cor base
                         isCritical && "bg-destructive/10 border-2 border-destructive",
                         isWarning && "bg-orange-500/10 border-2 border-orange-500",
                         !isHighlighted && "border-2 border-border/40"
