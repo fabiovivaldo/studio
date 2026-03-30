@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'PonteiroScope | Analytical Dashboard',
-  description: 'Dynamic data extraction and intelligent analysis for OGMOPR Ponteiros.',
+  title: 'PonteiroScope | Monitoramento Estratégico',
+  description: 'Análise inteligente de ponteiros para OGMO Porto Paranaguá.',
 };
 
 export default function RootLayout({

@@ -2,9 +2,6 @@ import React from 'react';
 import { fetchPonteiroData } from '@/lib/data-service';
 import { DashboardContent } from '@/components/dashboard/dashboard-content';
 import { DataArchiver } from '@/components/dashboard/data-archiver';
-import { 
-  Database, 
-} from "lucide-react";
 
 export default async function DashboardPage() {
   const data = await fetchPonteiroData();
