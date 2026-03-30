@@ -183,7 +183,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       {closestPrediction && (
         <div className="px-1 animate-in fade-in slide-in-from-left-4 duration-700">
           <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-2 rounded-xl">
-            <Sparkles className="h-4 w-4 text-accent animate-pulse" />
+            <Sparkles className="h-4 w-4 text-accent" />
             <span className="text-xs font-black uppercase tracking-widest text-foreground">
               vai dar boa em <span className="text-accent">{closestPrediction.faina}</span> ({SHIFT_LABELS[closestPrediction.shift]})
             </span>
@@ -195,7 +195,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         {sortedPreferences.map((pref) => {
           const modoAtivo = pref.modo || 'temporario';
           const isGroupRegistro = pref.tipo === '1'; // P1 = REGISTRO
-          const isGroupCadastro = pref.tipo === '2'; // P2 = CADASTRO
           const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
           return (
@@ -262,12 +261,13 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     displayDiff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
                   }
                   
-                  const isCritical = displayDiff !== null && displayDiff > 0 && displayDiff <= 10;
-                  const isWarning = displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
-
                   const isHighlighted = selectedShift === 'live' 
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
+
+                  // Urgência (cores críticas) só devem aparecer se o turno for o ATUAL ou selecionado (isHighlighted)
+                  const isCritical = isHighlighted && displayDiff !== null && displayDiff > 0 && displayDiff <= 10;
+                  const isWarning = isHighlighted && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
                   return (
                     <div 
@@ -277,8 +277,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         !shiftData && "opacity-30 bg-muted/5 border-dashed border-border/20",
                         shiftData && "bg-muted/10",
                         isHighlighted ? (isGroupRegistro ? "ring-2 ring-primary bg-primary/5" : "ring-2 ring-orange-500 bg-orange-500/5") : "border-2 border-transparent",
-                        isCritical && "bg-destructive/10 border-2 border-destructive animate-pulse",
-                        isWarning && !isCritical && "bg-orange-500/10 border-2 border-orange-500",
+                        isCritical && "bg-destructive/10 border-2 border-destructive",
+                        isWarning && "bg-orange-500/10 border-2 border-orange-500",
                         !isHighlighted && !isCritical && !isWarning && "border-2 border-border/40"
                       )}
                     >
