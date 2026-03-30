@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Moon, Sun } from "lucide-react";
@@ -9,7 +8,7 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
-    // Initialize theme state from class on html element
+    // Sincroniza o estado inicial do componente com a classe do HTML aplicada pelo script do layout
     const isDark = document.documentElement.classList.contains("dark");
     setTheme(isDark ? "dark" : "light");
   }, []);
