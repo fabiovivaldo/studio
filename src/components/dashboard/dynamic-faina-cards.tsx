@@ -119,7 +119,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   }, [preferences, historyData]);
 
   const closestPrediction = useMemo(() => {
-    if (!preferences.length || !historyData.length) return null;
+    if (!preferences.length || !historyData.length || !activeShiftFromData) return null;
     
     let minDiff = Infinity;
     let result = null;
@@ -130,32 +130,32 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       const isGroup2 = pref.tipo === '2';
       const modoAtivo = pref.modo || 'temporario';
 
-      for (const shiftName of SHIFT_ORDER) {
-        const shiftData = historyData.find(d => 
-          d.funcao === pref.faina && d.dataTurno.includes(shiftName)
-        );
+      // Agora o 'Vai dar boa' olha apenas para o turno que está acontecendo agora (activeShiftFromData)
+      const shiftData = historyData.find(d => 
+        d.funcao === pref.faina && d.dataTurno.includes(activeShiftFromData)
+      );
 
-        if (shiftData) {
-          const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
-          const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
-          const monitorValue = modoAtivo === 'original' ? valO : valT;
-          const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
-          
-          const diff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
+      if (shiftData) {
+        const valO = isGroup2 ? shiftData.original2 : shiftData.original1;
+        const valT = isGroup2 ? shiftData.temporario2 : shiftData.temporario1;
+        const monitorValue = modoAtivo === 'original' ? valO : valT;
+        const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
+        
+        const diff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
 
-          if (diff > 0 && diff < minDiff) {
-            minDiff = diff;
-            result = {
-              faina: pref.faina,
-              shift: shiftName,
-              diff: diff
-            };
-          }
+        // Considera apenas fainas que ainda não chamaram (distância positiva)
+        if (diff > 0 && diff < minDiff) {
+          minDiff = diff;
+          result = {
+            faina: pref.faina,
+            shift: activeShiftFromData,
+            diff: diff
+          };
         }
       }
     }
     return result;
-  }, [preferences, historyData]);
+  }, [preferences, historyData, activeShiftFromData]);
 
   if (isLoading) {
     return (
