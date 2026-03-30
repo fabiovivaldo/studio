@@ -5,7 +5,7 @@ import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
 import { WifiOff, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ViewMode } from '@/app/page';
+import { ViewMode } from '@/components/dashboard/dashboard-content';
 import { Badge } from '@/components/ui/badge';
 
 interface DynamicFainaCardsProps {
@@ -13,13 +13,22 @@ interface DynamicFainaCardsProps {
   selectedShift?: ViewMode;
 }
 
-const SHIFT_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
+// Ordem lógica para exibição (conforme imagem do usuário)
+const SHIFT_DISPLAY_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
+
+// Pesos cronológicos para determinar o que já passou no dia
+const SHIFT_CHRONO_WEIGHTS: Record<string, number> = {
+  'Madrugada': 0,
+  'Manhã': 1,
+  'Tarde': 2,
+  'Noite': 3
+};
 
 const SHIFT_LABELS: Record<string, string> = {
+  'Madrugada': '01X07',
   'Manhã': '07X13',
   'Tarde': '13X19',
-  'Noite': '19X01',
-  'Madrugada': '01X07'
+  'Noite': '19X01'
 };
 
 function calculateDistance(
@@ -84,12 +93,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   const activeShiftFromData = useMemo(() => {
     if (!scrapedData.length) return null;
     const turnoStr = scrapedData[0].Data_Turno;
-    return SHIFT_ORDER.find(s => turnoStr.includes(s));
+    return Object.keys(SHIFT_CHRONO_WEIGHTS).find(s => turnoStr.includes(s)) || null;
   }, [scrapedData]);
 
-  const activeShiftIndex = useMemo(() => {
+  const activeShiftChronoWeight = useMemo(() => {
     if (!activeShiftFromData) return -1;
-    return SHIFT_ORDER.indexOf(activeShiftFromData);
+    return SHIFT_CHRONO_WEIGHTS[activeShiftFromData];
   }, [activeShiftFromData]);
 
   const sortedPreferences = useMemo(() => {
@@ -125,7 +134,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedPreferences.map((pref) => {
           const modoAtivo = pref.modo || 'temporario';
-          const isRegistro = pref.tipo === '1';
+          const isRegistro = pref.tipo === '1'; // P1 = REGISTRO
           const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
           return (
@@ -171,7 +180,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
 
               <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full">
-                {SHIFT_ORDER.map((shiftName, shiftIdx) => {
+                {SHIFT_DISPLAY_ORDER.map((shiftName) => {
                   const shiftData = historyData.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
@@ -193,12 +202,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
 
-                  // Lógica para saber se o turno já passou
-                  const isPassed = activeShiftIndex !== -1 && shiftIdx < activeShiftIndex;
+                  // Lógica cronológica para saber se o turno já passou
+                  const thisShiftWeight = SHIFT_CHRONO_WEIGHTS[shiftName];
+                  const isPassed = activeShiftChronoWeight !== -1 && thisShiftWeight < activeShiftChronoWeight;
 
-                  // Alertas apenas se NÃO passou e está em destaque
-                  const isCritical = !isPassed && isHighlighted && displayDiff !== null && displayDiff >= 0 && displayDiff <= 10;
-                  const isWarning = !isPassed && isHighlighted && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
+                  const isCritical = isHighlighted && !isPassed && displayDiff !== null && displayDiff >= 0 && displayDiff <= 10;
+                  const isWarning = isHighlighted && !isPassed && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
                   return (
                     <div 
@@ -207,7 +216,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-1.5 relative min-w-0 h-full",
                         !shiftData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         shiftData && "bg-muted/5 border-border/30",
-                        isHighlighted && !isCritical && !isWarning && "ring-2 ring-primary border-primary/50 bg-primary/5",
+                        isHighlighted && !isCritical && !isWarning && "ring-2 ring-primary border-primary/50 bg-primary/5 shadow-[inset_0_0_10px_rgba(37,99,235,0.1)]",
                         isCritical && "bg-destructive/10 border-destructive shadow-[0_0_15px_rgba(239,68,68,0.2)]",
                         isWarning && "bg-orange-500/10 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]",
                         isPassed && "opacity-40 grayscale-[0.5]"
@@ -254,7 +263,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                             {displayDiff}
                           </span>
                         )}
-                        {isCritical && <AlertCircle className="h-3 w-3 text-destructive shrink-0" />}
+                        {isHighlighted && isCritical && <AlertCircle className="h-3 w-3 text-destructive shrink-0" />}
                       </div>
                     </div>
                   );

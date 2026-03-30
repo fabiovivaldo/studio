@@ -18,14 +18,13 @@ import {
   Sunrise,
   Moon,
   CloudMoon,
-  Calendar,
   Star,
   Filter
 } from "lucide-react";
 import { PonteiroData } from "@/lib/data-service";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from '@/lib/utils';
-import { ViewMode } from '@/app/page';
+import { ViewMode } from '@/components/dashboard/dashboard-content';
 
 interface DataTableProps {
   liveData: PonteiroData[];
@@ -44,16 +43,15 @@ const CATEGORY_CONFIG = [
 ];
 
 const SHIFT_CONFIG = [
+  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-500' },
   { id: 'Manhã', label: '07X13', icon: Sunrise, color: 'text-orange-500' },
   { id: 'Tarde', label: '13X19', icon: Sun, color: 'text-yellow-500' },
   { id: 'Noite', label: '19X01', icon: Moon, color: 'text-blue-500' },
-  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-500' },
 ] as const;
 
 export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTableProps) {
   const [preferences, setPreferences] = useState<any[]>([]);
   const [historyData, setHistoryData] = useState<any[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ key: keyof PonteiroData; direction: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("TODOS");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -96,14 +94,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
     return mappedHistory.filter(h => h.Data_Turno.includes(viewMode));
   }, [viewMode, liveData, mappedHistory]);
 
-  const handleSort = (key: keyof PonteiroData) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
-
   const filteredData = useMemo(() => {
     return currentData.filter(item => {
       const matchesFilter = Object.values(item).some(val => 
@@ -119,16 +109,6 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
       return matchesFilter && matchesCategory && matchesFavorites;
     });
   }, [currentData, filter, activeCategory, showFavoritesOnly, favoriteFainas]);
-
-  const sortedData = useMemo(() => {
-    if (!sortConfig) return filteredData;
-    const sorted = [...filteredData].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [filteredData, sortConfig]);
 
   const cellTextStyle = "text-[12px] font-bold tracking-tight py-2 px-3";
 
@@ -236,8 +216,8 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedData.length > 0 ? (
-                  sortedData.map((row, idx) => (
+                {filteredData.length > 0 ? (
+                  filteredData.map((row, idx) => (
                     <TableRow key={idx} className="hover:bg-accent/5 transition-colors border-border/40">
                       <TableCell className={cn(cellTextStyle, "font-black text-foreground min-w-[200px]")}>
                         {row.Funcao}
