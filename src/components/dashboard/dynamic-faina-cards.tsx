@@ -87,6 +87,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return SHIFT_ORDER.find(s => turnoStr.includes(s));
   }, [scrapedData]);
 
+  const activeShiftIndex = useMemo(() => {
+    if (!activeShiftFromData) return -1;
+    return SHIFT_ORDER.indexOf(activeShiftFromData);
+  }, [activeShiftFromData]);
+
   const sortedPreferences = useMemo(() => {
     if (!preferences.length) return [];
     return [...preferences].sort((a, b) => a.faina.localeCompare(b.faina));
@@ -166,7 +171,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               </div>
 
               <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full">
-                {SHIFT_ORDER.map((shiftName) => {
+                {SHIFT_ORDER.map((shiftName, shiftIdx) => {
                   const shiftData = historyData.find(d => 
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
@@ -189,7 +194,10 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     : selectedShift === shiftName;
 
                   const isCritical = isHighlighted && displayDiff !== null && displayDiff > 0 && displayDiff <= 10;
-                  const isWarning = isHighlighted && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
+                  const isWarning = isHighlighted && !isCritical && !isWarning && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
+
+                  // Lógica para saber se o turno já passou
+                  const isPassed = activeShiftIndex !== -1 && shiftIdx < activeShiftIndex;
 
                   return (
                     <div 
@@ -200,7 +208,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         shiftData && "bg-muted/5 border-border/30",
                         isHighlighted && !isCritical && !isWarning && "ring-2 ring-primary border-primary/50 bg-primary/5",
                         isCritical && "bg-destructive/10 border-destructive shadow-[0_0_15px_rgba(239,68,68,0.2)]",
-                        isWarning && "bg-orange-500/10 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
+                        isWarning && "bg-orange-500/10 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]",
+                        isPassed && "opacity-40 grayscale-[0.5]"
                       )}
                     >
                       <div className="flex items-center justify-between min-w-0">
@@ -208,16 +217,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           "text-[9px] font-black uppercase tracking-widest truncate",
                           isHighlighted ? "text-primary" : "text-muted-foreground/60"
                         )}>
-                          {SHIFT_LABELS[shiftName]}
+                          ({shiftData?.sinal || ''}) {SHIFT_LABELS[shiftName]}
                         </span>
-                        {shiftData?.sinal && (
-                          <span className={cn(
-                            "text-[9px] font-black shrink-0",
-                            shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
-                          )}>
-                            ({shiftData.sinal})
-                          </span>
-                        )}
                       </div>
 
                       <div className="space-y-1">
@@ -248,7 +249,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                             ? "text-muted-foreground/30" 
                             : (isCritical ? "text-destructive" : isWarning ? "text-orange-600" : "text-primary")
                         )}>
-                          {shiftData ? displayDiff : ''}
+                          {!isPassed && shiftData ? displayDiff : ''}
                         </span>
                         {isCritical && <AlertCircle className="h-3 w-3 text-destructive shrink-0" />}
                       </div>
