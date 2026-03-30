@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
@@ -58,7 +57,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const [newFaina, setNewFaina] = useState({ 
     faina: '', 
     chamada: '', 
-    teto: '400',
+    teto: '0',
     tipo: '1', 
     modo: 'temporario' 
   });
@@ -66,7 +65,6 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const listRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Carregar do LocalStorage no início
   useEffect(() => {
     const saved = localStorage.getItem('faina_preferences');
     if (saved) {
@@ -128,7 +126,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
         ...p,
         faina: normalizedNewFaina,
         chamada: newFaina.chamada.toUpperCase().trim(),
-        teto: newFaina.teto.trim() || '400',
+        teto: newFaina.teto.trim() || '0',
         tipo: newFaina.tipo,
         modo: newFaina.modo,
       } : p);
@@ -137,7 +135,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
         id: crypto.randomUUID(),
         faina: normalizedNewFaina,
         chamada: newFaina.chamada.toUpperCase().trim(),
-        teto: newFaina.teto.trim() || '400',
+        teto: newFaina.teto.trim() || '0',
         tipo: newFaina.tipo,
         modo: newFaina.modo,
       };
@@ -148,7 +146,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     setPreferences(updatedPrefs);
     window.dispatchEvent(new Event('faina_preferences_updated'));
 
-    setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
+    setNewFaina({ faina: '', chamada: '', teto: '0', tipo: '1', modo: 'temporario' });
     setEditingId(null);
     setIsSubmitting(false);
     setIsListVisible(false);
@@ -164,7 +162,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     setNewFaina({
       faina: pref.faina,
       chamada: pref.chamada,
-      teto: pref.teto || '400',
+      teto: pref.teto || '0',
       tipo: pref.tipo,
       modo: pref.modo
     });
@@ -180,7 +178,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     
     if (editingId === deleteConfirmId) {
       setEditingId(null);
-      setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
+      setNewFaina({ faina: '', chamada: '', teto: '0', tipo: '1', modo: 'temporario' });
     }
     setDeleteConfirmId(null);
     toast({
@@ -200,7 +198,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
           setIsOpen(open);
           if (!open) {
             setEditingId(null);
-            setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
+            setNewFaina({ faina: '', chamada: '', teto: '0', tipo: '1', modo: 'temporario' });
           }
       }}>
         <DialogTrigger asChild>
@@ -221,7 +219,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                 {editingId ? "Editar Localmente" : "Minhas Fainas (Local)"}
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-1 uppercase font-bold opacity-70">
-                Os dados são salvos apenas neste navegador.
+                Os dados são salvos apenas neste navegador. Teto em '0' ignora lógica circular.
               </DialogDescription>
             </DialogHeader>
           </div>
@@ -248,7 +246,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                       className="h-7 text-[9px] uppercase font-black bg-red-500 hover:bg-red-600 text-white border-none shadow-sm"
                       onClick={() => {
                           setEditingId(null);
-                          setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
+                          setNewFaina({ faina: '', chamada: '', teto: '0', tipo: '1', modo: 'temporario' });
                       }}
                   >
                       <XCircle className="h-3.5 w-3.5 mr-1" />
@@ -309,7 +307,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Teto</Label>
+                    <Label className="text-[9px] font-black uppercase text-muted-foreground/70">Teto (0=Off)</Label>
                     <Input 
                       placeholder="400" 
                       value={newFaina.teto}
@@ -387,7 +385,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           editingId === pref.id ? "text-yellow-600" : "text-primary"
                         )}>CH: {pref.chamada}</span>
                         <span className="text-[9px] font-bold uppercase text-muted-foreground/60">
-                          {pref.tipo === '1' ? 'CAD' : 'REG'} - {pref.modo === 'original' ? 'ORIG' : 'PONT'} (Teto: {pref.teto || '400'})
+                          {pref.tipo === '1' ? 'CAD' : 'REG'} - {pref.modo === 'original' ? 'ORIG' : 'PONT'} (Teto: {pref.teto === '0' ? 'Off' : pref.teto})
                         </span>
                       </div>
                     </div>

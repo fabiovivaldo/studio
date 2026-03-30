@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -29,6 +28,16 @@ function calculateDistance(
   tetoNum: number,
   sinal: string
 ): number {
+  // Lógica condicional: Se teto for 0, ignora a lógica circular
+  if (tetoNum <= 0) {
+    if (sinal === '-') {
+      return monitorNum - targetNum;
+    } else {
+      return targetNum - monitorNum;
+    }
+  }
+
+  // Lógica circular (com Teto)
   if (sinal === '-') {
     if (monitorNum >= targetNum) {
       return monitorNum - targetNum;
@@ -49,7 +58,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Carregar dados do LocalStorage
   useEffect(() => {
     const loadLocalData = () => {
       const savedPrefs = localStorage.getItem('faina_preferences');
@@ -88,7 +96,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       const getMinDist = (pref: any) => {
         let min = Infinity;
         const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-        const tetoNum = parseInt(pref.teto || '400') || 400;
+        const tetoNum = parseInt(pref.teto || '0') || 0;
         const isGroup2 = pref.tipo === '2';
         const modoAtivo = pref.modo || 'temporario';
 
@@ -120,7 +128,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
     for (const pref of preferences) {
       const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-      const tetoNum = parseInt(pref.teto || '400') || 400;
+      const tetoNum = parseInt(pref.teto || '0') || 0;
       const isGroup2 = pref.tipo === '2';
       const modoAtivo = pref.modo || 'temporario';
 
@@ -137,7 +145,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
           
           const diff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
 
-          if (diff < minDiff) {
+          // Só considera positivo para predição de "vinda"
+          if (diff > 0 && diff < minDiff) {
             minDiff = diff;
             result = {
               faina: pref.faina,
@@ -242,14 +251,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   const monitorValue = modoAtivo === 'original' ? valO : valT;
                   const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
                   const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-                  const tetoNum = parseInt(pref.teto || '400') || 400;
+                  const tetoNum = parseInt(pref.teto || '0') || 0;
                   
                   let displayDiff = null;
                   if (shiftData) {
                     displayDiff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
                   }
                   
-                  const isCritical = displayDiff !== null && displayDiff <= 10;
+                  const isCritical = displayDiff !== null && displayDiff > 0 && displayDiff <= 10;
                   const isWarning = displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
                   const isHighlighted = selectedShift === 'live' 
@@ -315,7 +324,10 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       </div>
 
                       <div className="mt-auto pt-1">
-                        <span className="text-[16px] font-black text-orange-600 tracking-tighter leading-none block">
+                        <span className={cn(
+                          "text-[16px] font-black tracking-tighter leading-none block",
+                          displayDiff !== null && displayDiff <= 0 ? "text-muted-foreground opacity-50" : "text-orange-600"
+                        )}>
                           {shiftData ? displayDiff : ''}
                         </span>
                       </div>
