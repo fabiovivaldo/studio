@@ -57,7 +57,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
   const [newFaina, setNewFaina] = useState({ 
     faina: '', 
     chamada: '', 
-    teto: '0',
+    teto: '400',
     tipo: '1', 
     modo: 'temporario' 
   });
@@ -146,7 +146,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     setPreferences(updatedPrefs);
     window.dispatchEvent(new Event('faina_preferences_updated'));
 
-    setNewFaina({ faina: '', chamada: '', teto: '0', tipo: '1', modo: 'temporario' });
+    setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
     setEditingId(null);
     setIsSubmitting(false);
     setIsListVisible(false);
@@ -178,7 +178,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
     
     if (editingId === deleteConfirmId) {
       setEditingId(null);
-      setNewFaina({ faina: '', chamada: '', teto: '0', tipo: '1', modo: 'temporario' });
+      setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
     }
     setDeleteConfirmId(null);
     toast({
@@ -198,7 +198,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
           setIsOpen(open);
           if (!open) {
             setEditingId(null);
-            setNewFaina({ faina: '', chamada: '', teto: '0', tipo: '1', modo: 'temporario' });
+            setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
           }
       }}>
         <DialogTrigger asChild>
@@ -246,7 +246,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                       className="h-7 text-[9px] uppercase font-black bg-red-500 hover:bg-red-600 text-white border-none shadow-sm"
                       onClick={() => {
                           setEditingId(null);
-                          setNewFaina({ faina: '', chamada: '', teto: '0', tipo: '1', modo: 'temporario' });
+                          setNewFaina({ faina: '', chamada: '', teto: '400', tipo: '1', modo: 'temporario' });
                       }}
                   >
                       <XCircle className="h-3.5 w-3.5 mr-1" />
@@ -323,8 +323,8 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1" className="text-[10px] font-bold uppercase">REGISTRO</SelectItem>
-                        <SelectItem value="2" className="text-[10px] font-bold uppercase">CADASTRO</SelectItem>
+                        <SelectItem value="1" className="text-[10px] font-bold uppercase text-primary">REGISTRO</SelectItem>
+                        <SelectItem value="2" className="text-[10px] font-bold uppercase text-primary">CADASTRO</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
