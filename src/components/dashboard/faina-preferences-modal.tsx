@@ -323,8 +323,8 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1" className="text-[10px] font-bold uppercase">CADASTRO</SelectItem>
-                        <SelectItem value="2" className="text-[10px] font-bold uppercase">REGISTRO</SelectItem>
+                        <SelectItem value="1" className="text-[10px] font-bold uppercase">REGISTRO</SelectItem>
+                        <SelectItem value="2" className="text-[10px] font-bold uppercase">CADASTRO</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -385,7 +385,7 @@ export function FainaPreferencesModal({ availableFainas, trigger }: FainaPrefere
                           editingId === pref.id ? "text-yellow-600" : "text-primary"
                         )}>CH: {pref.chamada}</span>
                         <span className="text-[9px] font-bold uppercase text-muted-foreground/60">
-                          {pref.tipo === '1' ? 'CADASTRO' : 'REGISTRO'} - {pref.modo === 'original' ? 'ORIG' : 'PONT'} (Teto: {pref.teto === '0' ? 'Off' : pref.teto})
+                          {pref.tipo === '1' ? 'REGISTRO' : 'CADASTRO'} - {pref.modo === 'original' ? 'ORIG' : 'PONT'} (Teto: {pref.teto === '0' ? 'Off' : pref.teto})
                         </span>
                       </div>
                     </div>

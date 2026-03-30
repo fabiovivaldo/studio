@@ -227,7 +227,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         "h-4 text-[7px] font-black px-1.5 uppercase",
                         isGroup2 ? "border-orange-500/30 text-orange-500 bg-orange-500/5" : "border-primary/30 text-primary bg-primary/5"
                       )}>
-                        {isGroup2 ? 'REGISTRO' : 'CADASTRO'}
+                        {isGroup2 ? 'CADASTRO' : 'REGISTRO'}
                       </Badge>
                     </div>
                     <h2 className="text-sm font-black text-foreground uppercase tracking-tight break-words truncate max-w-[150px] sm:max-w-[250px]">
