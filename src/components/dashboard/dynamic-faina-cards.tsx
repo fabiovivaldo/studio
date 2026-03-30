@@ -103,7 +103,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
             d.funcao === pref.faina && d.dataTurno.includes(shiftName)
           );
           if (shiftData) {
-            // FIX: TIPO 1 (REGISTRO) -> P1, TIPO 2 (CADASTRO) -> P2
             const valO = isGroupRegistro ? shiftData.original1 : shiftData.original2;
             const valT = isGroupRegistro ? shiftData.temporario1 : shiftData.temporario2;
             const monitorValue = modoAtivo === 'original' ? valO : valT;
@@ -136,7 +135,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       );
 
       if (shiftData) {
-        // FIX: TIPO 1 (REGISTRO) -> P1, TIPO 2 (CADASTRO) -> P2
         const valO = isGroupRegistro ? shiftData.original1 : shiftData.original2;
         const valT = isGroupRegistro ? shiftData.temporario1 : shiftData.temporario2;
         const monitorValue = modoAtivo === 'original' ? valO : valT;
@@ -249,7 +247,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     d.funcao === pref.faina && d.dataTurno.includes(shiftName)
                   );
 
-                  // FIX: TIPO 1 (REGISTRO) -> P1, TIPO 2 (CADASTRO) -> P2
                   const valO = isGroupRegistro ? shiftData?.original1 : shiftData?.original2;
                   const valT = isGroupRegistro ? shiftData?.temporario1 : shiftData?.temporario2;
 
@@ -292,7 +289,17 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                             {SHIFT_LABELS[shiftName]}
                           </span>
                         </div>
-                        {isCritical && <AlertCircle className="h-3 w-3 text-destructive shrink-0" />}
+                        <div className="flex items-center gap-1">
+                          {shiftData?.sinal && (
+                            <span className={cn(
+                              "text-[9px] font-black",
+                              shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
+                            )}>
+                              ({shiftData.sinal})
+                            </span>
+                          )}
+                          {isCritical && <AlertCircle className="h-2.5 w-2.5 text-destructive shrink-0" />}
+                        </div>
                       </div>
 
                       <div className="space-y-0.5">
@@ -330,14 +337,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         )}>
                           {shiftData ? displayDiff : ''}
                         </span>
-                        {shiftData?.sinal && (
-                            <span className={cn(
-                              "text-[10px] font-black",
-                              shiftData.sinal === '-' ? "text-destructive" : "text-green-500"
-                            )}>
-                              ({shiftData.sinal})
-                            </span>
-                        )}
                       </div>
                     </div>
                   );
