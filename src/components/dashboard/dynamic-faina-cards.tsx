@@ -118,43 +118,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     });
   }, [preferences, historyData]);
 
-  const closestPrediction = useMemo(() => {
-    if (!preferences.length || !historyData.length || !activeShiftFromData) return null;
-    
-    let minDiff = Infinity;
-    let result = null;
-
-    for (const pref of preferences) {
-      const targetNum = parseInt(pref.chamada.replace(/\D/g, '')) || 0;
-      const tetoNum = parseInt(pref.teto || '0') || 0;
-      const isGroupRegistro = pref.tipo === '1';
-      const modoAtivo = pref.modo || 'temporario';
-
-      const shiftData = historyData.find(d => 
-        d.funcao === pref.faina && d.dataTurno.includes(activeShiftFromData)
-      );
-
-      if (shiftData) {
-        const valO = isGroupRegistro ? shiftData.original1 : shiftData.original2;
-        const valT = isGroupRegistro ? shiftData.temporario1 : shiftData.temporario2;
-        const monitorValue = modoAtivo === 'original' ? valO : valT;
-        const monitorNum = parseInt(monitorValue?.replace(/\D/g, '') || '0') || 0;
-        
-        const diff = calculateDistance(monitorNum, targetNum, tetoNum, shiftData.sinal);
-
-        if (diff > 0 && diff < minDiff) {
-          minDiff = diff;
-          result = {
-            faina: pref.faina,
-            shift: activeShiftFromData,
-            diff: diff
-          };
-        }
-      }
-    }
-    return result;
-  }, [preferences, historyData, activeShiftFromData]);
-
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
@@ -180,17 +143,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   return (
     <div className="space-y-6">
-      {closestPrediction && (
-        <div className="px-1 animate-in fade-in slide-in-from-left-4 duration-700">
-          <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-2 rounded-xl">
-            <Sparkles className="h-4 w-4 text-accent" />
-            <span className="text-xs font-black uppercase tracking-widest text-foreground">
-              vai dar boa em <span className="text-accent">{closestPrediction.faina}</span> ({SHIFT_LABELS[closestPrediction.shift]})
-            </span>
-          </div>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedPreferences.map((pref) => {
           const modoAtivo = pref.modo || 'temporario';
@@ -264,6 +216,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
 
+                  // Alertas de proximidade aparecem apenas no turno ativo/selecionado
                   const isCritical = isHighlighted && displayDiff !== null && displayDiff > 0 && displayDiff <= 10;
                   const isWarning = isHighlighted && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
