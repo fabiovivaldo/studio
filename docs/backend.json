@@ -1,1 +1,48 @@
-{}
+
+{
+  "entities": {
+    "UserPreference": {
+      "title": "Preferência de Faina",
+      "description": "Configurações de monitoramento de faina específicas por usuário.",
+      "type": "object",
+      "properties": {
+        "faina": { "type": "string" },
+        "chamada": { "type": "string" },
+        "teto": { "type": "string" },
+        "tipo": { "type": "string", "enum": ["1", "2"] },
+        "modo": { "type": "string", "enum": ["original", "temporario"] },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["faina", "chamada"]
+    },
+    "PonteiroHistory": {
+      "title": "Histórico de Ponteiro",
+      "description": "Registro histórico de valores de ponteiros extraídos.",
+      "type": "object",
+      "properties": {
+        "funcao": { "type": "string" },
+        "sinal": { "type": "string" },
+        "original1": { "type": "string" },
+        "temporario1": { "type": "string" },
+        "original2": { "type": "string" },
+        "temporario2": { "type": "string" },
+        "dataTurno": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["funcao", "dataTurno"]
+    }
+  },
+  "auth": {
+    "providers": ["google.com", "password"]
+  },
+  "firestore": {
+    "/users/{userId}/preferences/{prefId}": {
+      "schema": "UserPreference",
+      "description": "Preferências de monitoramento de cada usuário."
+    },
+    "/users/{userId}/history/{historyId}": {
+      "schema": "PonteiroHistory",
+      "description": "Histórico de ponteiros arquivado pelo usuário."
+    }
+  }
+}
