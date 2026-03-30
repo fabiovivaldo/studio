@@ -193,11 +193,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
 
-                  const isCritical = isHighlighted && displayDiff !== null && displayDiff > 0 && displayDiff <= 10;
-                  const isWarning = isHighlighted && !isCritical && !isWarning && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
-
                   // Lógica para saber se o turno já passou
                   const isPassed = activeShiftIndex !== -1 && shiftIdx < activeShiftIndex;
+
+                  // Alertas apenas se NÃO passou e está em destaque
+                  const isCritical = !isPassed && isHighlighted && displayDiff !== null && displayDiff >= 0 && displayDiff <= 10;
+                  const isWarning = !isPassed && isHighlighted && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
                   return (
                     <div 
@@ -242,15 +243,17 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         </div>
                       </div>
 
-                      <div className="mt-auto pt-1.5 border-t border-border/30 flex items-center justify-between">
-                        <span className={cn(
-                          "text-base font-black tracking-tighter leading-none",
-                          displayDiff !== null && displayDiff <= 0 
-                            ? "text-muted-foreground/30" 
-                            : (isCritical ? "text-destructive" : isWarning ? "text-orange-600" : "text-primary")
-                        )}>
-                          {!isPassed && shiftData ? displayDiff : ''}
-                        </span>
+                      <div className="mt-auto pt-1.5 border-t border-border/30 flex items-center justify-between min-h-[1.5rem]">
+                        {!isPassed && shiftData && (
+                          <span className={cn(
+                            "text-base font-black tracking-tighter leading-none",
+                            displayDiff !== null && displayDiff <= 0 
+                              ? "text-muted-foreground/30" 
+                              : (isCritical ? "text-destructive" : isWarning ? "text-orange-600" : "text-primary")
+                          )}>
+                            {displayDiff}
+                          </span>
+                        )}
                         {isCritical && <AlertCircle className="h-3 w-3 text-destructive shrink-0" />}
                       </div>
                     </div>
