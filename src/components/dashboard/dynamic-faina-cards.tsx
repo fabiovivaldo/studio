@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
-import { WifiOff, Hash } from 'lucide-react';
+import { WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewMode } from '@/components/dashboard/dashboard-content';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ interface DynamicFainaCardsProps {
   selectedShift?: ViewMode;
 }
 
+// Ordem cronológica real do Porto: Madrugada é o início do dia
 const SHIFT_DISPLAY_ORDER = ['Madrugada', 'Manhã', 'Tarde', 'Noite'] as const;
 
 const SHIFT_CHRONO_WEIGHTS: Record<string, number> = {
@@ -65,7 +66,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return Object.keys(SHIFT_CHRONO_WEIGHTS).find(s => turnoStr.includes(s)) || null;
   }, [scrapedData]);
 
-  const activeShiftChronoWeight = useMemo(() => {
+  const activeShiftWeight = useMemo(() => {
     if (!activeShiftFromData) return -1;
     return SHIFT_CHRONO_WEIGHTS[activeShiftFromData];
   }, [activeShiftFromData]);
@@ -162,7 +163,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     : selectedShift === shiftName;
 
                   const thisShiftWeight = SHIFT_CHRONO_WEIGHTS[shiftName];
-                  const isPassed = activeShiftChronoWeight !== -1 && thisShiftWeight < activeShiftChronoWeight;
+                  const isPassed = activeShiftWeight !== -1 && thisShiftWeight < activeShiftWeight;
 
                   return (
                     <div 
@@ -180,7 +181,13 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           "text-[9px] font-black uppercase tracking-widest truncate",
                           isHighlighted ? "text-primary" : "text-muted-foreground/60"
                         )}>
-                          ({shiftData?.sinal || ''}) {SHIFT_LABELS[shiftName]}
+                          <span className={cn(
+                            shiftData?.sinal === '+' ? "text-green-500" : 
+                            shiftData?.sinal === '-' ? "text-destructive" : ""
+                          )}>
+                            {shiftData?.sinal ? `(${shiftData.sinal}) ` : ''}
+                          </span>
+                          {SHIFT_LABELS[shiftName]}
                         </span>
                       </div>
 
