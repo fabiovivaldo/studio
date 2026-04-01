@@ -97,7 +97,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   }
 
   const labelStyle = "text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest";
-  const tinyLabelStyle = "text-[9px] font-bold text-muted-foreground/50 uppercase";
+  const tinyLabelStyle = "text-[9px] font-bold text-muted-foreground/40 uppercase";
 
   return (
     <div className="space-y-6">
@@ -181,31 +181,36 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           "text-[9px] font-black uppercase tracking-widest truncate",
                           isHighlighted ? "text-primary" : "text-muted-foreground/60"
                         )}>
+                          {SHIFT_LABELS[shiftName]}
                           <span className={cn(
+                            "ml-1",
                             shiftData?.sinal === '+' ? "text-green-500" : 
                             shiftData?.sinal === '-' ? "text-destructive" : ""
                           )}>
-                            {shiftData?.sinal ? `(${shiftData.sinal}) ` : ''}
+                            {shiftData?.sinal ? `(${shiftData.sinal})` : ''}
                           </span>
-                          {SHIFT_LABELS[shiftName]}
                         </span>
                       </div>
 
                       <div className="space-y-1.5">
                         <div className="flex flex-col">
-                          <span className={tinyLabelStyle}>{modoAtivo === 'original' ? 'Ponteiro' : 'Original'}:</span>
+                          <span className={tinyLabelStyle}>
+                            {modoAtivo === 'original' ? 'Pont:' : 'Orig:'}
+                          </span>
                           <span className={cn(
                             "text-[10px] font-black",
-                            modoAtivo === 'original' ? "text-foreground text-sm" : "text-muted-foreground/60"
+                            modoAtivo === 'original' ? "text-foreground text-sm" : "text-primary/70"
                           )}>
                             {valO || '--'}
                           </span>
                         </div>
                         <div className="flex flex-col">
-                          <span className={tinyLabelStyle}>{modoAtivo === 'temporario' ? 'Ponteiro' : 'Provisório'}:</span>
+                          <span className={tinyLabelStyle}>
+                            {modoAtivo === 'temporario' ? 'Pont:' : 'Prov:'}
+                          </span>
                           <span className={cn(
                             "text-[10px] font-black",
-                            modoAtivo === 'temporario' ? "text-foreground text-sm" : "text-muted-foreground/60"
+                            modoAtivo === 'temporario' ? "text-foreground text-sm" : "text-primary/70"
                           )}>
                             {valT || '--'}
                           </span>
