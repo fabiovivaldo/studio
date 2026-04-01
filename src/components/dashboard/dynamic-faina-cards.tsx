@@ -13,8 +13,8 @@ interface DynamicFainaCardsProps {
   selectedShift?: ViewMode;
 }
 
-// Ordem lógica para exibição (conforme imagem do usuário)
-const SHIFT_DISPLAY_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
+// Ordem lógica para exibição cronológica no Porto
+const SHIFT_DISPLAY_ORDER = ['Madrugada', 'Manhã', 'Tarde', 'Noite'] as const;
 
 // Pesos cronológicos para determinar o que já passou no dia
 const SHIFT_CHRONO_WEIGHTS: Record<string, number> = {
@@ -134,7 +134,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedPreferences.map((pref) => {
           const modoAtivo = pref.modo || 'temporario';
-          const isRegistro = pref.tipo === '1'; // P1 = REGISTRO
+          const isRegistro = pref.tipo === '1';
           const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
 
           return (
@@ -161,7 +161,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="h-4 text-[7px] font-black px-1.5 uppercase border-primary/30 text-primary">
-                        {isRegistro ? 'REGISTRO' : 'CADASTRO'}
+                        {isRegistro ? 'REGISTRO (P1)' : 'CADASTRO (P2)'}
                       </Badge>
                       <span className={labelStyle}>Faina</span>
                     </div>
@@ -202,10 +202,10 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? activeShiftFromData === shiftName 
                     : selectedShift === shiftName;
 
-                  // Lógica cronológica para saber se o turno já passou
                   const thisShiftWeight = SHIFT_CHRONO_WEIGHTS[shiftName];
                   const isPassed = activeShiftChronoWeight !== -1 && thisShiftWeight < activeShiftChronoWeight;
 
+                  // Alertas aparecem apenas se não passou
                   const isCritical = isHighlighted && !isPassed && displayDiff !== null && displayDiff >= 0 && displayDiff <= 10;
                   const isWarning = isHighlighted && !isPassed && !isCritical && displayDiff !== null && displayDiff > 10 && displayDiff <= 20;
 
@@ -216,9 +216,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-1.5 relative min-w-0 h-full",
                         !shiftData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         shiftData && "bg-muted/5 border-border/30",
-                        isHighlighted && !isCritical && !isWarning && "ring-2 ring-primary border-primary/50 bg-primary/5 shadow-[inset_0_0_10px_rgba(37,99,235,0.1)]",
-                        isCritical && "bg-destructive/10 border-destructive shadow-[0_0_15px_rgba(239,68,68,0.2)]",
-                        isWarning && "bg-orange-500/10 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]",
+                        isHighlighted && !isCritical && !isWarning && "ring-2 ring-primary border-primary/50 bg-primary/5",
+                        isCritical && "bg-destructive/10 border-destructive",
+                        isWarning && "bg-orange-500/10 border-orange-500",
                         isPassed && "opacity-40 grayscale-[0.5]"
                       )}
                     >
@@ -254,14 +254,19 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
                       <div className="mt-auto pt-1.5 border-t border-border/30 flex items-center justify-between min-h-[1.5rem]">
                         {!isPassed && shiftData && (
-                          <span className={cn(
-                            "text-base font-black tracking-tighter leading-none",
-                            displayDiff !== null && displayDiff <= 0 
-                              ? "text-muted-foreground/30" 
-                              : (isCritical ? "text-destructive" : isWarning ? "text-orange-600" : "text-primary")
-                          )}>
-                            {displayDiff}
-                          </span>
+                          <div className="flex items-baseline gap-1">
+                            <span className={cn(
+                              "text-base font-black tracking-tighter leading-none",
+                              displayDiff !== null && displayDiff <= 0 
+                                ? "text-muted-foreground/30" 
+                                : (isCritical ? "text-destructive" : isWarning ? "text-orange-600" : "text-primary")
+                            )}>
+                              {displayDiff}
+                            </span>
+                            {displayDiff !== null && displayDiff > 0 && (
+                              <span className="text-[8px] font-black uppercase opacity-40">Faltam</span>
+                            )}
+                          </div>
                         )}
                         {isHighlighted && isCritical && <AlertCircle className="h-3 w-3 text-destructive shrink-0" />}
                       </div>
