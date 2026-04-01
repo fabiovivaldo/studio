@@ -12,10 +12,15 @@ import {
   HardHat, 
   Settings,
   Wrench,
-  Zap
+  Zap,
+  CloudMoon,
+  Sunrise,
+  Sun,
+  Moon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from '@/lib/utils';
 
 interface DashboardContentProps {
   initialData: PonteiroData[];
@@ -23,14 +28,21 @@ interface DashboardContentProps {
   uniqueFainas: string[];
 }
 
-export type ViewMode = 'live' | 'Manhã' | 'Tarde' | 'Noite' | 'Madrugada';
+export type ViewMode = 'live' | 'Madrugada' | 'Manhã' | 'Tarde' | 'Noite';
+
+const SHIFT_CONFIG = [
+  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-500' },
+  { id: 'Manhã', label: '07X13', icon: Sunrise, color: 'text-orange-500' },
+  { id: 'Tarde', label: '13X19', icon: Sun, color: 'text-yellow-500' },
+  { id: 'Noite', label: '19X01', icon: Moon, color: 'text-blue-500' },
+] as const;
 
 export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: DashboardContentProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('live');
 
   return (
     <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-accent/10">
-      <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50 px-4 sm:px-8 py-4">
+      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border/50 px-4 sm:px-8 py-4">
         <div className="flex justify-between items-center max-w-[1600px] mx-auto">
           <div className="flex flex-col gap-1">
             <h1 className="font-headline font-bold text-base sm:text-lg tracking-tight text-foreground">
@@ -63,6 +75,40 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
         </div>
       </header>
 
+      {/* Seletor de Período Fixo no Topo */}
+      <div className="sticky top-[73px] z-20 bg-background/95 backdrop-blur-sm border-b border-border/40 py-3 px-4 sm:px-8">
+        <div className="max-w-[1600px] mx-auto flex flex-col gap-2">
+          <div className="flex items-center gap-2 px-1">
+            <Zap className="h-3 w-3 text-muted-foreground" />
+            <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Selecione o Período</h4>
+          </div>
+          <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <Button 
+              variant={viewMode === 'live' ? 'default' : 'outline'}
+              size="sm" 
+              onClick={() => setViewMode('live')}
+              className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9 flex-shrink-0"
+            >
+              <Zap className="h-3.5 w-3.5 mr-1" />
+              REAL
+            </Button>
+            
+            {SHIFT_CONFIG.map((shift) => (
+              <Button 
+                key={shift.id}
+                variant={viewMode === shift.id ? 'default' : 'outline'}
+                size="sm" 
+                onClick={() => setViewMode(shift.id as any)}
+                className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9 flex-shrink-0"
+              >
+                <shift.icon className={cn("h-3.5 w-3.5 mr-1", viewMode === shift.id ? "" : shift.color)} />
+                {shift.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-12">
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">
@@ -79,7 +125,7 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
               <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
               <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Explorador de Registros por Faina</h3>
             </div>
-            <PonteiroDataTable liveData={initialData} viewMode={viewMode} setViewMode={setViewMode} />
+            <PonteiroDataTable liveData={initialData} viewMode={viewMode} />
           </div>
         </section>
       </div>

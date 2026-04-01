@@ -13,11 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Search,
-  Zap,
-  Sun,
-  Sunrise,
-  Moon,
-  CloudMoon,
   Star,
   Filter
 } from "lucide-react";
@@ -29,7 +24,6 @@ import { ViewMode } from '@/components/dashboard/dashboard-content';
 interface DataTableProps {
   liveData: PonteiroData[];
   viewMode: ViewMode;
-  setViewMode: (mode: ViewMode) => void;
 }
 
 const CATEGORY_CONFIG = [
@@ -42,14 +36,14 @@ const CATEGORY_CONFIG = [
   { id: "CONSERTADOR", label: "C", color: "text-green-500" },
 ];
 
-const SHIFT_CONFIG = [
-  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-500' },
-  { id: 'Manhã', label: '07X13', icon: Sunrise, color: 'text-orange-500' },
-  { id: 'Tarde', label: '13X19', icon: Sun, color: 'text-yellow-500' },
-  { id: 'Noite', label: '19X01', icon: Moon, color: 'text-blue-500' },
-] as const;
+const SHIFT_LABELS: Record<string, string> = {
+  'Madrugada': '01X07',
+  'Manhã': '07X13',
+  'Tarde': '13X19',
+  'Noite': '19X01'
+};
 
-export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTableProps) {
+export function PonteiroDataTable({ liveData, viewMode }: DataTableProps) {
   const [preferences, setPreferences] = useState<any[]>([]);
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
@@ -117,39 +111,8 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
       <div className="flex flex-col gap-6">
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
-            <Zap className="h-3 w-3 text-muted-foreground" />
-            <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Período</h4>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              variant={viewMode === 'live' ? 'default' : 'outline'}
-              size="sm" 
-              onClick={() => setViewMode('live')}
-              className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9"
-            >
-              <Zap className="h-3.5 w-3.5 mr-1" />
-              Real
-            </Button>
-            
-            {SHIFT_CONFIG.map((shift) => (
-              <Button 
-                key={shift.id}
-                variant={viewMode === shift.id ? 'default' : 'outline'}
-                size="sm" 
-                onClick={() => setViewMode(shift.id as any)}
-                className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9"
-              >
-                <shift.icon className={cn("h-3.5 w-3.5 mr-1", viewMode === shift.id ? "" : shift.color)} />
-                {shift.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 px-1">
             <Filter className="h-3 w-3 text-muted-foreground" />
-            <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Filtro</h4>
+            <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Filtrar por Categoria</h4>
           </div>
           <div className="flex flex-wrap gap-2">
             {CATEGORY_CONFIG.map((cat) => (
@@ -175,7 +138,7 @@ export function PonteiroDataTable({ liveData, viewMode, setViewMode }: DataTable
           <div className="p-4 bg-muted/20 border-b border-border/50 flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="flex items-center gap-3">
               <h3 className="text-sm font-black uppercase tracking-tight">
-                {viewMode === 'live' ? 'Lista em Tempo Real' : `Histórico: ${SHIFT_CONFIG.find(s => s.id === viewMode)?.label}`}
+                {viewMode === 'live' ? 'Lista em Tempo Real' : `Histórico: ${SHIFT_LABELS[viewMode] || viewMode}`}
               </h3>
             </div>
 
