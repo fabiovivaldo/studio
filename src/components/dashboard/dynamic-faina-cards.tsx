@@ -5,13 +5,8 @@ import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
 import { WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ViewMode } from '@/components/dashboard/dashboard-content';
+import { ViewMode } from '@/app/page';
 import { Badge } from '@/components/ui/badge';
-
-interface DynamicFainaCardsProps {
-  scrapedData: PonteiroData[];
-  selectedShift?: ViewMode;
-}
 
 // Ordem cronológica real do Porto: Madrugada é o início do dia
 const SHIFT_DISPLAY_ORDER = ['Madrugada', 'Manhã', 'Tarde', 'Noite'] as const;
@@ -97,7 +92,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
   }
 
   const labelStyle = "text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest";
-  const tinyLabelStyle = "text-[9px] font-bold text-muted-foreground/40 uppercase";
+  const tinyLabelStyle = "text-[9px] font-bold text-muted-foreground/50 uppercase";
 
   return (
     <div className="space-y-6">
@@ -184,38 +179,45 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           {SHIFT_LABELS[shiftName]}
                           <span className={cn(
                             "ml-1",
-                            shiftData?.sinal === '+' ? "text-green-500" : 
-                            shiftData?.sinal === '-' ? "text-destructive" : ""
+                            shiftData?.sinal === '+' ? "text-green-500 font-black" : 
+                            shiftData?.sinal === '-' ? "text-destructive font-black" : ""
                           )}>
                             {shiftData?.sinal ? `(${shiftData.sinal})` : ''}
                           </span>
                         </span>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <div className="flex flex-col">
-                          <span className={tinyLabelStyle}>
-                            {modoAtivo === 'original' ? 'Pont:' : 'Orig:'}
-                          </span>
-                          <span className={cn(
-                            "text-[10px] font-black",
-                            modoAtivo === 'original' ? "text-foreground text-sm" : "text-primary/70"
-                          )}>
-                            {valO || '--'}
-                          </span>
+                      {/* Exibe os valores apenas se o turno NÃO tiver passado ou se for o turno atual */}
+                      {!isPassed ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1">
+                            <span className={tinyLabelStyle}>
+                              {modoAtivo === 'original' ? 'Pont:' : 'Orig:'}
+                            </span>
+                            <span className={cn(
+                              "text-[10px] font-black",
+                              modoAtivo === 'original' ? "text-foreground text-[11px]" : "text-primary/70"
+                            )}>
+                              {valO || '--'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className={tinyLabelStyle}>
+                              {modoAtivo === 'temporario' ? 'Pont:' : 'Prov:'}
+                            </span>
+                            <span className={cn(
+                              "text-[10px] font-black",
+                              modoAtivo === 'temporario' ? "text-foreground text-[11px]" : "text-primary/70"
+                            )}>
+                              {valT || '--'}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex flex-col">
-                          <span className={tinyLabelStyle}>
-                            {modoAtivo === 'temporario' ? 'Pont:' : 'Prov:'}
-                          </span>
-                          <span className={cn(
-                            "text-[10px] font-black",
-                            modoAtivo === 'temporario' ? "text-foreground text-sm" : "text-primary/70"
-                          )}>
-                            {valT || '--'}
-                          </span>
+                      ) : (
+                        <div className="flex-1 flex items-center justify-center">
+                          <span className="text-[8px] font-black uppercase text-muted-foreground/30 tracking-tighter">Finalizado</span>
                         </div>
-                      </div>
+                      )}
 
                       {isHighlighted && !isPassed && (
                          <div className="mt-auto pt-1 flex items-center justify-center">
@@ -232,4 +234,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       </div>
     </div>
   );
+}
+
+interface DynamicFainaCardsProps {
+  scrapedData: PonteiroData[];
+  selectedShift?: ViewMode;
 }
