@@ -141,13 +141,10 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Faina</span>
                     </div>
                     
-                    {/* Letreiro Rolante (Marquee) */}
-                    <div className="w-full overflow-hidden whitespace-nowrap">
-                      <div className="flex animate-marquee">
-                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
-                          {pref.faina}
-                        </h2>
-                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
+                    {/* Letreiro Rolante (Marquee) - Unificado */}
+                    <div className="w-full overflow-hidden">
+                      <div className="inline-block whitespace-nowrap animate-marquee">
+                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight">
                           {pref.faina}
                         </h2>
                       </div>

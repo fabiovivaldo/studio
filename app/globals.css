@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -61,13 +62,14 @@
 @layer utilities {
   .animate-marquee {
     display: inline-block;
-    animation: marquee 20s linear infinite;
+    padding-left: 100%;
+    animation: marquee 15s linear infinite;
   }
 }
 
 @keyframes marquee {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-100%); }
 }
 
 .animate-pulse-slow {
