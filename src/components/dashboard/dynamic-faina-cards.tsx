@@ -261,25 +261,29 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           </span>
                         </span>
                         {isHighlighted && (
-                          <div className="h-2 w-2 rounded-full bg-primary shrink-0 ml-1" />
+                          <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
                         )}
                       </div>
 
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1">
-                          <span className={labelStyle}>Orig:</span>
+                          <span className={cn(labelStyle, pref.modo !== 'original' && "opacity-40")}>Orig:</span>
                           <span className={cn(
-                            "text-[10px] font-black",
-                            pref.modo === 'original' ? "text-foreground" : "text-primary/70"
+                            "text-[10px] font-black transition-colors",
+                            pref.modo === 'original' 
+                              ? (isHighlighted ? "text-primary" : "text-foreground") 
+                              : "text-muted-foreground/30"
                           )}>
                             {valO || '--'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className={labelStyle}>Pont:</span>
+                          <span className={cn(labelStyle, pref.modo !== 'temporario' && "opacity-40")}>Pont:</span>
                           <span className={cn(
-                            "text-[10px] font-black",
-                            pref.modo === 'temporario' ? "text-foreground" : "text-primary/70"
+                            "text-[10px] font-black transition-colors",
+                            pref.modo === 'temporario' 
+                              ? (isHighlighted ? "text-primary" : "text-foreground") 
+                              : "text-muted-foreground/30"
                           )}>
                             {valT || '--'}
                           </span>
