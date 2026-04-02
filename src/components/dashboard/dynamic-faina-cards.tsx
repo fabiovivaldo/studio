@@ -239,10 +239,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-1.5 relative min-w-0 h-full",
                         !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         hasData && "bg-muted/5 border-border/30",
-                        isHighlighted && !alertType && "ring-2 ring-primary border-primary/50 bg-primary/5",
-                        alertType === 'green' && "ring-2 ring-green-500 border-green-500 bg-green-500/5",
-                        alertType === 'yellow' && "ring-2 ring-yellow-500 border-yellow-500 bg-yellow-500/5",
-                        alertType === 'red' && "ring-2 ring-red-500 border-red-500 bg-red-500/5",
+                        // Seleção do usuário (Contorno Azul externo)
+                        isHighlighted && "ring-2 ring-primary ring-offset-1",
+                        // Alertas de proximidade (Borda e Fundo)
+                        alertType === 'green' && "border-green-500 bg-green-500/5",
+                        alertType === 'yellow' && "border-yellow-500 bg-yellow-500/5",
+                        alertType === 'red' && "border-red-500 bg-red-500/5",
+                        // Destaque base se selecionado mas sem alerta
+                        isHighlighted && alertType === 'none' && "border-primary/50 bg-primary/5",
                         isPassed && "opacity-40 grayscale-[0.5]"
                       )}
                     >
@@ -263,9 +267,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                             {sinal ? `(${sinal})` : ''}
                           </span>
                         </span>
-                        {isHighlighted && (
-                          <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
-                        )}
                       </div>
 
                       <div className="space-y-0.5">
