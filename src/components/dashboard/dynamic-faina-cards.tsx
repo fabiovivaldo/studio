@@ -13,7 +13,7 @@ const SHIFT_WEIGHTS: Record<string, number> = {
   'Manhã': 1,
   'Tarde': 2,
   'Noite': 3,
-  'Madrugada': 0 // Madrugada é o início do dia no Porto
+  'Madrugada': 4
 };
 
 const SHIFT_LABELS: Record<string, string> = {
@@ -70,15 +70,42 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return Object.keys(SHIFT_WEIGHTS).find(s => turnoStr.includes(s)) || null;
   }, [scrapedData]);
 
-  const activeShiftWeight = useMemo(() => {
-    if (!activeShiftFromData) return -1;
-    return SHIFT_WEIGHTS[activeShiftFromData];
-  }, [activeShiftFromData]);
+  // Função para calcular distância considerando teto circular
+  const calculateDistance = (pont: number, chamada: number, sinal: string, tetoStr: string) => {
+    const teto = parseInt(tetoStr) || 0;
+    if (sinal === '+') {
+      let d = chamada - pont;
+      if (d < 0 && teto > 0) d += teto;
+      return d;
+    } else if (sinal === '-') {
+      let d = pont - chamada;
+      if (d < 0 && teto > 0) d += teto;
+      return d;
+    }
+    return 9999;
+  };
 
   const sortedPreferences = useMemo(() => {
     if (!preferences.length) return [];
-    return [...preferences].sort((a, b) => a.faina.localeCompare(b.faina));
-  }, [preferences]);
+    
+    return [...preferences].sort((a, b) => {
+      const liveA = currentScrapedMap.get(a.faina.toUpperCase());
+      const liveB = currentScrapedMap.get(b.faina.toUpperCase());
+
+      const getDist = (pref: any, record: PonteiroData | undefined) => {
+        if (!record) return 9999;
+        const pont = parseInt(pref.tipo === '1' ? record.Temporario_1 : record.Temporario_2) || 0;
+        const chamada = parseInt(pref.chamada) || 0;
+        const dist = calculateDistance(pont, chamada, record.Sinal, pref.teto);
+        return dist < 0 ? 9998 : dist; // Se negativo (passou), vai para o fim
+      };
+
+      const distA = getDist(a, liveA);
+      const distB = getDist(b, liveB);
+
+      return distA - distB;
+    });
+  }, [preferences, currentScrapedMap]);
 
   if (isLoading) {
     return (
@@ -125,15 +152,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 <div className="flex gap-6 min-w-0">
                   <div className="space-y-0.5 shrink-0">
                     <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
-                    <div className={cn(
-                      "text-2xl font-black leading-none tracking-tighter",
-                      isOffline ? "text-muted-foreground" : "text-orange-500"
-                    )}>
+                    <div className="text-2xl font-black leading-none tracking-tighter text-orange-500">
                       {pref.chamada}
                     </div>
                   </div>
                   
-                  <div className="space-y-1 min-w-0 overflow-hidden">
+                  <div className="space-y-1 min-w-0 overflow-hidden flex-1">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="h-4 text-[7px] font-black px-1.5 uppercase border-primary/30 text-primary whitespace-nowrap">
                         {isRegistro ? 'REGISTRO (P1)' : 'CADASTRO (P2)'}
@@ -141,7 +165,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Faina</span>
                     </div>
                     
-                    {/* Letreiro Rolante (Marquee) - Unificado */}
                     <div className="w-full overflow-hidden">
                       <div className="inline-block whitespace-nowrap animate-marquee">
                         <h2 className="text-sm font-black text-foreground uppercase tracking-tight">
@@ -164,6 +187,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 {SHIFT_DISPLAY_ORDER.map((shiftName) => {
                   const isActiveShift = activeShiftFromData === shiftName;
                   const thisShiftWeight = SHIFT_WEIGHTS[shiftName];
+                  const activeShiftWeight = activeShiftFromData ? SHIFT_WEIGHTS[activeShiftFromData] : -1;
                   
                   let valO, valT, sinal;
                   
@@ -184,7 +208,19 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? isActiveShift 
                     : selectedShift === shiftName;
 
-                  // Lógica cronológica do dia no Porto
+                  // Lógica de alerta laranja (proximidade 15 números)
+                  let isNearCall = false;
+                  if (isActiveShift && liveRecord && valT) {
+                    const pontNum = parseInt(valT) || 0;
+                    const chamNum = parseInt(pref.chamada) || 0;
+                    const dist = calculateDistance(pontNum, chamNum, sinal || '+', pref.teto);
+                    
+                    // Alerta se distância entre 1 e 15 (se for 0 ou negativo, já passou)
+                    if (dist > 0 && dist <= 15) {
+                      isNearCall = true;
+                    }
+                  }
+
                   const isPassed = activeShiftWeight !== -1 && thisShiftWeight < activeShiftWeight;
                   const hasData = !!valO || !!valT;
 
@@ -196,13 +232,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         hasData && "bg-muted/5 border-border/30",
                         isHighlighted && "ring-2 ring-primary border-primary/50 bg-primary/5",
+                        isNearCall && "ring-2 ring-orange-500 border-orange-500 bg-orange-500/5",
                         isPassed && "opacity-40 grayscale-[0.5]"
                       )}
                     >
                       <div className="flex items-center justify-between min-w-0">
                         <span className={cn(
                           "text-[9px] font-black uppercase tracking-widest truncate",
-                          isHighlighted ? "text-primary" : "text-muted-foreground/60"
+                          isNearCall ? "text-orange-500" : isHighlighted ? "text-primary" : "text-muted-foreground/60"
                         )}>
                           {SHIFT_LABELS[shiftName]}
                           <span className={cn(
