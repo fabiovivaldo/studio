@@ -5,13 +5,9 @@ import { PonteiroData } from '@/lib/data-service';
 import { Card } from '@/components/ui/card';
 import { WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ViewMode } from '@/app/page';
+import { ViewMode } from '@/components/dashboard/dashboard-content';
 import { Badge } from '@/components/ui/badge';
 
-// Ordem visual solicitada: Madrugada por último
-const SHIFT_DISPLAY_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
-
-// Pesos para lógica de "já passou"
 const SHIFT_CHRONO_WEIGHTS: Record<string, number> = {
   'Madrugada': 0,
   'Manhã': 1,
@@ -19,12 +15,19 @@ const SHIFT_CHRONO_WEIGHTS: Record<string, number> = {
   'Noite': 3
 };
 
+const SHIFT_DISPLAY_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
+
 const SHIFT_LABELS: Record<string, string> = {
   'Madrugada': '01X07',
   'Manhã': '07X13',
   'Tarde': '13X19',
   'Noite': '19X01'
 };
+
+interface DynamicFainaCardsProps {
+  scrapedData: PonteiroData[];
+  selectedShift?: ViewMode;
+}
 
 export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: DynamicFainaCardsProps) {
   const [preferences, setPreferences] = useState<any[]>([]);
@@ -52,8 +55,13 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     };
   }, []);
 
-  const currentScrapedFainas = useMemo(() => {
-    return new Set(scrapedData.map(d => d.Funcao.toUpperCase()));
+  // Mapeia os dados atuais para acesso rápido por Faina
+  const currentScrapedMap = useMemo(() => {
+    const map = new Map<string, PonteiroData>();
+    scrapedData.forEach(d => {
+      map.set(d.Funcao.toUpperCase(), d);
+    });
+    return map;
   }, [scrapedData]);
 
   const activeShiftFromData = useMemo(() => {
@@ -92,15 +100,16 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  const labelStyle = "text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest";
+  const labelStyle = "text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest";
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedPreferences.map((pref) => {
-          const modoAtivo = pref.modo || 'temporario';
           const isRegistro = pref.tipo === '1';
-          const isOffline = !currentScrapedFainas.has(pref.faina.toUpperCase());
+          const fainaUpper = pref.faina.toUpperCase();
+          const liveRecord = currentScrapedMap.get(fainaUpper);
+          const isOffline = !liveRecord;
 
           return (
             <Card key={pref.id} className={cn(
@@ -146,27 +155,39 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
               <div className="px-4 pb-4 grid grid-cols-4 gap-2 w-full">
                 {SHIFT_DISPLAY_ORDER.map((shiftName) => {
-                  const shiftData = historyData.find(d => 
-                    d.funcao === pref.faina && d.dataTurno.includes(shiftName)
-                  );
-
-                  const valO = isRegistro ? shiftData?.original1 : shiftData?.original2;
-                  const valT = isRegistro ? shiftData?.temporario1 : shiftData?.temporario2;
+                  const isActiveShift = activeShiftFromData === shiftName;
                   
+                  // Se for o turno ativo, usa o dado "live". Se não, usa o histórico.
+                  let valO, valT, sinal;
+                  
+                  if (isActiveShift && liveRecord) {
+                    valO = isRegistro ? liveRecord.Original_1 : liveRecord.Original_2;
+                    valT = isRegistro ? liveRecord.Temporario_1 : liveRecord.Temporario_2;
+                    sinal = liveRecord.Sinal;
+                  } else {
+                    const shiftData = historyData.find(d => 
+                      d.funcao.toUpperCase() === fainaUpper && d.dataTurno.includes(shiftName)
+                    );
+                    valO = isRegistro ? shiftData?.original1 : shiftData?.original2;
+                    valT = isRegistro ? shiftData?.temporario1 : shiftData?.temporario2;
+                    sinal = shiftData?.sinal;
+                  }
+
                   const isHighlighted = selectedShift === 'live' 
-                    ? activeShiftFromData === shiftName 
+                    ? isActiveShift 
                     : selectedShift === shiftName;
 
                   const thisShiftWeight = SHIFT_CHRONO_WEIGHTS[shiftName];
                   const isPassed = activeShiftWeight !== -1 && thisShiftWeight < activeShiftWeight;
+                  const hasData = !!valO || !!valT;
 
                   return (
                     <div 
                       key={shiftName} 
                       className={cn(
                         "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-2 relative min-w-0 h-full",
-                        !shiftData && "opacity-20 bg-muted/5 border-dashed border-border/20",
-                        shiftData && "bg-muted/5 border-border/30",
+                        !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
+                        hasData && "bg-muted/5 border-border/30",
                         isHighlighted && "ring-2 ring-primary border-primary/50 bg-primary/5",
                         isPassed && "opacity-40 grayscale-[0.5]"
                       )}
@@ -179,33 +200,29 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           {SHIFT_LABELS[shiftName]}
                           <span className={cn(
                             "ml-1",
-                            shiftData?.sinal === '+' ? "text-green-500" : 
-                            shiftData?.sinal === '-' ? "text-destructive" : ""
+                            sinal === '+' ? "text-green-500" : 
+                            sinal === '-' ? "text-destructive" : ""
                           )}>
-                            {shiftData?.sinal ? `(${shiftData.sinal})` : ''}
+                            {sinal ? `(${sinal})` : ''}
                           </span>
                         </span>
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex items-center gap-1">
-                          <span className={labelStyle}>
-                            {modoAtivo === 'original' ? 'Pont:' : 'Orig:'}
-                          </span>
+                          <span className={labelStyle}>Orig:</span>
                           <span className={cn(
                             "text-[10px] font-black",
-                            modoAtivo === 'original' ? "text-foreground" : "text-primary/70"
+                            pref.modo === 'original' ? "text-foreground" : "text-primary/70"
                           )}>
                             {valO || '--'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className={labelStyle}>
-                            {modoAtivo === 'temporario' ? 'Pont:' : 'Prov:'}
-                          </span>
+                          <span className={labelStyle}>Pont:</span>
                           <span className={cn(
                             "text-[10px] font-black",
-                            modoAtivo === 'temporario' ? "text-foreground" : "text-primary/70"
+                            pref.modo === 'temporario' ? "text-foreground" : "text-primary/70"
                           )}>
                             {valT || '--'}
                           </span>
@@ -227,9 +244,4 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       </div>
     </div>
   );
-}
-
-interface DynamicFainaCardsProps {
-  scrapedData: PonteiroData[];
-  selectedShift?: ViewMode;
 }
