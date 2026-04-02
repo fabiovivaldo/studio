@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -164,9 +163,12 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Faina</span>
                     </div>
                     
-                    <div className="w-full overflow-hidden">
-                      <div className="inline-block whitespace-nowrap animate-marquee">
-                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight">
+                    <div className="w-full overflow-hidden relative">
+                      <div className="animate-marquee whitespace-nowrap flex">
+                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
+                          {pref.faina}
+                        </h2>
+                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
                           {pref.faina}
                         </h2>
                       </div>
