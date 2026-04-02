@@ -70,7 +70,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return Object.keys(SHIFT_WEIGHTS).find(s => turnoStr.includes(s)) || null;
   }, [scrapedData]);
 
-  // Função para calcular distância considerando teto circular
   const calculateDistance = (pont: number, chamada: number, sinal: string, tetoStr: string) => {
     const teto = parseInt(tetoStr) || 0;
     if (sinal === '+') {
@@ -94,10 +93,10 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
       const getDist = (pref: any, record: PonteiroData | undefined) => {
         if (!record) return 9999;
-        const pont = parseInt(pref.tipo === '1' ? record.Temporario_1 : record.Temporario_2) || 0;
+        const pont = parseInt(pref.modo === 'temporario' ? record.Temporario_1 : record.Original_1) || 0;
         const chamada = parseInt(pref.chamada) || 0;
         const dist = calculateDistance(pont, chamada, record.Sinal, pref.teto);
-        return dist < 0 ? 9998 : dist; // Se negativo (passou), vai para o fim
+        return dist < 0 ? 9998 : dist;
       };
 
       const distA = getDist(a, liveA);
@@ -208,16 +207,18 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? isActiveShift 
                     : selectedShift === shiftName;
 
-                  // Lógica de alerta laranja (proximidade 15 números)
-                  let isNearCall = false;
+                  let alertType: 'none' | 'red' | 'yellow' | 'green' = 'none';
                   if (isActiveShift && liveRecord && valT) {
                     const pontNum = parseInt(valT) || 0;
                     const chamNum = parseInt(pref.chamada) || 0;
                     const dist = calculateDistance(pontNum, chamNum, sinal || '+', pref.teto);
                     
-                    // Alerta se distância entre 1 e 15 (se for 0 ou negativo, já passou)
-                    if (dist > 0 && dist <= 15) {
-                      isNearCall = true;
+                    if (dist > 0 && dist <= 10) {
+                      alertType = 'green';
+                    } else if (dist > 0 && dist <= 20) {
+                      alertType = 'yellow';
+                    } else if (dist > 0 && dist <= 30) {
+                      alertType = 'red';
                     }
                   }
 
@@ -232,14 +233,19 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         hasData && "bg-muted/5 border-border/30",
                         isHighlighted && "ring-2 ring-primary border-primary/50 bg-primary/5",
-                        isNearCall && "ring-2 ring-orange-500 border-orange-500 bg-orange-500/5",
+                        alertType === 'green' && "ring-2 ring-green-500 border-green-500 bg-green-500/5",
+                        alertType === 'yellow' && "ring-2 ring-yellow-500 border-yellow-500 bg-yellow-500/5",
+                        alertType === 'red' && "ring-2 ring-red-500 border-red-500 bg-red-500/5",
                         isPassed && "opacity-40 grayscale-[0.5]"
                       )}
                     >
                       <div className="flex items-center justify-between min-w-0">
                         <span className={cn(
                           "text-[9px] font-black uppercase tracking-widest truncate",
-                          isNearCall ? "text-orange-500" : isHighlighted ? "text-primary" : "text-muted-foreground/60"
+                          alertType === 'green' ? "text-green-500" :
+                          alertType === 'yellow' ? "text-yellow-500" :
+                          alertType === 'red' ? "text-red-500" :
+                          isHighlighted ? "text-primary" : "text-muted-foreground/60"
                         )}>
                           {SHIFT_LABELS[shiftName]}
                           <span className={cn(
