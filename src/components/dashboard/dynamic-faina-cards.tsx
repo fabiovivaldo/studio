@@ -71,12 +71,15 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
   const calculateDistance = (pont: number, chamada: number, sinal: string, tetoStr: string) => {
     const teto = parseInt(tetoStr) || 0;
+    const p = pont;
+    const c = chamada;
+
     if (sinal === '+') {
-      let d = chamada - pont;
+      let d = c - p;
       if (d < 0 && teto > 0) d += teto;
       return d;
     } else if (sinal === '-') {
-      let d = pont - chamada;
+      let d = p - c;
       if (d < 0 && teto > 0) d += teto;
       return d;
     }
@@ -95,7 +98,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const pont = parseInt(pref.modo === 'temporario' ? record.Temporario_1 : record.Original_1) || 0;
         const chamada = parseInt(pref.chamada) || 0;
         const dist = calculateDistance(pont, chamada, record.Sinal, pref.teto);
-        return dist < 0 ? 9998 : dist;
+        return dist <= 0 ? 9998 : dist;
       };
 
       const distA = getDist(a, liveA);
@@ -257,6 +260,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                             {sinal ? `(${sinal})` : ''}
                           </span>
                         </span>
+                        {isHighlighted && (
+                          <div className="h-2 w-2 rounded-full bg-primary shrink-0 ml-1" />
+                        )}
                       </div>
 
                       <div className="space-y-0.5">
