@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -16,7 +17,10 @@ import {
   CloudMoon,
   Sunrise,
   Sun,
-  Moon
+  Moon,
+  ChevronDown,
+  ChevronUp,
+  List
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +43,7 @@ const SHIFT_CONFIG = [
 
 export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: DashboardContentProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('live');
+  const [isTableVisible, setIsTableVisible] = useState(false);
 
   return (
     <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-accent/10">
@@ -46,7 +51,7 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
         <div className="flex justify-between items-center max-w-[1600px] mx-auto">
           <div className="flex flex-col gap-1">
             <h1 className="font-headline font-bold text-base sm:text-lg tracking-tight text-foreground">
-              Monitoramento de Ponteiros
+              PonteiroScope
             </h1>
             <Badge variant="secondary" className="w-fit h-5 text-[9px] font-black uppercase tracking-widest bg-green-500/10 text-green-500 border-green-500/20">
               <Zap className="h-2.5 w-2.5 mr-1 fill-green-500" />
@@ -121,11 +126,36 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
 
         <section className="space-y-6">
           <div className="px-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Explorador de Registros por Faina</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Explorador de Registros por Faina</h3>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsTableVisible(!isTableVisible)}
+                className="h-8 rounded-xl font-black text-[9px] uppercase tracking-widest px-3 border-accent/20 text-accent hover:bg-accent/5"
+              >
+                {isTableVisible ? (
+                  <>
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    FECHAR LISTA
+                  </>
+                ) : (
+                  <>
+                    <List className="h-3 w-3 mr-1" />
+                    ABRIR LISTA
+                  </>
+                )}
+              </Button>
             </div>
-            <PonteiroDataTable liveData={initialData} viewMode={viewMode} />
+            
+            {isTableVisible && (
+              <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                <PonteiroDataTable liveData={initialData} viewMode={viewMode} />
+              </div>
+            )}
           </div>
         </section>
       </div>
