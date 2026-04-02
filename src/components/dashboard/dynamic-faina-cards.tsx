@@ -150,7 +150,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               )}></div>
               
               <div className="p-4 flex items-start justify-between gap-4">
-                <div className="flex gap-6 min-w-0">
+                <div className="flex gap-6 min-w-0 flex-1">
                   <div className="space-y-0.5 shrink-0">
                     <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
                     <div className="text-2xl font-black leading-none tracking-tighter text-orange-500">
@@ -168,6 +168,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     
                     <div className="w-full overflow-hidden relative">
                       <div className="animate-marquee whitespace-nowrap flex">
+                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
+                          {pref.faina}
+                        </h2>
                         <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
                           {pref.faina}
                         </h2>
@@ -267,7 +270,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1">
-                          <span className={cn(labelStyle, pref.modo !== 'original' && "opacity-40")}>Orig:</span>
+                          <span className={cn(labelStyle, pref.modo !== 'original' && "opacity-30")}>Orig:</span>
                           <span className={cn(
                             "text-[10px] font-black transition-colors",
                             pref.modo === 'original' 
@@ -278,7 +281,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className={cn(labelStyle, pref.modo !== 'temporario' && "opacity-40")}>Pont:</span>
+                          <span className={cn(labelStyle, pref.modo !== 'temporario' && "opacity-30")}>Pont:</span>
                           <span className={cn(
                             "text-[10px] font-black transition-colors",
                             pref.modo === 'temporario' 
