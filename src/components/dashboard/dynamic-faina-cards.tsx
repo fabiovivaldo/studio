@@ -98,7 +98,10 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const pont = parseInt(pref.modo === 'temporario' ? record.Temporario_1 : record.Original_1) || 0;
         const chamada = parseInt(pref.chamada) || 0;
         const dist = calculateDistance(pont, chamada, record.Sinal, pref.teto);
-        return dist <= 0 ? 9998 : dist;
+        // Prioriza quem está no intervalo 1-30, depois 31+, depois quem já passou
+        if (dist > 0 && dist <= 30) return dist;
+        if (dist > 30) return 1000 + dist;
+        return 5000 + Math.abs(dist);
       };
 
       const distA = getDist(a, liveA);
@@ -153,7 +156,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 <div className="flex gap-6 min-w-0 flex-1">
                   <div className="space-y-0.5 shrink-0">
                     <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
-                    <div className="text-2xl font-black leading-none tracking-tighter text-orange-500">
+                    <div className="text-3xl font-black leading-none tracking-tighter text-orange-500">
                       {pref.chamada}
                     </div>
                   </div>
@@ -171,6 +174,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
                           {pref.faina}
                         </h2>
+                        {/* Duplicado para loop infinito */}
                         <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
                           {pref.faina}
                         </h2>
@@ -239,14 +243,18 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-1.5 relative min-w-0 h-full",
                         !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         hasData && "bg-muted/5 border-border/30",
-                        // Seleção do usuário (Contorno Azul externo)
-                        isHighlighted && "ring-2 ring-primary ring-offset-1",
-                        // Alertas de proximidade (Borda e Fundo)
-                        alertType === 'green' && "border-green-500 bg-green-500/5",
-                        alertType === 'yellow' && "border-yellow-500 bg-yellow-500/5",
-                        alertType === 'red' && "border-red-500 bg-red-500/5",
-                        // Destaque base se selecionado mas sem alerta
-                        isHighlighted && alertType === 'none' && "border-primary/50 bg-primary/5",
+                        
+                        // ALERTA DE PROXIMIDADE (Borda Externa - Destaque Máximo)
+                        alertType === 'green' && "border-green-500 border-[3px] bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.15)]",
+                        alertType === 'yellow' && "border-yellow-500 border-[3px] bg-yellow-500/5 shadow-[0_0_15px_rgba(234,179,8,0.15)]",
+                        alertType === 'red' && "border-red-500 border-[3px] bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.15)]",
+                        
+                        // SELEÇÃO DO USUÁRIO (Contorno Azul Interno)
+                        isHighlighted && "ring-[3px] ring-primary ring-inset ring-offset-0",
+                        
+                        // Fallback de borda se selecionado mas sem alerta
+                        isHighlighted && alertType === 'none' && "border-primary bg-primary/5",
+                        
                         isPassed && "opacity-40 grayscale-[0.5]"
                       )}
                     >
