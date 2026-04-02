@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -9,10 +10,10 @@ import { ViewMode } from '@/components/dashboard/dashboard-content';
 import { Badge } from '@/components/ui/badge';
 
 const SHIFT_WEIGHTS: Record<string, number> = {
-  'Manhã': 0,
-  'Tarde': 1,
-  'Noite': 2,
-  'Madrugada': 3
+  'Manhã': 1,
+  'Tarde': 2,
+  'Noite': 3,
+  'Madrugada': 0 // Madrugada é o início do dia no Porto
 };
 
 const SHIFT_LABELS: Record<string, string> = {
@@ -126,7 +127,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
                     <div className={cn(
                       "text-2xl font-black leading-none tracking-tighter",
-                      isOffline ? "text-muted-foreground" : "text-primary"
+                      isOffline ? "text-muted-foreground" : "text-orange-500"
                     )}>
                       {pref.chamada}
                     </div>
@@ -142,10 +143,14 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     
                     {/* Letreiro Rolante (Marquee) */}
                     <div className="w-full overflow-hidden whitespace-nowrap">
-                      <h2 className="text-sm font-black text-foreground uppercase tracking-tight animate-marquee">
-                        <span className="pr-12">{pref.faina}</span>
-                        <span className="pr-12">{pref.faina}</span>
-                      </h2>
+                      <div className="flex animate-marquee">
+                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
+                          {pref.faina}
+                        </h2>
+                        <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
+                          {pref.faina}
+                        </h2>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -182,6 +187,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     ? isActiveShift 
                     : selectedShift === shiftName;
 
+                  // Lógica cronológica do dia no Porto
                   const isPassed = activeShiftWeight !== -1 && thisShiftWeight < activeShiftWeight;
                   const hasData = !!valO || !!valT;
 
