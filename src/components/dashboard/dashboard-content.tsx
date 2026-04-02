@@ -31,10 +31,10 @@ interface DashboardContentProps {
 export type ViewMode = 'live' | 'Madrugada' | 'Manhã' | 'Tarde' | 'Noite';
 
 const SHIFT_CONFIG = [
-  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-500' },
   { id: 'Manhã', label: '07X13', icon: Sunrise, color: 'text-orange-500' },
   { id: 'Tarde', label: '13X19', icon: Sun, color: 'text-yellow-500' },
   { id: 'Noite', label: '19X01', icon: Moon, color: 'text-blue-500' },
+  { id: 'Madrugada', label: '01X07', icon: CloudMoon, color: 'text-indigo-500' },
 ] as const;
 
 export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: DashboardContentProps) {

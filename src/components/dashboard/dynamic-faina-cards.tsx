@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils';
 import { ViewMode } from '@/app/page';
 import { Badge } from '@/components/ui/badge';
 
-// Ordem cronológica real do Porto: Madrugada é o início do dia
-const SHIFT_DISPLAY_ORDER = ['Madrugada', 'Manhã', 'Tarde', 'Noite'] as const;
+// Ordem visual solicitada: Madrugada por último
+const SHIFT_DISPLAY_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
 
+// Pesos para lógica de "já passou"
 const SHIFT_CHRONO_WEIGHTS: Record<string, number> = {
   'Madrugada': 0,
   'Manhã': 1,
@@ -91,8 +92,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  const labelStyle = "text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest";
-  const tinyLabelStyle = "text-[9px] font-bold text-muted-foreground/50 uppercase";
+  const labelStyle = "text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest";
 
   return (
     <div className="space-y-6">
@@ -115,7 +115,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               <div className="p-4 flex items-start justify-between">
                 <div className="flex gap-6">
                   <div className="space-y-0.5">
-                    <span className={labelStyle}>Chamada</span>
+                    <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
                     <div className={cn(
                       "text-2xl font-black leading-none tracking-tighter",
                       isOffline ? "text-muted-foreground" : "text-primary"
@@ -128,7 +128,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <Badge variant="outline" className="h-4 text-[7px] font-black px-1.5 uppercase border-primary/30 text-primary">
                         {isRegistro ? 'REGISTRO (P1)' : 'CADASTRO (P2)'}
                       </Badge>
-                      <span className={labelStyle}>Faina</span>
+                      <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Faina</span>
                     </div>
                     <h2 className="text-sm font-black text-foreground uppercase tracking-tight truncate max-w-[180px] sm:max-w-[300px]">
                       {pref.faina}
@@ -179,45 +179,38 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           {SHIFT_LABELS[shiftName]}
                           <span className={cn(
                             "ml-1",
-                            shiftData?.sinal === '+' ? "text-green-500 font-black" : 
-                            shiftData?.sinal === '-' ? "text-destructive font-black" : ""
+                            shiftData?.sinal === '+' ? "text-green-500" : 
+                            shiftData?.sinal === '-' ? "text-destructive" : ""
                           )}>
                             {shiftData?.sinal ? `(${shiftData.sinal})` : ''}
                           </span>
                         </span>
                       </div>
 
-                      {/* Exibe os valores apenas se o turno NÃO tiver passado ou se for o turno atual */}
-                      {!isPassed ? (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1">
-                            <span className={tinyLabelStyle}>
-                              {modoAtivo === 'original' ? 'Pont:' : 'Orig:'}
-                            </span>
-                            <span className={cn(
-                              "text-[10px] font-black",
-                              modoAtivo === 'original' ? "text-foreground text-[11px]" : "text-primary/70"
-                            )}>
-                              {valO || '--'}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className={tinyLabelStyle}>
-                              {modoAtivo === 'temporario' ? 'Pont:' : 'Prov:'}
-                            </span>
-                            <span className={cn(
-                              "text-[10px] font-black",
-                              modoAtivo === 'temporario' ? "text-foreground text-[11px]" : "text-primary/70"
-                            )}>
-                              {valT || '--'}
-                            </span>
-                          </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1">
+                          <span className={labelStyle}>
+                            {modoAtivo === 'original' ? 'Pont:' : 'Orig:'}
+                          </span>
+                          <span className={cn(
+                            "text-[10px] font-black",
+                            modoAtivo === 'original' ? "text-foreground" : "text-primary/70"
+                          )}>
+                            {valO || '--'}
+                          </span>
                         </div>
-                      ) : (
-                        <div className="flex-1 flex items-center justify-center">
-                          <span className="text-[8px] font-black uppercase text-muted-foreground/30 tracking-tighter">Finalizado</span>
+                        <div className="flex items-center gap-1">
+                          <span className={labelStyle}>
+                            {modoAtivo === 'temporario' ? 'Pont:' : 'Prov:'}
+                          </span>
+                          <span className={cn(
+                            "text-[10px] font-black",
+                            modoAtivo === 'temporario' ? "text-foreground" : "text-primary/70"
+                          )}>
+                            {valT || '--'}
+                          </span>
                         </div>
-                      )}
+                      </div>
 
                       {isHighlighted && !isPassed && (
                          <div className="mt-auto pt-1 flex items-center justify-center">
