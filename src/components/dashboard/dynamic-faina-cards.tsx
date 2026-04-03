@@ -156,7 +156,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 <div className="flex gap-6 min-w-0 flex-1">
                   <div className="space-y-0.5 shrink-0 text-center">
                     <span className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
-                    <div className="text-lg font-black leading-none tracking-tighter text-orange-500">
+                    <div className="text-xl font-black leading-none tracking-tighter text-orange-500">
                       {pref.chamada}
                     </div>
                   </div>
@@ -241,7 +241,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     <div 
                       key={shiftName} 
                       className={cn(
-                        "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-1 relative min-w-0 h-full",
+                        "rounded-xl p-2 border-2 transition-all flex flex-col items-center text-center justify-center gap-1 relative min-w-0 h-full",
                         !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         hasData && "bg-muted/5 border-border/30",
                         
@@ -255,7 +255,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         isPassed && "opacity-40 grayscale-[0.5]"
                       )}
                     >
-                      <div className="flex flex-col min-w-0">
+                      <div className="flex flex-col items-center min-w-0">
                         <span className={cn(
                           "text-[8px] font-black uppercase tracking-widest truncate leading-none",
                           isHighlighted && alertType === 'none' ? "text-primary" : "text-muted-foreground/60"
@@ -271,7 +271,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         </span>
                       </div>
 
-                      <div className="space-y-0.5 mt-1">
+                      <div className="space-y-0.5 mt-0.5 flex flex-col items-center">
                         <div className="flex items-center gap-1">
                           <span className={cn(labelStyle, pref.modo !== 'original' && "opacity-30")}>Orig:</span>
                           <span className={cn(

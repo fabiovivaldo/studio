@@ -60,7 +60,6 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
         let sinal = match[2].trim();
         
         // Inteligência de sinal: se o temporário é maior que o original, a tendência é (+)
-        // Isso corrige erros onde o site mostra (-) mas a fila está subindo (ex: 92 para 148)
         const nOrig = parseInt(orig1);
         const nTemp = parseInt(temp1);
         if (!isNaN(nOrig) && !isNaN(nTemp)) {
