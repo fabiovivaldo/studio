@@ -28,7 +28,6 @@ function decodeHtmlEntities(text: string): string {
 
 /**
  * Realiza o scraping dos dados de ponteiros do OGMO.
- * Esta função é projetada para rodar em Server Components.
  */
 export async function fetchPonteiroData(): Promise<PonteiroData[]> {
   const url = 'https://www.ogmopgua.com.br/ogmopr/TempHtml/Ponteiros.html';
@@ -43,14 +42,11 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
     if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
     
     const html = await response.text();
-    
-    // Extrai a Data e o Turno (H3)
     const datePattern = /<h3>(.*?)<\/h3>/i;
     const dateMatch = datePattern.exec(html);
     const headerDataRaw = dateMatch ? dateMatch[1].trim() : "Sem Data";
     let headerData = decodeHtmlEntities(headerDataRaw);
 
-    // Regex para capturar as linhas da tabela
     const pattern = /<tr>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/gi;
     
     const data: PonteiroData[] = [];
@@ -58,14 +54,27 @@ export async function fetchPonteiroData(): Promise<PonteiroData[]> {
     
     while ((match = pattern.exec(html)) !== null) {
       const col1 = decodeHtmlEntities(match[1].trim());
-      // Filtra o cabeçalho da tabela se necessário
       if (col1 && col1 !== "Lista" && !col1.includes("Função")) {
+        const orig1 = match[3].trim();
+        const temp1 = match[4].trim();
+        let sinal = match[2].trim();
+        
+        // Inteligência de sinal: se o temporário é maior que o original, a tendência é (+)
+        // Isso corrige erros onde o site mostra (-) mas a fila está subindo (ex: 92 para 148)
+        const nOrig = parseInt(orig1);
+        const nTemp = parseInt(temp1);
+        if (!isNaN(nOrig) && !isNaN(nTemp)) {
+          if (nTemp > nOrig) {
+            sinal = '+';
+          }
+        }
+
         data.push({
           Data_Turno: headerData,
           Funcao: col1,
-          Sinal: match[2].trim(),
-          Original_1: match[3].trim(),
-          Temporario_1: match[4].trim(),
+          Sinal: sinal,
+          Original_1: orig1,
+          Temporario_1: temp1,
           Original_2: match[5].trim(),
           Temporario_2: match[6].trim(),
         });

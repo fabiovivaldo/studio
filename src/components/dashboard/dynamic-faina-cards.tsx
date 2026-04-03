@@ -69,11 +69,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     return Object.keys(SHIFT_WEIGHTS).find(s => turnoStr.includes(s)) || null;
   }, [scrapedData]);
 
-  /**
-   * Calcula a distância considerando o sentido da sequência:
-   * (+) Crescente: Distância = Chamada - Ponteiro
-   * (-) Decrescente: Distância = Ponteiro - Chamada
-   */
   const calculateDistance = (pont: number, chamada: number, sinal: string, tetoStr: string) => {
     const teto = parseInt(tetoStr) || 0;
     const p = pont;
@@ -88,7 +83,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
       if (d < 0 && teto > 0) d += teto;
       return d;
     }
-    return c - p; // Fallback
+    return c - p;
   };
 
   const sortedPreferences = useMemo(() => {
@@ -104,11 +99,8 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
         const chamada = parseInt(pref.chamada) || 0;
         const dist = calculateDistance(pont, chamada, record.Sinal, pref.teto);
         
-        // Prioriza quem está no intervalo 0-30 (quem está para chegar)
         if (dist >= 0 && dist <= 30) return dist;
-        // Depois quem está longe no futuro
         if (dist > 30) return 1000 + dist;
-        // Por último quem já passou (distância negativa)
         return 5000 + Math.abs(dist);
       };
 
@@ -164,7 +156,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                 <div className="flex gap-6 min-w-0 flex-1">
                   <div className="space-y-0.5 shrink-0">
                     <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
-                    <div className="text-3xl font-black leading-none tracking-tighter text-orange-500">
+                    <div className="text-xl font-black leading-none tracking-tighter text-orange-500">
                       {pref.chamada}
                     </div>
                   </div>
@@ -182,7 +174,6 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
                           {pref.faina}
                         </h2>
-                        {/* Duplicado para loop infinito */}
                         <h2 className="text-sm font-black text-foreground uppercase tracking-tight pr-12">
                           {pref.faina}
                         </h2>
@@ -233,17 +224,16 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     const chamNum = parseInt(pref.chamada) || 0;
                     const dist = calculateDistance(pontNum, chamNum, sinal || '+', pref.teto);
                     
-                    // Só alerta se a distância for positiva ou zero (ou seja, ainda não passou)
                     if (dist >= 0) {
-                      if (dist <= 10) {
-                        alertType = 'green';
-                      } else if (dist <= 20) {
-                        alertType = 'yellow';
-                      } else if (dist <= 30) {
-                        alertType = 'red';
-                      }
+                      if (dist <= 10) alertType = 'green';
+                      else if (dist <= 20) alertType = 'yellow';
+                      else if (dist <= 30) alertType = 'red';
                     }
                   }
+
+                  const alertColorClass = alertType === 'green' ? 'text-green-500' :
+                                        alertType === 'yellow' ? 'text-yellow-500' :
+                                        alertType === 'red' ? 'text-red-500' : '';
 
                   const isPassed = activeShiftWeight !== -1 && thisShiftWeight < activeShiftWeight;
 
@@ -255,15 +245,11 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         hasData && "bg-muted/5 border-border/30",
                         
-                        // ALERTA DE PROXIMIDADE (Borda Externa)
                         alertType === 'green' && "border-green-500 border-[3px] bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.15)]",
                         alertType === 'yellow' && "border-yellow-500 border-[3px] bg-yellow-500/5 shadow-[0_0_15px_rgba(234,179,8,0.15)]",
                         alertType === 'red' && "border-red-500 border-[3px] bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.15)]",
                         
-                        // SELEÇÃO DO USUÁRIO (Contorno Azul Interno)
                         isHighlighted && "ring-[3px] ring-primary ring-inset ring-offset-0",
-                        
-                        // Caso selecionado mas sem alerta crítico
                         isHighlighted && alertType === 'none' && "border-primary bg-primary/5",
                         
                         isPassed && "opacity-40 grayscale-[0.5]"
@@ -272,10 +258,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                       <div className="flex items-center justify-between min-w-0">
                         <span className={cn(
                           "text-[9px] font-black uppercase tracking-widest truncate",
-                          alertType === 'green' ? "text-green-500" :
-                          alertType === 'yellow' ? "text-yellow-500" :
-                          alertType === 'red' ? "text-red-500" :
-                          isHighlighted ? "text-primary" : "text-muted-foreground/60"
+                          alertColorClass || (isHighlighted ? "text-primary" : "text-muted-foreground/60")
                         )}>
                           {SHIFT_LABELS[shiftName]}
                           <span className={cn(
@@ -294,7 +277,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <span className={cn(
                             "text-[10px] font-black transition-colors",
                             pref.modo === 'original' 
-                              ? (isHighlighted ? "text-primary" : "text-foreground") 
+                              ? (alertColorClass || (isHighlighted ? "text-primary" : "text-foreground")) 
                               : "text-muted-foreground/30"
                           )}>
                             {valO || '--'}
@@ -305,7 +288,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           <span className={cn(
                             "text-[10px] font-black transition-colors",
                             pref.modo === 'temporario' 
-                              ? (isHighlighted ? "text-primary" : "text-foreground") 
+                              ? (alertColorClass || (isHighlighted ? "text-primary" : "text-foreground")) 
                               : "text-muted-foreground/30"
                           )}>
                             {valT || '--'}
