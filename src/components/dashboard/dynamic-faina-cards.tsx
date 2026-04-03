@@ -131,7 +131,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
     );
   }
 
-  const labelStyle = "text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest";
+  const labelStyle = "text-[8px] font-bold text-muted-foreground/50 uppercase tracking-widest";
 
   return (
     <div className="space-y-6">
@@ -154,9 +154,9 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
               
               <div className="p-4 flex items-start justify-between gap-4">
                 <div className="flex gap-6 min-w-0 flex-1">
-                  <div className="space-y-0.5 shrink-0">
-                    <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
-                    <div className="text-xl font-black leading-none tracking-tighter text-orange-500">
+                  <div className="space-y-0.5 shrink-0 text-center">
+                    <span className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest">Chamada</span>
+                    <div className="text-lg font-black leading-none tracking-tighter text-orange-500">
                       {pref.chamada}
                     </div>
                   </div>
@@ -241,7 +241,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     <div 
                       key={shiftName} 
                       className={cn(
-                        "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-1.5 relative min-w-0 h-full",
+                        "rounded-xl p-2.5 border-2 transition-all flex flex-col gap-1 relative min-w-0 h-full",
                         !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         hasData && "bg-muted/5 border-border/30",
                         
@@ -255,27 +255,27 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         isPassed && "opacity-40 grayscale-[0.5]"
                       )}
                     >
-                      <div className="flex items-center justify-between min-w-0">
+                      <div className="flex flex-col min-w-0">
                         <span className={cn(
-                          "text-[9px] font-black uppercase tracking-widest truncate",
-                          alertColorClass || (isHighlighted ? "text-primary" : "text-muted-foreground/60")
+                          "text-[8px] font-black uppercase tracking-widest truncate leading-none",
+                          isHighlighted && alertType === 'none' ? "text-primary" : "text-muted-foreground/60"
                         )}>
                           {SHIFT_LABELS[shiftName]}
-                          <span className={cn(
-                            "ml-1",
-                            sinal === '+' ? "text-green-500" : 
-                            sinal === '-' ? "text-destructive" : ""
-                          )}>
-                            {sinal ? `(${sinal})` : ''}
-                          </span>
+                        </span>
+                        <span className={cn(
+                          "text-[9px] font-black leading-none mt-1",
+                          sinal === '+' ? "text-green-500" : 
+                          sinal === '-' ? "text-destructive" : "text-muted-foreground/20"
+                        )}>
+                          {sinal ? `(${sinal})` : '--'}
                         </span>
                       </div>
 
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 mt-1">
                         <div className="flex items-center gap-1">
                           <span className={cn(labelStyle, pref.modo !== 'original' && "opacity-30")}>Orig:</span>
                           <span className={cn(
-                            "text-[10px] font-black transition-colors",
+                            "text-[10px] font-black transition-colors leading-none",
                             pref.modo === 'original' 
                               ? (alertColorClass || (isHighlighted ? "text-primary" : "text-foreground")) 
                               : "text-muted-foreground/30"
@@ -286,7 +286,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                         <div className="flex items-center gap-1">
                           <span className={cn(labelStyle, pref.modo !== 'temporario' && "opacity-30")}>Pont:</span>
                           <span className={cn(
-                            "text-[10px] font-black transition-colors",
+                            "text-[10px] font-black transition-colors leading-none",
                             pref.modo === 'temporario' 
                               ? (alertColorClass || (isHighlighted ? "text-primary" : "text-foreground")) 
                               : "text-muted-foreground/30"
