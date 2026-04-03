@@ -273,7 +273,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
 
                       <div className="space-y-0.5 mt-0.5 flex flex-col items-center">
                         <div className="flex items-center gap-1">
-                          <span className={cn(labelStyle, pref.modo !== 'original' && "opacity-30")}>Orig:</span>
+                          <span className={cn(labelStyle, pref.modo !== 'original' && "opacity-30")}>O:</span>
                           <span className={cn(
                             "text-[10px] font-black transition-colors leading-none",
                             pref.modo === 'original' 
@@ -284,7 +284,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className={cn(labelStyle, pref.modo !== 'temporario' && "opacity-30")}>Pont:</span>
+                          <span className={cn(labelStyle, pref.modo !== 'temporario' && "opacity-30")}>P:</span>
                           <span className={cn(
                             "text-[10px] font-black transition-colors leading-none",
                             pref.modo === 'temporario' 
