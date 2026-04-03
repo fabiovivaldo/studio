@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'PonteiroScope | Monitoramento Estratégico',
+  title: 'PONTEIRO | Monitoramento Estratégico',
   description: 'Análise inteligente de ponteiros para OGMO Porto Paranaguá.',
 };
 

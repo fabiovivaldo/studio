@@ -51,7 +51,7 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
         <div className="flex justify-between items-center max-w-[1600px] mx-auto">
           <div className="flex flex-col gap-1">
             <h1 className="font-headline font-bold text-base sm:text-lg tracking-tight text-foreground">
-              PonteiroScope
+              PONTEIRO
             </h1>
             <Badge variant="secondary" className="w-fit h-5 text-[9px] font-black uppercase tracking-widest bg-green-500/10 text-green-500 border-green-500/20">
               <Zap className="h-2.5 w-2.5 mr-1 fill-green-500" />
