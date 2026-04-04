@@ -110,20 +110,9 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
               ))}
             </div>
           </div>
-        </div>
-      </header>
-
-      <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-12">
-        
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 px-1">
-            <HardHat className="h-3.5 w-3.5 text-muted-foreground" />
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Minhas Fainas Prioritárias</h3>
-            <div className="h-px flex-1 bg-border/50"></div>
-          </div>
-
+          
           {/* Legenda de Cores */}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-1">
+          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 px-1">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"></div>
               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Até 10</span>
@@ -136,6 +125,17 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
               <div className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></div>
               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Até 30</span>
             </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-12">
+        
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 px-1">
+            <HardHat className="h-3.5 w-3.5 text-muted-foreground" />
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Minhas Fainas Prioritárias</h3>
+            <div className="h-px flex-1 bg-border/50"></div>
           </div>
 
           <DynamicFainaCards scrapedData={initialData} selectedShift={viewMode} />
