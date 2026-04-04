@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -80,9 +79,10 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
         </div>
       </header>
 
-      {/* Seletor de Período Fixo no Topo */}
-      <div className="sticky top-[73px] z-20 bg-background/95 backdrop-blur-sm border-b border-border/40 py-3 px-4 sm:px-8">
-        <div className="max-w-[1600px] mx-auto flex flex-col gap-2">
+      <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-12">
+        
+        {/* Seletor de Período agora faz parte do conteúdo principal */}
+        <div className="bg-card border border-border/50 rounded-xl p-4 space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Zap className="h-3 w-3 text-muted-foreground" />
             <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Selecione o Período</h4>
@@ -112,9 +112,7 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
             ))}
           </div>
         </div>
-      </div>
 
-      <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-12">
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">
             <HardHat className="h-3.5 w-3.5 text-muted-foreground" />
