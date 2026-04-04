@@ -47,72 +47,74 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
   return (
     <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-accent/10">
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border/50 px-4 sm:px-8 py-4">
-        <div className="flex justify-between items-center max-w-[1600px] mx-auto">
-          <div className="flex flex-col gap-1">
-            <h1 className="font-headline font-bold text-base sm:text-lg tracking-tight text-foreground">
-              PONTEIRO
-            </h1>
-            <Badge variant="secondary" className="w-fit h-5 text-[9px] font-black uppercase tracking-widest bg-green-500/10 text-green-500 border-green-500/20">
-              <Zap className="h-2.5 w-2.5 mr-1 fill-green-500" />
-              Tempo Real
-            </Badge>
+        <div className="max-w-[1600px] mx-auto">
+          <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-1">
+              <h1 className="font-headline font-bold text-base sm:text-lg tracking-tight text-foreground">
+                PONTEIRO
+              </h1>
+              <Badge variant="secondary" className="w-fit h-5 text-[9px] font-black uppercase tracking-widest bg-green-500/10 text-green-500 border-green-500/20">
+                <Zap className="h-2.5 w-2.5 mr-1 fill-green-500" />
+                Tempo Real
+              </Badge>
+            </div>
+            
+            <div className="flex items-center gap-2 sm:gap-4">
+              <ThemeToggle />
+              <FainaPreferencesModal 
+                  availableFainas={uniqueFainas} 
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors">
+                      <Settings className="h-5 w-5" />
+                    </Button>
+                  } 
+              />
+              <div className="hidden lg:flex flex-col items-end mr-4 text-right">
+                  <span className="text-xs text-muted-foreground">Última Atualização</span>
+                  <span className="text-xs font-mono font-bold text-accent whitespace-nowrap">
+                    <LastUpdatedDisplay date={lastUpdatedIso} />
+                  </span>
+              </div>
+              <RefreshButton />
+            </div>
           </div>
           
-          <div className="flex items-center gap-2 sm:gap-4">
-            <ThemeToggle />
-            <FainaPreferencesModal 
-                availableFainas={uniqueFainas} 
-                trigger={
-                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                } 
-            />
-            <div className="hidden lg:flex flex-col items-end mr-4 text-right">
-                <span className="text-xs text-muted-foreground">Última Atualização</span>
-                <span className="text-xs font-mono font-bold text-accent whitespace-nowrap">
-                  <LastUpdatedDisplay date={lastUpdatedIso} />
-                </span>
+          {/* Seletor de Período agora fixo no header */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 px-1 mb-3">
+              <Zap className="h-3 w-3 text-muted-foreground" />
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Selecione o Período</h4>
             </div>
-            <RefreshButton />
+            <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
+              <Button 
+                variant={viewMode === 'live' ? 'default' : 'outline'}
+                size="sm" 
+                onClick={() => setViewMode('live')}
+                className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9 flex-shrink-0"
+              >
+                <Zap className="h-3.5 w-3.5 mr-1" />
+                REAL
+              </Button>
+              
+              {SHIFT_CONFIG.map((shift) => (
+                <Button 
+                  key={shift.id}
+                  variant={viewMode === shift.id ? 'default' : 'outline'}
+                  size="sm" 
+                  onClick={() => setViewMode(shift.id as any)}
+                  className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9 flex-shrink-0"
+                >
+                  <shift.icon className={cn("h-3.5 w-3.5 mr-1", viewMode === shift.id ? "" : shift.color)} />
+                  {shift.label}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       </header>
 
       <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-12">
         
-        {/* Seletor de Período agora faz parte do conteúdo principal */}
-        <div className="bg-card border border-border/50 rounded-xl p-4 space-y-3">
-          <div className="flex items-center gap-2 px-1">
-            <Zap className="h-3 w-3 text-muted-foreground" />
-            <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Selecione o Período</h4>
-          </div>
-          <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <Button 
-              variant={viewMode === 'live' ? 'default' : 'outline'}
-              size="sm" 
-              onClick={() => setViewMode('live')}
-              className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9 flex-shrink-0"
-            >
-              <Zap className="h-3.5 w-3.5 mr-1" />
-              REAL
-            </Button>
-            
-            {SHIFT_CONFIG.map((shift) => (
-              <Button 
-                key={shift.id}
-                variant={viewMode === shift.id ? 'default' : 'outline'}
-                size="sm" 
-                onClick={() => setViewMode(shift.id as any)}
-                className="rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9 flex-shrink-0"
-              >
-                <shift.icon className={cn("h-3.5 w-3.5 mr-1", viewMode === shift.id ? "" : shift.color)} />
-                {shift.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">
             <HardHat className="h-3.5 w-3.5 text-muted-foreground" />
