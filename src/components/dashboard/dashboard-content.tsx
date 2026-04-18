@@ -177,7 +177,25 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
             </div>
             
             {isShipListVisible && (
-              <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-4">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-1">
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-green-500/80"></div>
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Em Andamento</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-yellow-500/80"></div>
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Confirmada</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-pink-500/80"></div>
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">A Confirmar</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-gray-500/80"></div>
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Prático na Lancha</span>
+                    </div>
+                </div>
                 <ShipList />
               </div>
             )}
