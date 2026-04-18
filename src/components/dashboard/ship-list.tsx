@@ -67,13 +67,16 @@ export function ShipList() {
         if (!status) return 'hover:bg-accent/5';
         const s = status.toUpperCase();
         if (s.includes('EM ANDAMENTO')) {
-          return 'bg-green-500/40 hover:bg-green-500/50';
+          return 'bg-green-500/80 hover:bg-green-500/90';
         }
         if (s.includes('CONFIRMADA')) {
-          return 'bg-yellow-500/40 hover:bg-yellow-500/50';
+          return 'bg-yellow-500/80 hover:bg-yellow-500/90';
         }
         if (s.includes('A CONFIRMAR')) {
-          return 'bg-pink-500/40 hover:bg-pink-500/50';
+          return 'bg-pink-500/80 hover:bg-pink-500/90';
+        }
+        if (s.includes('PRÁTICO NA LANCHA')) {
+          return 'bg-gray-500/80 hover:bg-gray-500/90';
         }
         return 'hover:bg-accent/5';
     };
@@ -114,7 +117,7 @@ export function ShipList() {
                         {isUpdating ? 'Atualizando...' : 'Atualizar'}
                     </Button>
                 </div>
-                <div className="h-[600px] w-full overflow-auto">
+                <div className="w-full overflow-auto h-[600px]">
                     <Table>
                         <TableHeader className="bg-muted/30 sticky top-0 z-10">
                             <TableRow>
