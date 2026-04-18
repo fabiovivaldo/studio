@@ -7,13 +7,13 @@ interface DataArchiverProps {
   data: PonteiroData[];
 }
 
-const SHIFT_NAMES = ['Manhã', 'Tarde', 'Noite', 'Madrugada'];
+const SHIFT_NAMES = ['Madrugada', 'Manhã', 'Tarde', 'Noite'];
 
 const SHIFT_IDENTIFIER_MAP: { [key: string]: string } = {
-  'Manhã': 'manha-p1',
-  'Tarde': 'tarde-p2',
-  'Noite': 'noite-p3',
-  'Madrugada': 'madrugada-p4'
+  'Madrugada': 'madrugada-p1',
+  'Manhã': 'manha-p2',
+  'Tarde': 'tarde-p3',
+  'Noite': 'noite-p4'
 };
 
 /**

@@ -9,10 +9,10 @@ import { ViewMode } from '@/components/dashboard/dashboard-content';
 import { Badge } from '@/components/ui/badge';
 
 const SHIFT_WEIGHTS: Record<string, number> = {
-  'Manhã': 1,
-  'Tarde': 2,
-  'Noite': 3,
-  'Madrugada': 4
+  'Madrugada': 1,
+  'Manhã': 2,
+  'Tarde': 3,
+  'Noite': 4
 };
 
 const SHIFT_LABELS: Record<string, string> = {
@@ -22,7 +22,7 @@ const SHIFT_LABELS: Record<string, string> = {
   'Noite': '19X01'
 };
 
-const SHIFT_DISPLAY_ORDER = ['Manhã', 'Tarde', 'Noite', 'Madrugada'] as const;
+const SHIFT_DISPLAY_ORDER = ['Madrugada', 'Manhã', 'Tarde', 'Noite'] as const;
 
 interface DynamicFainaCardsProps {
   scrapedData: PonteiroData[];
