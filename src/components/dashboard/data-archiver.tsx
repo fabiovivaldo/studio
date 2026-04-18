@@ -35,11 +35,8 @@ export function DataArchiver({ data }: DataArchiverProps) {
 
     // Formata os novos registros para armazenamento
     const newRecords = data.map((row) => {
-      const turnoName = row.Data_Turno.includes(' ') 
-        ? row.Data_Turno.split(' ').slice(1).join('_') 
-        : row.Data_Turno;
-
-      const safeId = `${row.Funcao}_${turnoName}`
+      // ID único incluindo a data para evitar colisões entre dias diferentes.
+      const safeId = `${row.Funcao}_${row.Data_Turno}`
         .replace(/[/\\#?%*:.|"<>\s]/g, '_')
         .substring(0, 100);
 
@@ -56,10 +53,15 @@ export function DataArchiver({ data }: DataArchiverProps) {
       };
     });
 
-    // Mescla e limita a 1000 registros para otimizar o LocalStorage
-    // Remove duplicatas baseadas no ID único (Faina + DataTurno)
-    const mergedHistory = [...newRecords, ...history];
-    const uniqueHistory = Array.from(new Map(mergedHistory.map(item => [item.id, item])).values())
+    // Mescla o histórico com novos registros.
+    const mergedHistory = [...history, ...newRecords];
+    
+    // Remove duplicatas baseadas no ID único, garantindo que o registro mais recente (novo) prevaleça.
+    const uniqueHistoryMap = new Map(mergedHistory.map(item => [item.id, item]));
+
+    // Ordena por data de criação (mais novos primeiro) e limita a 1000 registros.
+    const uniqueHistory = Array.from(uniqueHistoryMap.values())
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 1000);
 
     localStorage.setItem('ponteiro_history', JSON.stringify(uniqueHistory));
