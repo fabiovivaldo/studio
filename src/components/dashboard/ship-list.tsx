@@ -67,6 +67,13 @@ export function ShipList() {
     return 'hover:bg-accent/5';
   };
 
+  const getHeaderDisplayName = (header: string) => {
+    if (header.startsWith('MANOBRAS PREVISTAS')) {
+      return 'DATA';
+    }
+    return header;
+  };
+
   if (isLoading) {
     return (
         <div className="flex items-center justify-center p-10 min-h-[300px]">
@@ -95,7 +102,7 @@ export function ShipList() {
                             <TableRow>
                             {headers.map((header) => (
                                 <TableHead key={header} className="py-3 px-4 text-[10px] font-black uppercase whitespace-nowrap">
-                                {header}
+                                {getHeaderDisplayName(header)}
                                 </TableHead>
                             ))}
                             </TableRow>
