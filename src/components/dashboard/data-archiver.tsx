@@ -9,10 +9,17 @@ interface DataArchiverProps {
 
 const SHIFT_NAMES = ['Manhã', 'Tarde', 'Noite', 'Madrugada'];
 
+const SHIFT_IDENTIFIER_MAP: { [key: string]: string } = {
+  'Manhã': 'manha-p1',
+  'Tarde': 'tarde-p2',
+  'Noite': 'noite-p3',
+  'Madrugada': 'madrugada-p4'
+};
+
 /**
- * Componente que arquiva automaticamente os dados raspados no LocalStorage.
- * A lógica agora apaga os dados do período atual e os reescreve para
- * garantir que o histórico seja um reflexo fiel da última atualização.
+ * Componente que arquiva os dados raspados no LocalStorage.
+ * A lógica agora apaga todos os dados do período atual e os reescreve
+ * para garantir que o histórico seja um reflexo fiel da última atualização.
  */
 export function DataArchiver({ data }: DataArchiverProps) {
 
@@ -27,6 +34,9 @@ export function DataArchiver({ data }: DataArchiverProps) {
     // Se o turno não for reconhecido, interrompe a execução.
     if (!currentShift) return;
 
+    const shiftIdentifier = SHIFT_IDENTIFIER_MAP[currentShift];
+    if (!shiftIdentifier) return;
+
     // 2. Carrega o histórico atual do LocalStorage.
     const savedHistory = localStorage.getItem('ponteiro_history');
     let history: any[] = savedHistory ? JSON.parse(savedHistory) : [];
@@ -37,16 +47,16 @@ export function DataArchiver({ data }: DataArchiverProps) {
       (record: any) => record.shift !== currentShift
     );
 
-    // 4. Formata os novos registros para armazenamento, adicionando o campo 'shift'.
+    // 4. Formata os novos registros para armazenamento, adicionando o campo 'shift' e o novo ID.
     const newRecordsForCurrentShift = data.map((row) => ({
-      id: `${row.Funcao}_${currentShift}`, // ID simples para uso no React
+      id: `${row.Funcao}_${shiftIdentifier}`,
       funcao: row.Funcao,
       sinal: row.Sinal,
       original1: row.Original_1,
       temporario1: row.Temporario_1,
       original2: row.Original_2,
       temporario2: row.Temporario_2,
-      dataTurno: row.Data_Turno, // Mantém o texto original para exibição na UI
+      dataTurno: row.Data_Turno,
       shift: currentShift, // Adiciona o turno para facilitar a filtragem
       createdAt: new Date().toISOString()
     }));
