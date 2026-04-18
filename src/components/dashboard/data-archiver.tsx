@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { PonteiroData } from '@/lib/data-service';
 
 interface DataArchiverProps {
@@ -12,22 +12,14 @@ interface DataArchiverProps {
  * Componente que arquiva automaticamente os dados raspados no LocalStorage.
  */
 export function DataArchiver({ data }: DataArchiverProps) {
-  const lastArchivedRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!data.length) return;
 
-    const currentTurno = data[0].Data_Turno;
-    // Chave única baseada na data e turno para evitar duplicatas na mesma sessão
-    const sessionKey = `archived_${currentTurno.replace(/\s+/g, '_')}`;
-    const alreadyArchivedInSession = sessionStorage.getItem(sessionKey);
-
-    if (alreadyArchivedInSession === 'true' || lastArchivedRef.current === currentTurno) {
-      return;
-    }
-
-    lastArchivedRef.current = currentTurno;
-    sessionStorage.setItem(sessionKey, 'true');
+    // A lógica de verificação anterior foi removida.
+    // Ela impedia atualizações se o nome do turno fosse o mesmo,
+    // mesmo que os valores dos ponteiros tivessem mudado.
+    // Agora, os dados são sempre processados para garantir que estejam atualizados.
 
     // Carrega histórico atual do LocalStorage
     const savedHistory = localStorage.getItem('ponteiro_history');

@@ -1,4 +1,5 @@
-no# Firebase Studio
+ nopush
+ # Firebase Studio
 
 This is a NextJS starter in Firebase Studio.
 
