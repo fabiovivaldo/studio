@@ -13,7 +13,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Loader2, AlertTriangle, RefreshCcw } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -115,7 +114,7 @@ export function ShipList() {
                         {isUpdating ? 'Atualizando...' : 'Atualizar'}
                     </Button>
                 </div>
-                <ScrollArea className="h-[600px] w-full">
+                <div className="h-[600px] w-full overflow-auto">
                     <Table>
                         <TableHeader className="bg-muted/30 sticky top-0 z-10">
                             <TableRow>
@@ -138,7 +137,7 @@ export function ShipList() {
                             ))}
                         </TableBody>
                     </Table>
-                </ScrollArea>
+                </div>
             </CardContent>
         </Card>
     );
