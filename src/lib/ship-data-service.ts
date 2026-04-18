@@ -6,6 +6,11 @@ export interface ShipData {
   [key: string]: string;
 }
 
+export interface ShipDataPayload {
+  data: ShipData[];
+  lastUpdated: string | null;
+}
+
 /**
  * Utilitário para decodificar entidades HTML.
  */
@@ -24,7 +29,7 @@ function decodeHtmlEntities(text: string): string {
 /**
  * Realiza o scraping dos dados de previsão de navios do site da Sinprapar.
  */
-export async function fetchShipData(): Promise<ShipData[]> {
+export async function fetchShipData(): Promise<ShipDataPayload> {
   const url = 'https://www.sinprapar.com.br/PREV.HTM';
   try {
     const response = await fetch(url, {
@@ -39,7 +44,7 @@ export async function fetchShipData(): Promise<ShipData[]> {
 
     if (!response.ok) {
       console.error(`Failed to fetch ship data: ${response.statusText}`);
-      return [];
+      return { data: [], lastUpdated: null };
     }
 
     const html = await response.text();
@@ -69,35 +74,45 @@ export async function fetchShipData(): Promise<ShipData[]> {
     }
 
     // 2. Encontrar o índice da linha que serve como cabeçalho da tabela de dados
-    const headerRowIndex = allRows.findIndex(row => row.some(cell => cell === 'Navio' || cell === 'Manobra'));
+    const headerRowIndex = allRows.findIndex(row => row.some(cell => cell.toUpperCase().includes('NAVIO') || cell.toUpperCase().includes('MANOBRA')));
 
     if (headerRowIndex === -1) {
       console.error("Nenhum cabeçalho de navio (Navio, Manobra) encontrado nas tabelas.");
-      return [];
+      return { data: [], lastUpdated: null };
     }
 
-    const headers = allRows[headerRowIndex];
+    const originalHeaders = allRows[headerRowIndex];
+    let lastUpdated: string | null = null;
+    
+    const cleanedHeaders = originalHeaders.map(h => {
+        if (h.toUpperCase().includes('MANOBRAS PREVISTAS')) {
+            lastUpdated = h.replace(/DATA\s*$/i, '').trim();
+            return 'DATA';
+        }
+        return h;
+    });
+    
     const data: ShipData[] = [];
     const dataRows = allRows.slice(headerRowIndex + 1);
 
     // 3. Montar a lista formatada no record key-value
     for (const row of dataRows) {
         // Ignorar lixo (linhas curtas que não fazem parte dessa tabela real)
-        if (row.length !== headers.length) continue;
+        if (row.length !== cleanedHeaders.length) continue;
 
         const record: ShipData = {};
         
-        headers.forEach((header, index) => {
+        cleanedHeaders.forEach((header, index) => {
           record[header] = row[index];
         });
         
         data.push(record);
     }
     
-    return data;
+    return { data, lastUpdated };
 
   } catch (error) {
     console.error("Erro ao buscar ou processar dados dos navios:", error);
-    return [];
+    return { data: [], lastUpdated: null };
   }
 }

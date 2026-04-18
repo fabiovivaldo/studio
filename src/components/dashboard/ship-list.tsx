@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { ShipData } from '@/lib/ship-data-service';
+import React, { useState, useMemo, useEffect, useTransition } from 'react';
+import { ShipData, ShipDataPayload } from '@/lib/ship-data-service';
 import { fetchShipDataAction } from '@/lib/actions';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -12,76 +12,75 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, RefreshCcw } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export function ShipList() {
   const [shipData, setShipData] = useState<ShipData[] | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [isUpdating, startUpdateTransition] = useTransition();
+
+  const handleFetchData = async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
+    setError(null);
+    try {
+      const payload: ShipDataPayload = await fetchShipDataAction();
+      if (payload && payload.data.length > 0) {
+        setShipData(payload.data);
+        setLastUpdated(payload.lastUpdated);
+      } else {
+        setError('Nenhum navio encontrado na previsão.');
+        setShipData(null);
+        setLastUpdated(null);
+      }
+    } catch (e) {
+      console.error(e);
+      setError('Falha ao buscar os dados dos navios.');
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  };
+  
+  const triggerUpdate = () => {
+    startUpdateTransition(async () => {
+        await handleFetchData(false);
+    });
+  };
+
 
   useEffect(() => {
-    const handleFetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await fetchShipDataAction();
-        if (data && data.length > 0) {
-          const headers = Object.keys(data[0]);
-          const updateHeader = headers.find(h => h.startsWith('MANOBRAS PREVISTAS'));
-
-          if (updateHeader) {
-            const updateText = updateHeader.replace(/DATA\s*$/, '').trim();
-            setLastUpdated(updateText);
-          }
-          
-          setShipData(data);
-        } else {
-          setError('Nenhum navio encontrado na previsão.');
-        }
-      } catch (e) {
-        console.error(e);
-        setError('Falha ao buscar os dados dos navios.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     handleFetchData();
   }, []);
 
-  const headers = useMemo(() => {
-    if (!shipData || shipData.length === 0) return [];
-    // Remove colunas indesejadas
+  const { headers, getRowClass } = useMemo(() => {
+    if (!shipData || shipData.length === 0) return { headers: [], getRowClass: () => '' };
+    
     const unwantedColumns = ["Rebocadores", "Indicativo", "Boca"];
-    return Object.keys(shipData[0]).filter(
+    const filteredHeaders = Object.keys(shipData[0]).filter(
       (header) => !unwantedColumns.includes(header)
     );
+
+    const getRowClass = (status: string) => {
+        if (!status) return 'hover:bg-accent/5';
+        const s = status.toUpperCase();
+        if (s.includes('EM ANDAMENTO')) {
+          return 'bg-green-500/10 hover:bg-green-500/20';
+        }
+        if (s.includes('CONFIRMADA')) {
+          return 'bg-yellow-500/10 hover:bg-yellow-500/20';
+        }
+        if (s.includes('A CONFIRMAR')) {
+          return 'bg-pink-500/10 hover:bg-pink-500/20';
+        }
+        return 'hover:bg-accent/5';
+    };
+
+    return { headers: filteredHeaders, getRowClass };
   }, [shipData]);
-
-  const getRowClass = (status: string) => {
-    if (!status) return 'hover:bg-accent/5';
-    const s = status.toUpperCase();
-    if (s.includes('EM ANDAMENTO')) {
-      return 'bg-green-500/10 hover:bg-green-500/20';
-    }
-    if (s.includes('CONFIRMADA')) {
-      return 'bg-yellow-500/10 hover:bg-yellow-500/20';
-    }
-    if (s.includes('A CONFIRMAR')) {
-      return 'bg-pink-500/10 hover:bg-pink-500/20';
-    }
-    return 'hover:bg-accent/5';
-  };
-
-  const getHeaderDisplayName = (header: string) => {
-    if (header.startsWith('MANOBRAS PREVISTAS')) {
-      return 'DATA';
-    }
-    return header;
-  };
 
   if (isLoading) {
     return (
@@ -105,31 +104,31 @@ export function ShipList() {
     return (
         <Card className="border-border/50 bg-card overflow-hidden shadow-lg">
             <CardContent className="p-0">
-                {lastUpdated && (
-                  <div className="p-4 text-xs text-muted-foreground font-bold border-b border-border/50 bg-muted/20 uppercase">
-                    {lastUpdated}
-                  </div>
-                )}
+                <div className="p-4 bg-muted/20 border-b border-border/50 flex justify-between items-center">
+                    {lastUpdated && (
+                        <span className="text-xs text-muted-foreground font-bold uppercase">
+                            {lastUpdated}
+                        </span>
+                    )}
+                    <Button variant="ghost" size="sm" onClick={triggerUpdate} disabled={isUpdating} className="h-8 text-xs font-bold ml-auto">
+                        <RefreshCcw className={`h-3.5 w-3.5 mr-2 ${isUpdating ? 'animate-spin' : ''}`} />
+                        {isUpdating ? 'Atualizando...' : 'Atualizar'}
+                    </Button>
+                </div>
                 <ScrollArea className="h-[600px] w-full">
                     <Table>
                         <TableHeader className="bg-muted/30 sticky top-0 z-10">
                             <TableRow>
                             {headers.map((header) => (
                                 <TableHead key={header} className="py-3 px-4 text-[10px] font-black uppercase whitespace-nowrap">
-                                {getHeaderDisplayName(header)}
+                                {header}
                                 </TableHead>
                             ))}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {shipData.map((row, rowIndex) => (
-                            <TableRow 
-                                key={rowIndex} 
-                                className={cn(
-                                    "transition-colors border-border/40",
-                                    getRowClass(row['Situação'])
-                                )}
-                            >
+                            <TableRow key={rowIndex} className={cn("transition-colors border-border/40", getRowClass(row['Situação']))}>
                                 {headers.map((header) => (
                                 <TableCell key={`${rowIndex}-${header}`} className="text-[11px] font-bold tracking-tight py-2 px-4 whitespace-nowrap">
                                     {row[header]}
