@@ -203,9 +203,18 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     valT = isRegistro ? liveRecord.Temporario_1 : liveRecord.Temporario_2;
                     sinal = liveRecord.Sinal;
                   } else {
-                    const shiftData = historyData.find(d => 
+                    const allShiftData = historyData.filter(d => 
                       d.funcao.toUpperCase() === fainaUpper && d.dataTurno.includes(shiftName)
                     );
+
+                    const shiftData = allShiftData.length > 0 
+                      ? allShiftData.sort((a, b) => {
+                          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                          return timeB - timeA;
+                        })[0] 
+                      : undefined;
+                      
                     valO = isRegistro ? shiftData?.original1 : shiftData?.original2;
                     valT = isRegistro ? shiftData?.temporario1 : shiftData?.temporario2;
                     sinal = shiftData?.sinal;
