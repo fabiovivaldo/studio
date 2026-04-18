@@ -155,7 +155,12 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsShipListVisible(!isShipListVisible)}
-                className="h-8 rounded-xl font-black text-[9px] uppercase tracking-widest px-3 border-accent/20 text-accent hover:bg-accent/5"
+                className={cn(
+                  "h-8 rounded-xl font-black text-[9px] uppercase tracking-widest px-3 transition-all",
+                  isShipListVisible
+                    ? "bg-accent/10 border-accent/70 text-accent shadow-lg shadow-accent/20"
+                    : "border-accent/20 text-accent hover:bg-accent/5"
+                )}
               >
                 {isShipListVisible ? (
                   <>
@@ -190,7 +195,12 @@ export function DashboardContent({ initialData, lastUpdatedIso, uniqueFainas }: 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsTableVisible(!isTableVisible)}
-                className="h-8 rounded-xl font-black text-[9px] uppercase tracking-widest px-3 border-accent/20 text-accent hover:bg-accent/5"
+                className={cn(
+                  "h-8 rounded-xl font-black text-[9px] uppercase tracking-widest px-3 transition-all",
+                  isTableVisible
+                    ? "bg-accent/10 border-accent/70 text-accent shadow-lg shadow-accent/20"
+                    : "border-accent/20 text-accent hover:bg-accent/5"
+                )}
               >
                 {isTableVisible ? (
                   <>
