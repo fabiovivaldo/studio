@@ -67,13 +67,13 @@ export function ShipList() {
         if (!status) return 'hover:bg-accent/5';
         const s = status.toUpperCase();
         if (s.includes('EM ANDAMENTO')) {
-          return 'bg-green-500/10 hover:bg-green-500/20';
+          return 'bg-green-500/20 hover:bg-green-500/30';
         }
         if (s.includes('CONFIRMADA')) {
-          return 'bg-yellow-500/10 hover:bg-yellow-500/20';
+          return 'bg-yellow-500/20 hover:bg-yellow-500/30';
         }
         if (s.includes('A CONFIRMAR')) {
-          return 'bg-pink-500/10 hover:bg-pink-500/20';
+          return 'bg-pink-500/20 hover:bg-pink-500/30';
         }
         return 'hover:bg-accent/5';
     };
