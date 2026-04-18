@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -10,24 +9,30 @@ interface DataArchiverProps {
 
 /**
  * Componente que arquiva automaticamente os dados raspados no LocalStorage.
+ * A lógica agora apaga os dados do período atual e os reescreve para
+ * garantir que o histórico seja um reflexo fiel da última atualização.
  */
 export function DataArchiver({ data }: DataArchiverProps) {
 
   useEffect(() => {
+    // Se não há dados novos, não faz nada.
     if (!data.length) return;
 
-    // A lógica de verificação anterior foi removida.
-    // Ela impedia atualizações se o nome do turno fosse o mesmo,
-    // mesmo que os valores dos ponteiros tivessem mudado.
-    // Agora, os dados são sempre processados para garantir que estejam atualizados.
+    // Pega o identificador do turno atual a partir dos novos dados.
+    const currentDataTurno = data[0].Data_Turno;
 
-    // Carrega histórico atual do LocalStorage
+    // Carrega histórico atual do LocalStorage.
     const savedHistory = localStorage.getItem('ponteiro_history');
     let history = savedHistory ? JSON.parse(savedHistory) : [];
 
-    // Formata os novos registros para armazenamento
-    const newRecords = data.map((row) => {
-      // ID único incluindo a data para evitar colisões entre dias diferentes.
+    // Filtra o histórico, removendo todos os registros do turno atual.
+    // Isso garante que fainas removidas da lista ao vivo também sejam removidas do histórico.
+    const historyOfOtherTurnos = history.filter(
+      (record: any) => record.dataTurno !== currentDataTurno
+    );
+
+    // Formata os novos registros para armazenamento.
+    const newRecordsForCurrentTurno = data.map((row) => {
       const safeId = `${row.Funcao}_${row.Data_Turno}`
         .replace(/[/\\#?%*:.|"<>\s]/g, '_')
         .substring(0, 100);
@@ -45,20 +50,17 @@ export function DataArchiver({ data }: DataArchiverProps) {
       };
     });
 
-    // Mescla o histórico com novos registros.
-    const mergedHistory = [...history, ...newRecords];
+    // Mescla o histórico dos outros turnos com os novos registros do turno atual.
+    const updatedHistory = [...historyOfOtherTurnos, ...newRecordsForCurrentTurno];
     
-    // Remove duplicatas baseadas no ID único, garantindo que o registro mais recente (novo) prevaleça.
-    const uniqueHistoryMap = new Map(mergedHistory.map(item => [item.id, item]));
-
     // Ordena por data de criação (mais novos primeiro) e limita a 1000 registros.
-    const uniqueHistory = Array.from(uniqueHistoryMap.values())
+    const sortedAndSlicedHistory = updatedHistory
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 1000);
 
-    localStorage.setItem('ponteiro_history', JSON.stringify(uniqueHistory));
+    localStorage.setItem('ponteiro_history', JSON.stringify(sortedAndSlicedHistory));
     
-    // Dispara evento global para sincronizar outros componentes
+    // Dispara evento global para sincronizar outros componentes.
     window.dispatchEvent(new Event('ponteiro_history_updated'));
   }, [data]);
 
