@@ -20,6 +20,7 @@ export function ShipList() {
   const [shipData, setShipData] = useState<ShipData[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     const handleFetchData = async () => {
@@ -28,6 +29,14 @@ export function ShipList() {
       try {
         const data = await fetchShipDataAction();
         if (data && data.length > 0) {
+          const headers = Object.keys(data[0]);
+          const updateHeader = headers.find(h => h.startsWith('MANOBRAS PREVISTAS'));
+
+          if (updateHeader) {
+            const updateText = updateHeader.replace(/DATA\s*$/, '').trim();
+            setLastUpdated(updateText);
+          }
+          
           setShipData(data);
         } else {
           setError('Nenhum navio encontrado na previsão.');
@@ -96,6 +105,11 @@ export function ShipList() {
     return (
         <Card className="border-border/50 bg-card overflow-hidden shadow-lg">
             <CardContent className="p-0">
+                {lastUpdated && (
+                  <div className="p-4 text-xs text-muted-foreground font-bold border-b border-border/50 bg-muted/20 uppercase">
+                    {lastUpdated}
+                  </div>
+                )}
                 <ScrollArea className="h-[600px] w-full">
                     <Table>
                         <TableHeader className="bg-muted/30 sticky top-0 z-10">
