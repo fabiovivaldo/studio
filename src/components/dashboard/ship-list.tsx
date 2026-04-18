@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/table';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 export function ShipList() {
   const [shipData, setShipData] = useState<ShipData[] | null>(null);
@@ -44,8 +45,27 @@ export function ShipList() {
 
   const headers = useMemo(() => {
     if (!shipData || shipData.length === 0) return [];
-    return Object.keys(shipData[0]);
+    // Remove colunas indesejadas
+    const unwantedColumns = ["Rebocadores", "Indicativo", "Boca"];
+    return Object.keys(shipData[0]).filter(
+      (header) => !unwantedColumns.includes(header)
+    );
   }, [shipData]);
+
+  const getRowClass = (status: string) => {
+    if (!status) return 'hover:bg-accent/5';
+    const s = status.toUpperCase();
+    if (s.includes('EM ANDAMENTO')) {
+      return 'bg-green-500/10 hover:bg-green-500/20';
+    }
+    if (s.includes('CONFIRMADA')) {
+      return 'bg-yellow-500/10 hover:bg-yellow-500/20';
+    }
+    if (s.includes('A CONFIRMAR')) {
+      return 'bg-pink-500/10 hover:bg-pink-500/20';
+    }
+    return 'hover:bg-accent/5';
+  };
 
   if (isLoading) {
     return (
@@ -82,7 +102,13 @@ export function ShipList() {
                         </TableHeader>
                         <TableBody>
                             {shipData.map((row, rowIndex) => (
-                            <TableRow key={rowIndex} className="hover:bg-accent/5 transition-colors border-border/40">
+                            <TableRow 
+                                key={rowIndex} 
+                                className={cn(
+                                    "transition-colors border-border/40",
+                                    getRowClass(row['Situação'])
+                                )}
+                            >
                                 {headers.map((header) => (
                                 <TableCell key={`${rowIndex}-${header}`} className="text-[11px] font-bold tracking-tight py-2 px-4 whitespace-nowrap">
                                     {row[header]}
