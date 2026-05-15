@@ -228,10 +228,13 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                   const valueToMonitor = pref.modo === 'temporario' ? valT : valO;
 
                   let alertType: 'none' | 'red' | 'yellow' | 'green' = 'none';
+                  let distanceRemaining: number | null = null;
+
                   if (hasData && valueToMonitor) {
                     const pontNum = parseInt(valueToMonitor) || 0;
                     const chamNum = parseInt(pref.chamada) || 0;
                     const dist = calculateDistance(pontNum, chamNum, sinal || '+', pref.teto);
+                    distanceRemaining = dist;
                     
                     if (dist >= 0) {
                       if (dist <= 10) alertType = 'green';
@@ -250,7 +253,7 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                     <div 
                       key={shiftName} 
                       className={cn(
-                        "rounded-xl p-2 border-2 transition-all flex flex-col items-center text-center justify-center gap-1 relative min-w-0 h-full",
+                        "rounded-xl p-2 border-2 transition-all flex flex-col items-center text-center justify-center gap-1 relative min-w-0 h-full pb-4",
                         !hasData && "opacity-20 bg-muted/5 border-dashed border-border/20",
                         hasData && "bg-muted/5 border-border/30",
                         
@@ -304,6 +307,18 @@ export function DynamicFainaCards({ scrapedData, selectedShift = 'live' }: Dynam
                           </span>
                         </div>
                       </div>
+
+                      {/* Diferença que falta (Distância) */}
+                      {alertType !== 'none' && distanceRemaining !== null && (
+                        <div className={cn(
+                          "absolute -bottom-1 left-1/2 -translate-x-1/2 bg-background px-1.5 rounded-full border text-[8px] font-black shadow-sm z-20 whitespace-nowrap",
+                          alertType === 'green' ? "text-green-500 border-green-500/50" :
+                          alertType === 'yellow' ? "text-yellow-500 border-yellow-500/50" :
+                          "text-red-500 border-red-500/50"
+                        )}>
+                          FALTA {distanceRemaining}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
